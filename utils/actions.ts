@@ -153,3 +153,12 @@ export const createPropertyAction = async (
     }
     // redirect('/');
 };
+
+export const createMeetingAction = async (meeting: MeetingType) => {
+    const user = await getAuthUser();
+    try {
+        console.log('meeting', meeting);
+    } catch (error) {
+        return renderError(error);
+    }
+};
