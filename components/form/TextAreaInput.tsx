@@ -6,6 +6,8 @@ type TextAreaInputProps = {
     height?: number;
     labelText?: string;
     defaultValue?: string;
+    placeholder?: string;
+    required?: boolean;
 };
 
 function TextAreaInput({
@@ -13,6 +15,8 @@ function TextAreaInput({
     labelText,
     defaultValue,
     height = 5,
+    placeholder,
+    required = true,
 }: TextAreaInputProps) {
     return (
         <div className='mb-2'>
@@ -24,12 +28,13 @@ function TextAreaInput({
                 name={name}
                 defaultValue={defaultValue || tempDefaultDescription}
                 rows={height}
-                required
+                required={required}
                 className='leading-loose'
+                placeholder={placeholder}
             />
         </div>
     );
 }
 
-const tempDefaultDescription = 'what happened?';
+const tempDefaultDescription = '';
 export default TextAreaInput;

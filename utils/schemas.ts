@@ -95,6 +95,103 @@ export const propertySchema = z.object({
     }),
     amenities: z.string(),
 });
+export const meetingSchema = z
+    .object({
+        title: z
+            .string()
+            .min(2, {
+                message: 'Title must be at least 2 characters.',
+            })
+            .max(50, {
+                message: 'Title must be less than 50 characters.',
+            }),
+        worship: z
+            .string()
+            .nullable()
+            .or(z.literal(''))
+            .refine(
+                (worship) =>
+                    worship === null ||
+                    worship === '' ||
+                    (worship.length >= 2 && worship.length <= 50),
+                {
+                    message:
+                        'Worship identifier must be null, empty, or between 2 and 50 characters.',
+                }
+            ),
+        support_contact: z
+            .string()
+            .nullable()
+            .or(z.literal(''))
+            .refine(
+                (support_contact) =>
+                    support_contact === null ||
+                    support_contact === '' ||
+                    (support_contact.length >= 2 &&
+                        support_contact.length <= 50),
+                {
+                    message:
+                        'Contact must be null, empty, or between 2 and 50 characters.',
+                }
+            ),
+        meal: z
+            .string()
+            .nullable()
+            .or(z.literal(''))
+            .refine(
+                (meal) =>
+                    meal === null ||
+                    meal === '' ||
+                    (meal.length >= 2 && meal.length <= 50),
+                {
+                    message:
+                        'Meal description must be null, empty, or between 2 and 50 characters.',
+                }
+            ),
+        meal_contact: z
+            .string()
+            .nullable()
+            .or(z.literal(''))
+            .refine(
+                (meal) =>
+                    meal === null ||
+                    meal === '' ||
+                    (meal.length >= 2 && meal.length <= 50),
+                {
+                    message:
+                        'Meal provider must be null, empty, or between 2 and 50 characters.',
+                }
+            ),
+        meal_count: z.coerce.number().int().min(0, {
+            message: 'Meals served must be a positive number.',
+        }),
+        meeting_type: z.string(),
+        notes: z
+            .string()
+            .nullable()
+            .or(z.literal(''))
+            .refine(
+                (notes) =>
+                    notes === null ||
+                    notes === '' ||
+                    (notes.length >= 2 && notes.length <= 50),
+                {
+                    message:
+                        'Notes must be null, empty, or between 2 words and 100 characters.',
+                }
+            ),
+        attendance_count: z.coerce.number().int().min(0, {
+            message: 'attendance value must be a positive number.',
+        }),
+        newcomers_count: z.coerce.number().int().min(0, {
+            message: 'newcomers value must be a positive number.',
+        }),
+    })
+    .refine((data) => data.newcomers_count <= data.attendance_count, {
+        message:
+            'Newcomers count must be less than or equal to attendance count.',
+        path: ['newcomers_count'],
+    });
 
 // export const createReviewSchema = z.object({
 //     propertyId: z.string(),

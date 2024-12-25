@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import {
     imageSchema,
+    meetingSchema,
     profileSchema,
     propertySchema,
     validateWithZodSchema,
@@ -153,12 +154,83 @@ export const createPropertyAction = async (
     }
     // redirect('/');
 };
-
-export const createMeetingAction = async (meeting: MeetingType) => {
+export const createMeetingAction = async (
+    prevState: any,
+    formData: FormData
+): Promise<{ message: string }> => {
     const user = await getAuthUser();
     try {
-        console.log('meeting', meeting);
+        const rawData = Object.fromEntries(formData);
+        console.log('rawData\n', rawData);
+        const validatedFields = validateWithZodSchema(meetingSchema, rawData);
+        console.log('validatedFields\n', validatedFields);
+        return { message: 'GOOD' };
+        // return { message: 'Meeting created successfully' };
     } catch (error) {
         return renderError(error);
     }
+    // redirect('/');
 };
+/*
+// printObject('MAPI:209->meeting:', meeting);
+        function convertKeysToSnakeCase(obj) {
+            const newObj = {};
+            for (const key in obj) {
+                const newKey = key
+                    .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+                    .toLowerCase();
+                newObj[newKey] = obj[key];
+            }
+            return newObj;
+        }
+        const snake_meeting = convertKeysToSnakeCase(meeting);
+        try {
+            //********************************
+            //* POST database call
+            //********************************
+            const endPoint = process.env.EXPO_PUBLIC_JERICHO_ENDPOINT;
+            const config = {
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                    Authorization: `Bearer ${apiToken}`,
+                },
+            };
+            const orgId = meeting.organization_id;
+            const body = JSON.stringify(snake_meeting);
+            const api2use = endPoint + '/meeting';
+            axios
+                .post(api2use, body, config)
+                .then((response) => {
+                    if (response.status === 200) {
+                        const savedMeeting = response?.data?.data;
+
+                        const returnMessage = {
+                            status: response.status,
+                            data: savedMeeting,
+                        };
+                        resolve(returnMessage);
+                    } else {
+                        const returnMessage = {
+                            status: response.status,
+                            data: response.data.message,
+                        };
+                        reject(returnMessage);
+                    }
+                })
+                .catch((error) => {
+                    console.error('MAPI:231 meetings API call failed:', error);
+                    const customError: ApiError = {
+                        message: 'Failure getting active meetings.',
+                        details: {
+                            // More specific error details based on the actual error response
+                            ...(error.response && error.response.data),
+                        },
+                    };
+                    reject(customError);
+                });
+        } catch (error) {
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴');
+            console.log('MAPI:286-->error:', error);
+            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴');
+        }
+*/

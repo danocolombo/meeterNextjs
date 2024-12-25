@@ -6,7 +6,7 @@ import MeetingTypeSelectInput from '@/components/form/MeetingTypeSelectInput';
 import NumberInput from '@/components/form/NumberInput';
 import TextAreaInput from '@/components/form/TextAreaInput';
 import { Card } from '@/components/ui/card';
-import { createPropertyAction } from '@/utils/actions';
+import { createMeetingAction, createPropertyAction } from '@/utils/actions';
 import React from 'react';
 
 function CreateMeetingPage() {
@@ -16,22 +16,36 @@ function CreateMeetingPage() {
                 <h1 className='text-2xl font-semibold mb-8 capitalize'>
                     Create Meeting
                 </h1>
-                <FormContainer action={createPropertyAction}>
+                <FormContainer action={createMeetingAction}>
                     <div className='grid md:grid-cols-2 gap-8 mb-4'>
                         <FormInput
                             name='title'
                             type='text'
                             label='Title (20 limit)'
-                            defaultValue='Weekly Meeting'
+                            defaultValue=''
+                            placeholder='Meeting Title'
                         />
                         <MeetingTypeSelectInput />
                     </div>
+                    <div className='grid md:grid-cols-2 gap-8 mb-4'>
+                        <div></div>
+                        <FormInput
+                            name='support_contact'
+                            type='text'
+                            label='Who (20 limit)'
+                            defaultValue=''
+                            placeholder='Who?'
+                            required={false}
+                        />
+                    </div>
+
                     <div className='grid md:grid-cols-2 gap-8 mb-4'>
                         <FormInput
                             name='worship'
                             type='text'
                             label='Music/Worship (20 limit)'
-                            defaultValue='Videos'
+                            placeholder='Videos'
+                            required={false}
                         />
                     </div>
                     <div className='grid md:grid-cols-2 gap-8 mb-4'>
@@ -44,12 +58,16 @@ function CreateMeetingPage() {
                                 type='text'
                                 label='menu (20 limit)'
                                 defaultValue=''
+                                placeholder="What's for dinner?"
+                                required={false}
                             />
                             <FormInput
                                 name='meal_contact'
                                 type='text'
                                 label='menu (20 limit)'
                                 defaultValue=''
+                                placeholder='Who provided the food?'
+                                required={false}
                             />
                             <div className='flex items-center gap-4'>
                                 <p>People Served</p>
@@ -75,13 +93,14 @@ function CreateMeetingPage() {
                                 <TextAreaInput
                                     name='notes'
                                     labelText='Notes (50 limit)'
-                                    defaultValue='What happened...'
+                                    defaultValue=''
                                     height={3}
+                                    placeholder='How did it go?'
+                                    required={false}
                                 />
                             </div>
                         </div>
                     </div>
-                    {/* text area / description */}
                     <SubmitButton text='create meeting' className='mt-5' />
                 </FormContainer>
             </section>

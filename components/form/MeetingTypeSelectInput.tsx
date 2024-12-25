@@ -9,7 +9,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-const name = 'type';
+const name = 'meeting_type';
 function MeetingTypeSelectInput({ defaultValue }: { defaultValue?: string }) {
     return (
         <div className='mb-2'>
