@@ -1,0 +1,35 @@
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+
+type TextAreaInputProps = {
+    name: string;
+    height?: number;
+    labelText?: string;
+    defaultValue?: string;
+};
+
+function TextAreaInput({
+    name,
+    labelText,
+    defaultValue,
+    height = 5,
+}: TextAreaInputProps) {
+    return (
+        <div className='mb-2'>
+            <Label htmlFor={name} className='capitalize'>
+                {labelText || name}
+            </Label>
+            <Textarea
+                id={name}
+                name={name}
+                defaultValue={defaultValue || tempDefaultDescription}
+                rows={height}
+                required
+                className='leading-loose'
+            />
+        </div>
+    );
+}
+
+const tempDefaultDescription = 'what happened?';
+export default TextAreaInput;
