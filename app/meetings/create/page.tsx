@@ -8,7 +8,7 @@ import TextAreaInput from '@/components/form/TextAreaInput';
 import { Card } from '@/components/ui/card';
 import { createMeetingAction, createPropertyAction } from '@/utils/actions';
 import React from 'react';
-
+import { currentUser } from '@clerk/nextjs/server';
 function CreateMeetingPage() {
     return (
         <div>

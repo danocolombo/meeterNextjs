@@ -12,6 +12,8 @@ import db from './db';
 import { revalidatePath } from 'next/cache';
 
 import { uploadImage } from './supabase';
+import { createMeeting, createNewMeeting } from '@/providers/meetings';
+import { MeetingType } from './types';
 
 const renderError = (error: unknown): { message: string } => {
     console.log(error);
@@ -25,6 +27,7 @@ const getAuthUser = async () => {
     if (!user) {
         throw new Error('You must be logged in to access this route');
     }
+
     if (!user.privateMetadata.hasProfile) redirect('/profile/create');
     return user;
 };
@@ -40,6 +43,9 @@ export const createProfileAction = async (
 
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(profileSchema, rawData);
+        const orgId = process.env.MEETER_ORGANIZATION_ID;
+        const orgName = process.env.MEETER_ORGANIZATION_NAME;
+        const orgCode = process.env.MEETER_ORGANIZATION_CODE;
         await db.profile.create({
             data: {
                 clerkId: user.id,
@@ -52,6 +58,11 @@ export const createProfileAction = async (
             privateMetadata: {
                 hasProfile: true,
                 status: 'INITIATED',
+                organization: {
+                    id: orgId,
+                    name: orgName,
+                    code: orgCode,
+                },
             },
         });
     } catch (error) {
@@ -89,6 +100,7 @@ export const fetchProfile = async () => {
             clerkId: user.id,
         },
     });
+
     if (!profile) redirect('/profile/create');
     return profile;
 };
@@ -164,73 +176,18 @@ export const createMeetingAction = async (
         console.log('rawData\n', rawData);
         const validatedFields = validateWithZodSchema(meetingSchema, rawData);
         console.log('validatedFields\n', validatedFields);
-        return { message: 'GOOD' };
-        // return { message: 'Meeting created successfully' };
+        const mType = validatedFields!.meeting_type || 'Other';
+        const meeting: MeetingType = {
+            ...validatedFields,
+            meeting_type: mType,
+        };
+        console.log('meeting\n', meeting);
+        const results: { status: any; data: any } = await createNewMeeting(
+            meeting
+        );
+        return { message: 'Meeting created successfully' };
     } catch (error) {
         return renderError(error);
     }
     // redirect('/');
 };
-/*
-// printObject('MAPI:209->meeting:', meeting);
-        function convertKeysToSnakeCase(obj) {
-            const newObj = {};
-            for (const key in obj) {
-                const newKey = key
-                    .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
-                    .toLowerCase();
-                newObj[newKey] = obj[key];
-            }
-            return newObj;
-        }
-        const snake_meeting = convertKeysToSnakeCase(meeting);
-        try {
-            //********************************
-            //* POST database call
-            //********************************
-            const endPoint = process.env.EXPO_PUBLIC_JERICHO_ENDPOINT;
-            const config = {
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                    Authorization: `Bearer ${apiToken}`,
-                },
-            };
-            const orgId = meeting.organization_id;
-            const body = JSON.stringify(snake_meeting);
-            const api2use = endPoint + '/meeting';
-            axios
-                .post(api2use, body, config)
-                .then((response) => {
-                    if (response.status === 200) {
-                        const savedMeeting = response?.data?.data;
-
-                        const returnMessage = {
-                            status: response.status,
-                            data: savedMeeting,
-                        };
-                        resolve(returnMessage);
-                    } else {
-                        const returnMessage = {
-                            status: response.status,
-                            data: response.data.message,
-                        };
-                        reject(returnMessage);
-                    }
-                })
-                .catch((error) => {
-                    console.error('MAPI:231 meetings API call failed:', error);
-                    const customError: ApiError = {
-                        message: 'Failure getting active meetings.',
-                        details: {
-                            // More specific error details based on the actual error response
-                            ...(error.response && error.response.data),
-                        },
-                    };
-                    reject(customError);
-                });
-        } catch (error) {
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴');
-            console.log('MAPI:286-->error:', error);
-            console.log('🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴');
-        }
-*/
