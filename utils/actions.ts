@@ -43,9 +43,13 @@ export const createProfileAction = async (
 
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(profileSchema, rawData);
+        //=========================================================
+        // define the organization and user role to save in clerk db
+        //=========================================================
         const orgId = process.env.MEETER_ORGANIZATION_ID;
         const orgName = process.env.MEETER_ORGANIZATION_NAME;
         const orgCode = process.env.MEETER_ORGANIZATION_CODE;
+        const userRole = process.env.MEETER_USER_ROLE;
         await db.profile.create({
             data: {
                 clerkId: user.id,
@@ -62,6 +66,7 @@ export const createProfileAction = async (
                     id: orgId,
                     name: orgName,
                     code: orgCode,
+                    role: userRole,
                 },
             },
         });

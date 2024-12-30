@@ -11,13 +11,14 @@ import { currentUser } from '@clerk/nextjs/server';
 import { Card } from '@/components/ui/card';
 async function ProfilePage() {
     const profile = await fetchProfile();
-    const user = await currentUser();
+    const user: any = await currentUser();
     const {
         id: orgId,
         code: orgCode,
         name: orgName,
+        role: role,
     } = user!.privateMetadata.organization;
-
+    console.log('Profile:21-->role:\n', role);
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
@@ -59,6 +60,7 @@ async function ProfilePage() {
                                     <span>id: {orgId}</span>
                                     <span>code: {orgCode}</span>
                                     <span>name: {orgName}</span>
+                                    <span>role: {role}</span>
                                 </div>
                             </Card>
                         </div>
