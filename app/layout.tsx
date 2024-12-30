@@ -18,8 +18,8 @@ import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'HomeAway',
-    description: 'Feel at home, away from home.',
+    title: 'Meeter',
+    description: 'Meeting the needs...',
 };
 
 export default function RootLayout({

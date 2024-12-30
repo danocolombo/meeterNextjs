@@ -7,8 +7,16 @@ import {
 import FormInput from '@/components/form/FormInput';
 import { SubmitButton } from '@/components/form/Buttons';
 import ImageInputContainer from '@/components/form/ImageInputContainer';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card } from '@/components/ui/card';
 async function ProfilePage() {
     const profile = await fetchProfile();
+    const user = await currentUser();
+    const {
+        id: orgId,
+        code: orgCode,
+        name: orgName,
+    } = user!.privateMetadata.organization;
 
     return (
         <section>
@@ -42,6 +50,18 @@ async function ProfilePage() {
                             label='Username'
                             defaultValue={profile.username}
                         />
+                        <div className='flex flex-col p-2'>
+                            <Card className='text-sm text-gray-100 p-4'>
+                                <h2 className='text-lg font-semibold'>
+                                    Organization
+                                </h2>
+                                <div className='flex flex-col'>
+                                    <span>id: {orgId}</span>
+                                    <span>code: {orgCode}</span>
+                                    <span>name: {orgName}</span>
+                                </div>
+                            </Card>
+                        </div>
                     </div>
                     <SubmitButton text='update profile' className='mt-8' />
                 </FormContainer>
