@@ -12,6 +12,8 @@ import { Card } from '@/components/ui/card';
 async function ProfilePage() {
     const profile = await fetchProfile();
     const user: any = await currentUser();
+    console.log('Profile:15-->profile:\n', profile);
+    console.log('Profile:16-->user:\n', user);
     const {
         id: orgId,
         code: orgCode,

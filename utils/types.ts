@@ -69,3 +69,15 @@ export type GroupType = {
     aws_org_id: string | null;
     cofacilitator: string | null;
 };
+
+export type JerichoUserType = {
+    jericho_id: string | null; // id
+    created_at: string | null;
+    updated_at?: string | null;
+    cognito_sub: string | null; // sub
+    username: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    email: string | null;
+    default_org_id?: string | null;
+};

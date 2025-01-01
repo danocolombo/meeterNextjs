@@ -6,6 +6,7 @@ type FormInputProps = {
     type: string;
     label?: string;
     defaultValue?: string;
+    readOnly?: boolean;
     placeholder?: string;
     required?: boolean;
 };
@@ -17,6 +18,7 @@ function FormInput(props: FormInputProps) {
         type,
         defaultValue,
         placeholder,
+        readOnly = false,
         required = true,
     } = props;
     return (
@@ -30,6 +32,7 @@ function FormInput(props: FormInputProps) {
                 type={type}
                 defaultValue={defaultValue}
                 placeholder={placeholder}
+                disabled={readOnly}
                 required={required}
             />
         </div>

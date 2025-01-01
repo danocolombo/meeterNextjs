@@ -13,7 +13,7 @@ import { revalidatePath } from 'next/cache';
 
 import { uploadImage } from './supabase';
 import { createMeeting, createNewMeeting } from '@/providers/meetings';
-import { MeetingType } from './types';
+import { JerichoUserType, MeetingType } from './types';
 
 const renderError = (error: unknown): { message: string } => {
     console.log(error);
@@ -27,49 +27,56 @@ const getAuthUser = async () => {
     if (!user) {
         throw new Error('You must be logged in to access this route');
     }
-
+    //* looking to see if there is a meeter definition in
+    //* the privateMetadata object
     if (!user.privateMetadata.hasProfile) redirect('/profile/create');
     return user;
 };
 
 export const createProfileAction = async (
     prevState: any,
-    formData: FormData
+    formData: FormData,
+    jerichoUser: JerichoUserType
 ) => {
     try {
-        const user = await currentUser();
+        const clerkUser = await currentUser();
 
-        if (!user) throw new Error('Please login to create a profile');
+        if (!clerkUser) throw new Error('Please login to create a profile');
 
         const rawData = Object.fromEntries(formData);
-        const validatedFields = validateWithZodSchema(profileSchema, rawData);
-        //=========================================================
-        // define the organization and user role to save in clerk db
-        //=========================================================
-        const orgId = process.env.MEETER_ORGANIZATION_ID;
-        const orgName = process.env.MEETER_ORGANIZATION_NAME;
-        const orgCode = process.env.MEETER_ORGANIZATION_CODE;
-        const userRole = process.env.MEETER_USER_ROLE;
-        await db.profile.create({
-            data: {
-                clerkId: user.id,
-                email: user.emailAddresses[0].emailAddress,
-                profileImage: user.imageUrl ?? '',
-                ...validatedFields,
-            },
-        });
-        await clerkClient.users.updateUserMetadata(user.id, {
-            privateMetadata: {
-                hasProfile: true,
-                status: 'INITIATED',
-                organization: {
-                    id: orgId,
-                    name: orgName,
-                    code: orgCode,
-                    role: userRole,
-                },
-            },
-        });
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
+        console.log('rawData\n', rawData);
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
+        console.log('jerichoUser\n', jerichoUser);
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
+        // const validatedFields = validateWithZodSchema(profileSchema, rawData);
+        // //=========================================================
+        // // define the organization and user role to save in clerk db
+        // //=========================================================
+        // const orgId = process.env.MEETER_ORGANIZATION_ID;
+        // const orgName = process.env.MEETER_ORGANIZATION_NAME;
+        // const orgCode = process.env.MEETER_ORGANIZATION_CODE;
+        // const userRole = process.env.MEETER_USER_ROLE;
+        // await db.profile.create({
+        //     data: {
+        //         clerkId: user.id,
+        //         email: user.emailAddresses[0].emailAddress,
+        //         profileImage: user.imageUrl ?? '',
+        //         ...validatedFields,
+        //     },
+        // });
+        // await clerkClient.users.updateUserMetadata(user.id, {
+        //     privateMetadata: {
+        //         hasProfile: false,
+        //         status: 'INITIATED',
+        //         organization: {
+        //             id: orgId,
+        //             name: orgName,
+        //             code: orgCode,
+        //             role: userRole,
+        //         },
+        //     },
+        // });
     } catch (error) {
         // return {
         //     message:
@@ -195,4 +202,28 @@ export const createMeetingAction = async (
         return renderError(error);
     }
     // redirect('/');
+};
+export const checkJerichoUser1 = async (email: string) => {
+    const user = {
+        email: email,
+        hasJericho: false,
+    };
+    return { message: 'Jericho user checked successfully' };
+};
+
+export const checkJerichoUser = async (
+    email: string
+): Promise<JerichoUserType> => {
+    const user: JerichoUserType = {
+        jericho_id: '1234',
+        created_at: '2021-09-01',
+        updated_at: '2021-09-01',
+        cognito_sub: '1234',
+        username: 'jdoe',
+        first_name: 'John',
+        last_name: 'Doe',
+        email: email,
+        default_org_id: '1234',
+    };
+    return user;
 };

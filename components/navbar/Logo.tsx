@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { HiHomeModern } from 'react-icons/hi2';
+import { TbCircleLetterMFilled } from 'react-icons/tb';
 import { Button } from '@/components/ui/button';
 function Logo() {
     return (
@@ -9,7 +9,10 @@ function Logo() {
                 href='/'
                 className='flex items-center justify-center bg-primary'
             >
-                <HiHomeModern className='w-full h-full text-accent bg-primary' />
+                <TbCircleLetterMFilled
+                    className='w-full h-full text-accent bg-primary'
+                    size={150}
+                />
             </Link>
         </Button>
     );
