@@ -32,8 +32,48 @@ const getAuthUser = async () => {
     if (!user.privateMetadata.hasProfile) redirect('/profile/create');
     return user;
 };
-
 export const createProfileAction = async (
+    prevState: any,
+    formData: FormData,
+    jerichoUser?: any
+) => {
+    try {
+        const user = await currentUser();
+        if (!user) throw new Error('Please login to create a profile');
+        const rawData = Object.fromEntries(formData);
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
+        console.log('Form Data:', rawData);
+        if (jerichoUser) {
+            console.log('Jericho User:', jerichoUser);
+        }
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
+
+        const validatedFields = validateWithZodSchema(profileSchema, rawData);
+        console.log('validatedFields\n', validatedFields);
+
+        await db.profile.create({
+            data: {
+                clerkId: user.id,
+                email: user.emailAddresses[0].emailAddress,
+                profileImage: user.imageUrl ?? '',
+                ...validatedFields,
+            },
+        });
+        await clerkClient.users.updateUserMetadata(user.id, {
+            privateMetadata: {
+                hasProfile: true,
+            },
+        });
+        return {
+            ...prevState,
+            message: 'Profile created successfully!',
+        };
+    } catch (error) {
+        return renderError(error);
+    }
+    redirect('/');
+};
+export const createProfileActionWED = async (
     prevState: any,
     formData: FormData,
     jerichoUser: JerichoUserType

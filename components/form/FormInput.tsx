@@ -35,6 +35,9 @@ function FormInput(props: FormInputProps) {
                 disabled={readOnly}
                 required={required}
             />
+            {readOnly && (
+                <input type='hidden' name={name} value={defaultValue} />
+            )}
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import FormContainer from '@/components/form/CreateProfileFormContainer';
+import FormContainer from '@/components/form/FormContainer';
 import FormInput from '@/components/form/FormInput';
 import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
@@ -10,7 +10,7 @@ import { JerichoUserType } from '@/utils/types';
 import { fetchJerichoUser } from '@/providers/users';
 import { SubmitButton } from '@/components/form/Buttons';
 
-async function CreateProfilePage() {
+const CreateProfilePage = async () => {
     //* ---------------------------------
     //* get Clerk user data
     //* ---------------------------------
@@ -76,5 +76,5 @@ async function CreateProfilePage() {
             </div>
         </section>
     );
-}
+};
 export default CreateProfilePage;

@@ -12,18 +12,23 @@ const initialState = {
 function FormContainer({
     action,
     children,
+    jerichoUser,
 }: {
     action: actionFunction;
     children: React.ReactNode;
+    jerichoUser?: any;
 }) {
+    const wrappedAction = (prevState: any, formData: FormData) =>
+        jerichoUser
+            ? action(prevState, formData, jerichoUser)
+            : action(prevState, formData);
     const [state, formAction] = useFormState(action, initialState);
     const { toast } = useToast();
     useEffect(() => {
         if (state.message) {
             toast({ description: state.message });
         }
-        console.log('FC:25-->useEffect');
-    }, [state]);
+    }, [state, toast]);
     return <form action={formAction}>{children}</form>;
 }
 export default FormContainer;
