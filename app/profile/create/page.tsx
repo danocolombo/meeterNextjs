@@ -68,7 +68,7 @@ const CreateProfilePage = async () => {
 
                     <SubmitButton
                         text={
-                            jerichoUser.username ? 'Confirm' : 'Create Profile'
+                            jerichoUser.username ? 'Continue' : 'Create Profile'
                         }
                         className='mt-8'
                     />

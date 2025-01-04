@@ -51,19 +51,19 @@ export const createProfileAction = async (
         const validatedFields = validateWithZodSchema(profileSchema, rawData);
         console.log('validatedFields\n', validatedFields);
 
-        await db.profile.create({
-            data: {
-                clerkId: user.id,
-                email: user.emailAddresses[0].emailAddress,
-                profileImage: user.imageUrl ?? '',
-                ...validatedFields,
-            },
-        });
-        await clerkClient.users.updateUserMetadata(user.id, {
-            privateMetadata: {
-                hasProfile: true,
-            },
-        });
+        // await db.profile.create({
+        //     data: {
+        //         clerkId: user.id,
+        //         email: user.emailAddresses[0].emailAddress,
+        //         profileImage: user.imageUrl ?? '',
+        //         ...validatedFields,
+        //     },
+        // });
+        // await clerkClient.users.updateUserMetadata(user.id, {
+        //     privateMetadata: {
+        //         hasProfile: true,
+        //     },
+        // });
         return {
             ...prevState,
             message: 'Profile created successfully!',
