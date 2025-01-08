@@ -1,4 +1,6 @@
 import React from 'react';
+import { GetServerSideProps } from 'next';
+import { serialize } from 'cookie';
 import FormContainer from '@/components/form/FormContainer';
 import FormInput from '@/components/form/FormInput';
 import { currentUser } from '@clerk/nextjs/server';
@@ -9,8 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { JerichoUserType } from '@/utils/types';
 import { fetchJerichoUser } from '@/providers/users';
 import { SubmitButton } from '@/components/form/Buttons';
+import { getSession, startSession, getServerSideProps } from '@/utils/session';
+import axios from 'axios';
 
-const CreateProfilePage = async () => {
+const CreateProfilePage = async (props) => {
+    const session = await getSession();
     //* ---------------------------------
     //* get Clerk user data
     //* ---------------------------------
@@ -31,6 +36,22 @@ const CreateProfilePage = async () => {
     //* -------------------------------------------
     const email: string = user!.emailAddresses[0].emailAddress;
     const jerichoUser: JerichoUserType | any = await fetchJerichoUser(email);
+
+    const sessionInput = { token: '1234567890' };
+    // const response = await axios.post('/api/session/apitoken', sessionInput);
+    const response = await axios.post(
+        `${process.env.DOMAIN}/api/session/apitoken`,
+        sessionInput
+    );
+    console.log('Create session response:\n', response);
+    // //*--------------------------------------------
+    // //* start session
+    // //*--------------------------------------------
+    // await startSession({
+    //     cogId: jerichoUser.cog_id,
+    //     supaId: user!.id,
+    // });
+
     console.log('PCP:34--> jerichoUser:\n', jerichoUser);
     return (
         <section>
@@ -73,6 +94,7 @@ const CreateProfilePage = async () => {
                         className='mt-8'
                     />
                 </FormContainer>
+                <pre>{JSON.stringify(session, null, 2)}</pre>
             </div>
         </section>
     );

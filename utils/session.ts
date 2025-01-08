@@ -2,8 +2,14 @@ import * as jose from 'jose';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { serialize } from 'cookie';
+import { GetServerSideProps } from 'next';
+import { currentUser } from '@clerk/nextjs/server';
+import { checkJerichoUser } from './actions';
+import { JerichoUserType } from './types';
 
-const secretKey = 'secret';
+// const secretKey = 'secret';
+const secretKey = process.env.MEETER_JOSE_SECRET_KEY;
 const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {
@@ -21,20 +27,53 @@ export async function decrypt(input: string): Promise<any> {
     return payload;
 }
 
-export async function login(formData: FormData) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const jerichoUser: JerichoUserType = await checkJerichoUser(
+        'jdoe@gmail.com'
+    );
+    const user = await currentUser();
+
+    const session = await startSession({
+        cogId: jerichoUser.cog_id,
+        supaId: user!.id,
+    });
+    context.res.setHeader(
+        'Set-Cookie',
+        serialize('session', session, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60, // 1 hour
+            path: '/',
+        })
+    );
+
+    return {
+        props: {}, // will be passed to the page component as props
+    };
+};
+
+export async function startSession({
+    cogId,
+    supaId,
+}: {
+    cogId: string;
+    supaId: string;
+}) {
     // Verify credentials && get the user
 
-    const user = { email: formData.get('email'), name: 'John' };
-
+    const user = {
+        cogId,
+        supaId,
+    };
     // Create the session
-    const expires = new Date(Date.now() + 10 * 1000);
+    const expires = new Date(Date.now() + 60 * 1000);
     const session = await encrypt({ user, expires });
 
-    // Save the session in a cookie
-    cookies().set('session', session, { expires, httpOnly: true });
+    console.log('cookie set ....');
+    return session;
 }
 
-export async function logout() {
+export async function endSession() {
     // Destroy the session
     cookies().set('session', '', { expires: new Date(0) });
 }
