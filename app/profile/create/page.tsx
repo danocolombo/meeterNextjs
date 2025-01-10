@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
-import { serialize } from 'cookie';
+// import { serialize } from 'cookie';
 import FormContainer from '@/components/form/FormContainer';
 import FormInput from '@/components/form/FormInput';
 import { currentUser } from '@clerk/nextjs/server';
@@ -14,7 +14,7 @@ import { SubmitButton } from '@/components/form/Buttons';
 import { getSession, startSession, getServerSideProps } from '@/utils/session';
 import axios from 'axios';
 
-const CreateProfilePage = async (props) => {
+const CreateProfilePage = async (props: any) => {
     const session = await getSession();
     //* ---------------------------------
     //* get Clerk user data
@@ -38,19 +38,32 @@ const CreateProfilePage = async (props) => {
     const jerichoUser: JerichoUserType | any = await fetchJerichoUser(email);
 
     const sessionInput = { token: '1234567890' };
-    // const response = await axios.post('/api/session/apitoken', sessionInput);
-    const response = await axios.post(
-        `${process.env.DOMAIN}/api/session/apitoken`,
-        sessionInput
-    );
-    console.log('Create session response:\n', response);
-    // //*--------------------------------------------
-    // //* start session
-    // //*--------------------------------------------
-    // await startSession({
-    //     cogId: jerichoUser.cog_id,
-    //     supaId: user!.id,
-    // });
+    try {
+        const res = await fetch('http://localhost:3000/api/session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify(sessionInput),
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const jsonData = await res.json();
+        console.log(jsonData);
+    } catch (error: any) {
+        console.error(error);
+    }
+    // try {
+    //     const response = await axios.post('/api/users/login', user);
+
+    //     console.log('Session created:', response.data);
+    // } catch (error) {
+    //     console.error('Error creating session:', error);
+    // }
 
     console.log('PCP:34--> jerichoUser:\n', jerichoUser);
     return (
