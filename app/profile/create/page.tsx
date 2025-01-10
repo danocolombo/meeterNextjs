@@ -1,26 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
-// import { serialize } from 'cookie';
 import FormContainer from '@/components/form/FormContainer';
 import FormInput from '@/components/form/FormInput';
 import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { createProfileAction, checkJerichoUser } from '@/utils/actions';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { JerichoUserType } from '@/utils/types';
 import { fetchJerichoUser } from '@/providers/users';
 import { SubmitButton } from '@/components/form/Buttons';
-import { getSession, startSession, getServerSideProps } from '@/utils/session';
 import axios from 'axios';
+import { SessionPayloadType } from '@/types/types';
 
+/*
+userId: string;
+    username?: string;
+    userEmail?: string;
+    clerkId?: string;
+    cognitoSub?: string;
+    meeterUserRole?: string;
+    meeterClientId?: string;
+    cognitoToken?: string;
+    jerichoToken?: string;
+    expiresAt?: Date;
+*/
 const CreateProfilePage = async (props: any) => {
-    const session = await getSession();
     //* ---------------------------------
     //* get Clerk user data
     //* ---------------------------------
     const user = await currentUser();
-    // console.log('user', user);
+    console.log('user', user);
     //* -------------------------------------------
     //* check if privateMetadata has meeter defs
     //* -------------------------------------------
@@ -107,7 +116,6 @@ const CreateProfilePage = async (props: any) => {
                         className='mt-8'
                     />
                 </FormContainer>
-                <pre>{JSON.stringify(session, null, 2)}</pre>
             </div>
         </section>
     );
