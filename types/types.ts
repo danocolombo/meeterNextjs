@@ -6,7 +6,10 @@ export interface SessionPayloadType {
     clerkId?: string;
     cognitoSub?: string;
     meeterUserRole?: string;
-    meeterClientId?: string;
+    orgId?: string;
+    orgCode?: string;
+    orgName?: string;
+    orgRole?: string;
     cognitoToken?: string;
     jerichoToken?: string;
     expiresAt?: Date;
