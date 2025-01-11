@@ -51,7 +51,7 @@ const CreateProfilePage = async (props: any) => {
     };
     console.log('PCP:26--> variables:\n', variables);
     //* -------------------------------------------
-    //* login to cognito
+    //* set cookies
     //* -------------------------------------------
 
     //* -------------------------------------------
