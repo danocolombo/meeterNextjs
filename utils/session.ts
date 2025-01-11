@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { serialize } from 'cookie';
 import { GetServerSideProps } from 'next';
 import { currentUser } from '@clerk/nextjs/server';
-import { checkJerichoUser } from './actions';
-import { JerichoUserType } from './types';
+import { checkJerichoUser } from '@/utils/actions';
+import { JerichoUserType } from '@/utils/types';
+import { encryptValue, decryptValue } from '@/utils/encryption';
 
 // const secretKey = 'secret';
 const secretKey = process.env.MEETER_JOSE_SECRET_KEY;
@@ -99,4 +100,16 @@ export async function updateSession(request: NextRequest) {
         expires: parsed.expires,
     });
     return res;
+}
+
+export async function testEncryption() {
+    const payload = 'This is test data';
+    const encrypted = await encryptValue(payload);
+    const decrypted = await decryptValue(encrypted);
+
+    if (decrypted === payload) {
+        return 'Encryption works!';
+    } else {
+        return 'Encryption failed!';
+    }
 }

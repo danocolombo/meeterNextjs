@@ -49,7 +49,7 @@ const CreateProfilePage = async (props: any) => {
         orgRole: user?.privateMetadata.organization.role,
         expiresAt: new Date(),
     };
-    console.log('PCP:26--> variables:\n', variables);
+    console.log('PCP:26--> SessionPayload object:\n', variables);
     //* -------------------------------------------
     //* set cookies
     //* -------------------------------------------
@@ -98,7 +98,6 @@ const CreateProfilePage = async (props: any) => {
     //     console.error('Error creating session:', error);
     // }
 
-    console.log('PCP:34--> jerichoUser:\n', jerichoUser);
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
