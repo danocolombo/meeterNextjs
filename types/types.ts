@@ -1,9 +1,9 @@
 // Define the session payload structure
 export interface SessionPayloadType {
-    userId: string;
+    clerkId: string;
     username?: string;
     userEmail?: string;
-    clerkId?: string;
+    jerichoId?: string;
     cognitoSub?: string;
     meeterUserRole?: string;
     orgId?: string;

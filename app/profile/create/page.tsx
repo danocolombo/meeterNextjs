@@ -14,10 +14,10 @@ import { SessionPayloadType } from '@/types/types';
 
 /*
 userId: string;
-    userId: string;
+    clerkId: string;
     username?: string;
     userEmail?: string;
-    clerkId?: string;
+    jerichoId?: string;
     cognitoSub?: string;
     meeterUserRole?: string;
     orgId?: string;
@@ -33,7 +33,7 @@ const CreateProfilePage = async (props: any) => {
     //* get Clerk user data
     //* ---------------------------------
     const user = await currentUser();
-    console.log('clerk_current_user\n', user);
+    // console.log('clerk_current_user\n', user);
     const primaryEmailAddressId = user?.primaryEmailAddressId;
     const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
         (email) => {
@@ -41,9 +41,8 @@ const CreateProfilePage = async (props: any) => {
         }
     );
     let variables: SessionPayloadType = {
-        userId: user?.id,
-        userEmail: clerkPrimaryEmailAddress.emailAddress,
         clerkId: user?.id,
+        userEmail: clerkPrimaryEmailAddress.emailAddress,
         orgId: user?.privateMetadata.organization.id,
         orgCode: user?.privateMetadata.organization.code,
         orgName: user?.privateMetadata.organization.name,
@@ -51,6 +50,10 @@ const CreateProfilePage = async (props: any) => {
         expiresAt: new Date(),
     };
     console.log('PCP:26--> variables:\n', variables);
+    //* -------------------------------------------
+    //* login to cognito
+    //* -------------------------------------------
+
     //* -------------------------------------------
     //* check if privateMetadata has meeter defs
     //* -------------------------------------------
