@@ -70,9 +70,9 @@ const CreateProfilePage = async (props: any) => {
     const email: string = user!.emailAddresses[0].emailAddress;
     const jerichoUser: JerichoUserType | any = await fetchJerichoUser(email);
 
-    const sessionInput = { token: '1234567890' };
+    const sessionInput = { token: '12345678910' };
     try {
-        const res = await fetch('http://localhost:3000/api/session', {
+        const res = await fetch('/api/session', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
