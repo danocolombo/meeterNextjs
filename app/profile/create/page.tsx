@@ -29,6 +29,7 @@ userId: string;
     expiresAt?: Date;
 */
 const CreateProfilePage = async (props: any) => {
+    redirect('/test');
     //* ---------------------------------
     //* get Clerk user data
     //* ---------------------------------
@@ -50,6 +51,29 @@ const CreateProfilePage = async (props: any) => {
         expiresAt: new Date(),
     };
     console.log('PCP:26--> SessionPayload object:\n', variables);
+
+    // const fetchFromApi = async () => {
+    //     console.log('fetching');
+    //     try {
+    //         setLoading(true);
+    //         setError(null);
+    //         const res = await fetch('/api/user/2', {
+    //             method: 'GET',
+    //             headers: {
+    //                 Accept: 'application/json',
+    //             },
+    //         });
+    //         const jsonData = await res.json();
+    //         setData(jsonData);
+    //         console.log(jsonData);
+    //     } catch (error: any) {
+    //         console.error(error);
+    //         setError(error.message);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     //* -------------------------------------------
     //* set cookies
     //* -------------------------------------------
@@ -72,21 +96,22 @@ const CreateProfilePage = async (props: any) => {
 
     const sessionInput = { token: '12345678910' };
     try {
-        const res = await fetch('/api/session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify(sessionInput),
-        });
+        console.log('PCP:103-->POST HERE');
+        // const res = await fetch('/api/session', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         Accept: 'application/json',
+        //     },
+        //     body: JSON.stringify(sessionInput),
+        // });
 
-        if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        // if (!res.ok) {
+        //     throw new Error(`HTTP error! status: ${res.status}`);
+        // }
 
-        const jsonData = await res.json();
-        console.log(jsonData);
+        // const jsonData = await res.json();
+        // console.log(jsonData);
     } catch (error: any) {
         console.error(error);
     }
