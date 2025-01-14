@@ -1,17 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { GetServerSideProps } from 'next';
-import FormContainer from '@/components/form/FormContainer';
-import FormInput from '@/components/form/FormInput';
-import { currentUser } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { createProfileAction, checkJerichoUser } from '@/utils/actions';
-import { useToast } from '@/hooks/use-toast';
-import { JerichoUserType } from '@/utils/types';
-import { fetchJerichoUser } from '@/providers/users';
-import { SubmitButton } from '@/components/form/Buttons';
-import axios from 'axios';
+'use client';
+// import { currentUser } from '@clerk/nextjs/server';
+import { useUser } from '@clerk/clerk-react';
+import React from 'react';
 import { SessionPayloadType } from '@/types/types';
-
+import { getAuthUser } from '@/utils/jericho';
 /*
 userId: string;
     clerkId: string;
@@ -28,144 +20,42 @@ userId: string;
     jerichoToken?: string;
     expiresAt?: Date;
 */
-const CreateProfilePage = async (props: any) => {
-    redirect('/test');
-    //* ---------------------------------
-    //* get Clerk user data
-    //* ---------------------------------
-    const user = await currentUser();
-    // console.log('clerk_current_user\n', user);
-    const primaryEmailAddressId = user?.primaryEmailAddressId;
-    const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
-        (email) => {
-            return email.id === primaryEmailAddressId;
-        }
-    );
-    let variables: SessionPayloadType = {
-        clerkId: user?.id,
-        userEmail: clerkPrimaryEmailAddress.emailAddress,
-        orgId: user?.privateMetadata.organization.id,
-        orgCode: user?.privateMetadata.organization.code,
-        orgName: user?.privateMetadata.organization.name,
-        orgRole: user?.privateMetadata.organization.role,
-        expiresAt: new Date(),
-    };
-    console.log('PCP:26--> SessionPayload object:\n', variables);
+async function CreateProfilePage() {
+    //Server side rendering
+    // const user = await currentUser();
+    const { isSignedIn, user, isLoaded } = await useUser();
+    console.log('PCP:27--> isSignedIn:\n', isSignedIn);
+    console.log('PCP:28--> user:\n', user);
+    console.log('PCP:29--> isLoaded:\n', isLoaded);
 
-    // const fetchFromApi = async () => {
-    //     console.log('fetching');
-    //     try {
-    //         setLoading(true);
-    //         setError(null);
-    //         const res = await fetch('/api/user/2', {
-    //             method: 'GET',
-    //             headers: {
-    //                 Accept: 'application/json',
-    //             },
-    //         });
-    //         const jsonData = await res.json();
-    //         setData(jsonData);
-    //         console.log(jsonData);
-    //     } catch (error: any) {
-    //         console.error(error);
-    //         setError(error.message);
-    //     } finally {
-    //         setLoading(false);
+    // const primaryEmailAddressId = user?.primaryEmailAddressId;
+    // const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
+    //     (email) => {
+    //         return email.id === primaryEmailAddressId;
     //     }
+    // );
+    // let variables: SessionPayloadType = {
+    //     clerkId: user?.id,
+    //     cognitoSub: user?.privateMetadata.cognitoSub,
+    //     userEmail: clerkPrimaryEmailAddress.emailAddress,
+    //     orgId: user?.privateMetadata.organization.id,
+    //     orgCode: user?.privateMetadata.organization.code,
+    //     orgName: user?.privateMetadata.organization.name,
+    //     orgRole: user?.privateMetadata.organization.role,
+    //     expiresAt: new Date(),
     // };
+    // console.log('PCP:26--> SessionPayload object:\n', variables);
+    // const jerichoUser = await fetch(`/api/users/${variables?.cognitoSub}`, {
+    //     method: 'GET',
+    //     headers: {
+    //         Accept: 'application/json',
+    //     },
+    // });
+    // const res = await getAuthUser();
 
-    //* -------------------------------------------
-    //* set cookies
-    //* -------------------------------------------
+    // console.log('PCP:46--> res:\n', res);
 
-    //* -------------------------------------------
-    //* check if privateMetadata has meeter defs
-    //* -------------------------------------------
-    // if the user has created a profile, redirect them to the home page
-    if (user?.privateMetadata.hasProfile) {
-        //* do not allow create profile if
-        //* user has already created one
-        redirect('/');
-    }
-    //* -------------------------------------------
-    //* still here, need to check if there is Jericho
-    //* record for this user (MySQL).
-    //* -------------------------------------------
-    const email: string = user!.emailAddresses[0].emailAddress;
-    const jerichoUser: JerichoUserType | any = await fetchJerichoUser(email);
+    return <div>CreateProfilePage</div>;
+}
 
-    const sessionInput = { token: '12345678910' };
-    try {
-        console.log('PCP:103-->POST HERE');
-        // const res = await fetch('/api/session', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         Accept: 'application/json',
-        //     },
-        //     body: JSON.stringify(sessionInput),
-        // });
-
-        // if (!res.ok) {
-        //     throw new Error(`HTTP error! status: ${res.status}`);
-        // }
-
-        // const jsonData = await res.json();
-        // console.log(jsonData);
-    } catch (error: any) {
-        console.error(error);
-    }
-    // try {
-    //     const response = await axios.post('/api/users/login', user);
-
-    //     console.log('Session created:', response.data);
-    // } catch (error) {
-    //     console.error('Error creating session:', error);
-    // }
-
-    return (
-        <section>
-            <h1 className='text-2xl font-semibold mb-8 capitalize'>
-                {jerichoUser.username ? 'Confirm Profile' : 'Create Profile'}
-            </h1>
-            <div className='border p-8 rounded-md'>
-                <FormContainer
-                    action={createProfileAction}
-                    jerichoUser={jerichoUser}
-                >
-                    <div className='grid md:grid-cols-2 gap-4'>
-                        <FormInput
-                            label='First Name'
-                            name='firstName'
-                            defaultValue={jerichoUser.first_name}
-                            readOnly={jerichoUser.first_name ? true : false}
-                            type='text'
-                        />
-                        <FormInput
-                            label='Last Name'
-                            name='lastName'
-                            defaultValue={jerichoUser.last_name}
-                            readOnly={jerichoUser.last_name ? true : false}
-                            type='text'
-                        />
-                        <FormInput
-                            label='Username'
-                            name='username'
-                            defaultValue={jerichoUser.username}
-                            readOnly={jerichoUser.username ? true : false}
-                            type='text'
-                        />
-                    </div>
-
-                    <SubmitButton
-                        text={
-                            jerichoUser.username ? 'Continue' : 'Create Profile'
-                        }
-                        className='mt-8'
-                    />
-                </FormContainer>
-            </div>
-        </section>
-    );
-};
 export default CreateProfilePage;
