@@ -28,6 +28,15 @@ async function CreateProfilePage() {
     console.log('PCP:28--> user:\n', user);
     console.log('PCP:29--> isLoaded:\n', isLoaded);
 
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const res = await fetch(new URL('/api/test', baseUrl), {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    });
+    const data = await res.json();
+    console.log('Response payload:', data);
     // const primaryEmailAddressId = user?.primaryEmailAddressId;
     // const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
     //     (email) => {
