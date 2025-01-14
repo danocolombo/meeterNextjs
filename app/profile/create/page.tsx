@@ -1,6 +1,8 @@
 'use client';
 // import { currentUser } from '@clerk/nextjs/server';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
+
+
 import React from 'react';
 import { SessionPayloadType } from '@/types/types';
 import { getAuthUser } from '@/utils/jericho';
@@ -23,10 +25,14 @@ userId: string;
 async function CreateProfilePage() {
     //Server side rendering
     // const user = await currentUser();
-    const { isSignedIn, user, isLoaded } = await useUser();
-    console.log('PCP:27--> isSignedIn:\n', isSignedIn);
-    console.log('PCP:28--> user:\n', user);
-    console.log('PCP:29--> isLoaded:\n', isLoaded);
+    // const auth = useAuth();
+    // console.log('PCP:29--> auth:\n', auth);
+    // const useUserResponse = useUser();
+    // console.log('PCP:31--> useUserResponse:\n', useUserResponse);
+    const { isSignedIn, userId, isLoaded } = await useAuth();
+    console.log('PCP:31--> isSignedIn:\n', isSignedIn);
+    console.log('PCP:32--> userId:\n', userId);
+    console.log('PCP:33--> isLoaded:\n', isLoaded);
 
     // const primaryEmailAddressId = user?.primaryEmailAddressId;
     // const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
