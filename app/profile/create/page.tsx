@@ -1,5 +1,5 @@
 'use client';
-// import { currentUser } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 import { useUser } from '@clerk/clerk-react';
 import React from 'react';
 import { SessionPayloadType } from '@/types/types';
@@ -20,16 +20,9 @@ userId: string;
     jerichoToken?: string;
     expiresAt?: Date;
 */
-async function CreateProfilePage() {
-    //Server side rendering
-    // const user = await currentUser();
-    const { isSignedIn, user, isLoaded } = await useUser();
-    console.log('PCP:27--> isSignedIn:\n', isSignedIn);
-    console.log('PCP:28--> user:\n', user);
-    console.log('PCP:29--> isLoaded:\n', isLoaded);
-
+export default async function CreateProfilePage() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const res = await fetch(new URL('/api/test', baseUrl), {
+    const res = await fetch(new URL('/api/session', baseUrl), {
         method: 'GET',
         headers: {
             Accept: 'application/json',
@@ -37,6 +30,15 @@ async function CreateProfilePage() {
     });
     const data = await res.json();
     console.log('Response payload:', data);
+    //Server side rendering
+    const user = await currentUser();
+    // const { isSignedIn, user, isLoaded } = await useUser();
+    // console.log('PCP:27--> isSignedIn:\n', isSignedIn);
+    // console.log('PCP:28--> user:\n', user);
+    // console.log('PCP:29--> isLoaded:\n', isLoaded);
+    // const userInfo = await useUser();
+    // console.log('PCP:30--> userInfo:\n', userInfo);
+
     // const primaryEmailAddressId = user?.primaryEmailAddressId;
     // const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
     //     (email) => {
@@ -66,5 +68,3 @@ async function CreateProfilePage() {
 
     return <div>CreateProfilePage</div>;
 }
-
-export default CreateProfilePage;
