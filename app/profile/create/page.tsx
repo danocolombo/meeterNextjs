@@ -44,10 +44,10 @@ export default async function CreateProfilePage() {
     let variables: SessionPayloadType = {
         clerkId: user?.id,
         userEmail: clerkPrimaryEmailAddress.emailAddress,
-        orgId: user?.privateMetadata.organization.id,
-        orgCode: user?.privateMetadata.organization.code,
-        orgName: user?.privateMetadata.organization.name,
-        orgRole: user?.privateMetadata.organization.role,
+        orgId: user?.privateMetadata?.organization?.id || null,
+        orgCode: user?.privateMetadata?.organization?.code || null,
+        orgName: user?.privateMetadata?.organization?.name || null,
+        orgRole: user?.privateMetadata?.organization?.role || null,
         expiresAt: new Date(),
     };
     console.log('PCP:26--> variables:\n', variables);
