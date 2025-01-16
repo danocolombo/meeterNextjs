@@ -69,15 +69,15 @@ export default async function CreateProfilePage() {
     // console.log('Auth response payload:', authResponse);
     //* ---------------------------------
 
-    const testResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-    });
-    const data = await testResponse.json();
-    console.log('GET response payload:', data);
+    // const testResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
+    //     method: 'GET',
+    //     headers: {
+    //         Accept: 'application/json',
+    //         'Content-Type': 'application/json',
+    //     },
+    // });
+    // const data = await testResponse.json();
+    // console.log('GET response payload:', data);
 
     const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
         method: 'POST',

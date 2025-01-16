@@ -5,51 +5,44 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    //* ------------------------------------------------
+    //* attempt to get Jericho api token for user
+    //* ------------------------------------------------
     try {
+        const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
         const { id, email } = await req.json();
-        return NextResponse.json({
-            message: `POST response from api/apitoken/login`,
-            request: { id, email },
-            data: {
-                id: 2,
-                name: null,
-                email: 'fortsonguru@gmail.com',
-                email_verified_at: null,
-                created_at: '2024-03-29T00:30:21.000000Z',
-                updated_at: '2024-03-29T00:30:21.000000Z',
-                sub: '$2y$12$ZOdrAv9/TeT92U0iEYZO/uM6LLhAMiKxY6HRa3dW57gYbX4.1Gvku',
-                username: 'mtrlead',
+        const jerichoRequest = {
+            email,
+            sub: id,
+        };
+        const jerichoResponse = await fetch(`${baseUrl}/login`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
             },
-            token: '272|0rdp0ij8YTjnsnizBWnlEppIJ1CpoxlYr5rCRtSL7efff077',
-            cognitoSub: id,
+            body: JSON.stringify(jerichoRequest),
         });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-}
-
-export async function GETOLD(
-    req: Request,
-    { params }: { params: { id: string; email: string } }
-) {
-    try {
-        const { id, email } = params;
-
-        return NextResponse.json({
-            message: `GET api/user/[${id}]`,
-            data: {
-                id: 2,
-                name: null,
-                email: 'fortsonguru@gmail.com',
-                email_verified_at: null,
-                created_at: '2024-03-29T00:30:21.000000Z',
-                updated_at: '2024-03-29T00:30:21.000000Z',
-                sub: '$2y$12$ZOdrAv9/TeT92U0iEYZO/uM6LLhAMiKxY6HRa3dW57gYbX4.1Gvku',
-                username: 'mtrlead',
-            },
-            token: '272|0rdp0ij8YTjnsnizBWnlEppIJ1CpoxlYr5rCRtSL7efff077',
-            cognitoSub: id,
-        });
+        if (!jerichoResponse.ok) {
+            throw new Error(`Error: ${jerichoResponse.statusText}`);
+        }
+        const jerichoResponseData = await jerichoResponse.json();
+        if (jerichoResponseData.status === 200) {
+            return NextResponse.json({
+                status: jerichoResponseData.status,
+                message: `POST response from api/apitoken/login`,
+                request: { id, email },
+                data: jerichoResponseData.data,
+                apiToken: jerichoResponseData.token,
+            });
+        } else {
+            return NextResponse.json({
+                status: jerichoResponseData.status,
+                message: `POST response from api/apitoken/login`,
+                request: { id, email },
+                data: jerichoResponseData,
+            });
+        }
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
