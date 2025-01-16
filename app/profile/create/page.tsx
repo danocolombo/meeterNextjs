@@ -52,14 +52,44 @@ export default async function CreateProfilePage() {
     };
     console.log('PCP:26--> variables:\n', variables);
 
-    const res = await fetch(new URL('/api/session', baseUrl), {
+    const authRequest = {
+        id: user?.id,
+        email: clerkPrimaryEmailAddress.emailAddress,
+    };
+    //* ---------------------------------
+    // const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
+    //     method: 'POST',
+    //     headers: {
+    //         Accept: 'application/json',
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: authRequest,
+    // });
+    // // const data = await authResponse.json();
+    // console.log('Auth response payload:', authResponse);
+    //* ---------------------------------
+
+    const testResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
         method: 'GET',
         headers: {
             Accept: 'application/json',
+            'Content-Type': 'application/json',
         },
     });
-    const data = await res.json();
-    console.log('Response payload:', data);
+    const data = await testResponse.json();
+    console.log('GET response payload:', data);
+
+    const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(authRequest),
+    });
+    const showIt = await authResponse.json();
+    console.log('POST response payload:', showIt);
+
     //Server side rendering
     // const user = await currentUser();
     // const { isSignedIn, user, isLoaded } = await useUser();
