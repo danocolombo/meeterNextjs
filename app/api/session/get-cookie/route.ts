@@ -1,4 +1,4 @@
-import { getIronSessionDefaultMaxAge } from '@/utils/session';
+import { getIronSessionDefaultMaxAge } from '@/utils/IRONSESSION';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(

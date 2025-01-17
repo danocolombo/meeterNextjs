@@ -53,6 +53,22 @@ export default async function CreateProfilePage() {
     };
     console.log('PCP:26--> variables:\n', variables);
 
+    //* ---------------------------------
+    //* clerk private meta data
+    //* ---------------------------------
+    const metaResponse = await fetch(
+        new URL(`/api/users/meta/${user.userId}`, baseUrl),
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    // const showMeta = await metaResponse.json();
+    console.log('POST metaResponse payload:', metaResponse);
+
     const authRequest = {
         id: user?.id,
         email: clerkPrimaryEmailAddress.emailAddress,
