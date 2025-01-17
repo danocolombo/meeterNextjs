@@ -34,17 +34,17 @@ export default async function CreateProfilePage() {
     //* ---------------------------------
     //* get Clerk user data
     //* ---------------------------------
-    const user = await currentUser();
+    const user: any = await currentUser();
     // console.log('clerk_current_user\n', user);
     const primaryEmailAddressId = user?.primaryEmailAddressId;
     const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
-        (email) => {
+        (email: any) => {
             return email.id === primaryEmailAddressId;
         }
     );
     let variables: SessionPayloadType = {
-        clerkId: user?.id,
-        userEmail: clerkPrimaryEmailAddress.emailAddress,
+        clerkId: user?.id || '0',
+        userEmail: clerkPrimaryEmailAddress?.emailAddress || '',
         orgId: user?.privateMetadata?.organization?.id || null,
         orgCode: user?.privateMetadata?.organization?.code || null,
         orgName: user?.privateMetadata?.organization?.name || null,

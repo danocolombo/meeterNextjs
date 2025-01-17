@@ -29,8 +29,8 @@ const getAuthUser = async () => {
     }
     //* looking to see if there is a meeter definition in
     //* the privateMetadata object
-    // if (!user.privateMetadata.hasProfile) redirect('/profile/create');
-    if (!user.privateMetadata.hasProfile) redirect('/test');
+    if (!user.privateMetadata.hasProfile) redirect('/profile/create');
+    // if (!user.privateMetadata.hasProfile) redirect('/test');
     return user;
 };
 export const createProfileAction = async (
@@ -154,8 +154,8 @@ export const fetchProfile = async () => {
         },
     });
 
-    // if (!profile) redirect('/profile/create');
-    if (!profile) redirect('/test');
+    if (!profile) redirect('/profile/create');
+    // if (!profile) redirect('/test');
     return profile;
 };
 export const updateProfileAction = async (
