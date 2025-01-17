@@ -14,3 +14,6 @@ export interface SessionPayloadType {
     jerichoToken?: string;
     expiresAt?: Date;
 }
+export interface IronSessionData {
+    apiToken?: string;
+}

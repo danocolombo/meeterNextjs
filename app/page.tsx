@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { getSession } from '@/utils/session';
+import { getSession } from '@/utils/clerk';
 const HomePage = async () => {
     const session = await getSession();
     return (

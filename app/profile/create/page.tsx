@@ -11,6 +11,7 @@ import { fetchJerichoUser } from '@/providers/users';
 import { SubmitButton } from '@/components/form/Buttons';
 import axios from 'axios';
 import { SessionPayloadType } from '@/types/types';
+
 /*
 userId: string;
     clerkId: string;
@@ -56,28 +57,6 @@ export default async function CreateProfilePage() {
         id: user?.id,
         email: clerkPrimaryEmailAddress.emailAddress,
     };
-    //* ---------------------------------
-    // const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
-    //     method: 'POST',
-    //     headers: {
-    //         Accept: 'application/json',
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: authRequest,
-    // });
-    // // const data = await authResponse.json();
-    // console.log('Auth response payload:', authResponse);
-    //* ---------------------------------
-
-    // const testResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
-    //     method: 'GET',
-    //     headers: {
-    //         Accept: 'application/json',
-    //         'Content-Type': 'application/json',
-    //     },
-    // });
-    // const data = await testResponse.json();
-    // console.log('GET response payload:', data);
 
     const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
         method: 'POST',
@@ -89,6 +68,21 @@ export default async function CreateProfilePage() {
     });
     const showIt = await authResponse.json();
     console.log('POST response payload:', showIt);
+
+    //* save apiToken to session variable
+    const cookieCreateResponse = await fetch(
+        new URL('/api/session/get-cookie', baseUrl),
+        {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ apiToken: showIt.apiToken }),
+        }
+    );
+    // const showCookieCreateResponse = await cookieCreateResponse.json();
+    console.log('POST cookieCreateResponse payload:', cookieCreateResponse);
 
     //Server side rendering
     // const user = await currentUser();
