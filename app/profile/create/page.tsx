@@ -52,29 +52,31 @@ export default async function CreateProfilePage() {
         orgRole: user?.privateMetadata?.organization?.role || null,
         expiresAt: new Date(),
     };
-    console.log('PCP:26--> variables:\n', variables);
+    // console.log('PCP:26--> variables:\n', variables);
 
     //* ---------------------------------
     //* clerk private meta data
     //* ---------------------------------
-    const metaResponse = await fetch(
-        new URL(`/api/users/meta/${user.userId}`, baseUrl),
-        {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        }
-    );
-    // const showMeta = await metaResponse.json();
-    console.log('POST metaResponse payload:', metaResponse);
+    // const metaResponse = await fetch(
+    //     new URL(`/api/users/meta/${user.userId}`, baseUrl),
+    //     {
+    //         method: 'GET',
+    //         headers: {
+    //             Accept: 'application/json',
+    //             'Content-Type': 'application/json',
+    //         },
+    //     }
+    // );
+    // // const showMeta = await metaResponse.json();
+    // console.log('POST metaResponse payload:', metaResponse);
 
+    //* ---------------------------------
+    //* get APITOKEN from Jericho
+    //* ---------------------------------
     const authRequest = {
         id: user?.id,
         email: clerkPrimaryEmailAddress.emailAddress,
     };
-
     const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
         method: 'POST',
         headers: {
@@ -84,58 +86,31 @@ export default async function CreateProfilePage() {
         body: JSON.stringify(authRequest),
     });
     const showIt = await authResponse.json();
-    console.log('POST response payload:', showIt);
-
+    // console.log('----------------------------------------------------');
+    console.log('APC:89--API token information:', showIt);
+    console.log('###\n', showIt.apiToken.plainTextToken, '\n###');
+    //* ---------------------------------
     //* save apiToken to session variable
-    const cookieCreateResponse = await fetch(
-        new URL('/api/session/get-cookie', baseUrl),
-        {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ apiToken: showIt.apiToken }),
-        }
-    );
-    // const showCookieCreateResponse = await cookieCreateResponse.json();
-    console.log('POST cookieCreateResponse payload:', cookieCreateResponse);
+    //* ---------------------------------
+    console.log('APC:93++++++++++++++++++++++++++++++++++++++++++++++++++++');
+    const testResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
+        method: 'GET',
+        headers: {
+            Accept: 'application/json',
+        },
+    });
+    const showTest = await testResults.json();
+    console.log('APC:101--showTest:\n', showTest);
 
-    //Server side rendering
-    // const user = await currentUser();
-    // const { isSignedIn, user, isLoaded } = await useUser();
-    // console.log('PCP:27--> isSignedIn:\n', isSignedIn);
-    // console.log('PCP:28--> user:\n', user);
-    // console.log('PCP:29--> isLoaded:\n', isLoaded);
-    // const userInfo = await useUser();
-    // console.log('PCP:30--> userInfo:\n', userInfo);
-
-    // const primaryEmailAddressId = user?.primaryEmailAddressId;
-    // const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
-    //     (email) => {
-    //         return email.id === primaryEmailAddressId;
-    //     }
-    // );
-    // let variables: SessionPayloadType = {
-    //     clerkId: user?.id,
-    //     cognitoSub: user?.privateMetadata.cognitoSub,
-    //     userEmail: clerkPrimaryEmailAddress.emailAddress,
-    //     orgId: user?.privateMetadata.organization.id,
-    //     orgCode: user?.privateMetadata.organization.code,
-    //     orgName: user?.privateMetadata.organization.name,
-    //     orgRole: user?.privateMetadata.organization.role,
-    //     expiresAt: new Date(),
-    // };
-    // console.log('PCP:26--> SessionPayload object:\n', variables);
-    // const jerichoUser = await fetch(`/api/users/${variables?.cognitoSub}`, {
-    //     method: 'GET',
-    //     headers: {
-    //         Accept: 'application/json',
-    //     },
-    // });
-    // const res = await getAuthUser();
-
-    // console.log('PCP:46--> res:\n', res);
+    const postResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+        },
+        body: JSON.stringify({ api_token: showIt.apiToken.plainTextToken }),
+    });
+    const showPOSTresponse = await postResults.json();
+    console.log('APC:113--showPOSTresponse:\n', showPOSTresponse);
 
     return <div>CreateProfilePage</div>;
 }

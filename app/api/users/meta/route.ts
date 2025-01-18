@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { clerkClient } from '@clerk/nextjs/server';
-import { getClient } from '@/utils/clerk';
 
-export async function GET(request: NextRequest) {
-    const { userId } = await request.json();
+export async function GET() {
+    return NextResponse.json({ message: 'Hello api/users/meta' });
+}
 
-    const client = await clerkClient;
+export async function POST(request: Request) {
+    const body = await request.json();
+    const apiToken = body.api_token;
 
-    const user = await client.users.getUser(userId);
-
-    return NextResponse.json(user.privateMetadata);
+    return NextResponse.json({
+        message: 'META POST HIT',
+        token: apiToken,
+    });
 }
