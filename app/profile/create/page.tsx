@@ -89,6 +89,10 @@ export default async function CreateProfilePage() {
     // console.log('----------------------------------------------------');
     console.log('APC:89--API token information:', showIt);
     console.log('###\n', showIt.apiToken.plainTextToken, '\n###');
+    //todo: ___________________________________________
+    //todo: NEED TO CHECK IF showIt.status !== 200
+    //todo: ___________________________________________
+
     //* ---------------------------------
     //* save apiToken to session variable
     //* ---------------------------------
