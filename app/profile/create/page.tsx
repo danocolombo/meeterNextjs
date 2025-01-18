@@ -1,16 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { GetServerSideProps } from 'next';
-import FormContainer from '@/components/form/FormContainer';
-import FormInput from '@/components/form/FormInput';
 import { currentUser } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { checkJerichoUser } from '@/utils/actions';
-import { createProfileAction } from '@/utils/clerk';
-import { useToast } from '@/hooks/use-toast';
-import { JerichoUserType } from '@/utils/types';
-import { fetchJerichoUser } from '@/providers/users';
-import { SubmitButton } from '@/components/form/Buttons';
-import axios from 'axios';
+
 import { SessionPayloadType } from '@/utils/types';
 
 /*
@@ -36,7 +25,6 @@ export default async function CreateProfilePage() {
     //* get Clerk user data
     //* ---------------------------------
     const user: any = await currentUser();
-    // console.log('clerk_current_user\n', user);
     const primaryEmailAddressId = user?.primaryEmailAddressId;
     const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
         (email: any) => {
@@ -55,66 +43,53 @@ export default async function CreateProfilePage() {
     // console.log('PCP:26--> variables:\n', variables);
 
     //* ---------------------------------
-    //* clerk private meta data
-    //* ---------------------------------
-    // const metaResponse = await fetch(
-    //     new URL(`/api/users/meta/${user.userId}`, baseUrl),
-    //     {
-    //         method: 'GET',
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json',
-    //         },
-    //     }
-    // );
-    // // const showMeta = await metaResponse.json();
-    // console.log('POST metaResponse payload:', metaResponse);
-
-    //* ---------------------------------
     //* get APITOKEN from Jericho
     //* ---------------------------------
     const authRequest = {
         id: user?.id,
         email: clerkPrimaryEmailAddress.emailAddress,
     };
-    const authResponse = await fetch(new URL('/api/apitoken/login', baseUrl), {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(authRequest),
-    });
-    const showIt = await authResponse.json();
-    // console.log('----------------------------------------------------');
-    console.log('APC:89--API token information:', showIt);
-    console.log('###\n', showIt.apiToken.plainTextToken, '\n###');
+    const apiAuthResponse = await fetch(
+        new URL('/api/apitoken/login', baseUrl),
+        {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(authRequest),
+        }
+    );
+    const apiAuth = await apiAuthResponse.json();
+    console.log('APC:61--apiAuth information:', apiAuth);
     //todo: ___________________________________________
-    //todo: NEED TO CHECK IF showIt.status !== 200
+    //todo: NEED TO CHECK IF apiAuth.status !== 200
     //todo: ___________________________________________
 
     //* ---------------------------------
     //* save apiToken to session variable
     //* ---------------------------------
-    console.log('APC:93++++++++++++++++++++++++++++++++++++++++++++++++++++');
-    const testResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
+    console.log('APC:69++++++++++++++++++++++++++++++++++++++++++++++++++++');
+    const getTestResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
         method: 'GET',
         headers: {
             Accept: 'application/json',
         },
     });
-    const showTest = await testResults.json();
-    console.log('APC:101--showTest:\n', showTest);
+    const getResults = await getTestResults.json();
+    console.log('APC:77--getResults:\n', getResults);
 
-    const postResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
+    const postTestResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
         method: 'POST',
         headers: {
             Accept: 'application/json',
         },
-        body: JSON.stringify({ api_token: showIt.apiToken.plainTextToken }),
+        body: JSON.stringify({
+            api_token: apiAuth.apiToken.plainTextToken,
+        }),
     });
-    const showPOSTresponse = await postResults.json();
-    console.log('APC:113--showPOSTresponse:\n', showPOSTresponse);
+    const postResults = await postTestResults.json();
+    console.log('APC:89--postResults:\n', postResults);
 
     return <div>CreateProfilePage</div>;
 }

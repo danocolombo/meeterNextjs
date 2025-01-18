@@ -13,66 +13,10 @@ import {
 } from './schemas';
 import db from './db';
 import { getAuthUser } from './jericho';
-const renderError = (error: unknown): { message: string } => {
-    console.log(error);
-    return {
-        message: error instanceof Error ? error.message : 'An error occurred',
-    };
-};
-// const getAuthUser = async () => {
-//     const user = await currentUser();
-//     if (!user) {
-//         throw new Error('You must be logged in to access this route');
-//     }
-//     //* looking to see if there is a meeter definition in
-//     //* the privateMetadata object
-//     if (!user.privateMetadata.hasProfile) redirect('/profile/create');
-//     // if (!user.privateMetadata.hasProfile) redirect('/test');
-//     return user;
-// };
 
-export const createProfileAction = async (
-    prevState: any,
-    formData: FormData,
-    jerichoUser?: any
-) => {
-    try {
-        const user = await currentUser();
-        if (!user) throw new Error('Please login to create a profile');
-        const rawData = Object.fromEntries(formData);
-        console.log('++++++++++++++++++++++++++++++++++++++++++++');
-        console.log('Form Data:', rawData);
-        if (jerichoUser) {
-            console.log('Jericho User:', jerichoUser);
-        }
-        console.log('++++++++++++++++++++++++++++++++++++++++++++');
-
-        const validatedFields = validateWithZodSchema(profileSchema, rawData);
-        console.log('validatedFields\n', validatedFields);
-
-        // await db.profile.create({
-        //     data: {
-        //         clerkId: user.id,
-        //         email: user.emailAddresses[0].emailAddress,
-        //         profileImage: user.imageUrl ?? '',
-        //         ...validatedFields,
-        //     },
-        // });
-        // await clerkClient.users.updateUserMetadata(user.id, {
-        //     privateMetadata: {
-        //         hasProfile: true,
-        //     },
-        // });
-        return {
-            ...prevState,
-            message: 'Profile created successfully!',
-        };
-    } catch (error) {
-        return renderError(error);
-    }
-    redirect('/');
-};
-
+//   ================================================================
+//   PROVIDE IMAGE TO UserIcon in NavBar
+//   ================================================================
 export const fetchProfileImage = async () => {
     const user = await currentUser();
     if (!user) return null;
@@ -88,6 +32,10 @@ export const fetchProfileImage = async () => {
 
     return profile?.profileImage;
 };
+
+//   ================================================================
+//   PROVIDE profile to app/profile page
+//   ================================================================
 export const fetchProfile = async () => {
     //this checks if the user is logged in
     const user: any = await getAuthUser();
@@ -102,6 +50,10 @@ export const fetchProfile = async () => {
     // if (!profile) redirect('/test');
     return profile;
 };
+
+//   ================================================================
+//   PROVIDE ability to update profile from app/profile page
+//   ================================================================
 export const updateProfileAction = async (
     prevState: any,
     formData: FormData
@@ -126,6 +78,9 @@ export const updateProfileAction = async (
     }
 };
 
+//   ================================================================
+//   PROVIDE ability to update profile image from app/profile page
+//   ================================================================
 export const updateProfileImageAction = async (
     prevState: any,
     formData: FormData
@@ -151,6 +106,12 @@ export const updateProfileImageAction = async (
         return renderError(error);
     }
 };
+
+//   ================================================================
+//*  ================================================================
+//todo:  this is sample to use for updating values. DELETE B4 PROD
+//*  ================================================================
+//   ================================================================
 export const createPropertyAction = async (
     prevState: any,
     formData: FormData
@@ -164,4 +125,14 @@ export const createPropertyAction = async (
         return renderError(error);
     }
     // redirect('/');
+};
+
+//   ================================================================
+//   LOCAL: common error handler
+//   ================================================================
+const renderError = (error: unknown): { message: string } => {
+    console.log(error);
+    return {
+        message: error instanceof Error ? error.message : 'An error occurred',
+    };
 };
