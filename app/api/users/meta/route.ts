@@ -1,3 +1,4 @@
+import { getMetaAction, storeMetaAction } from '@/utils/clerk';
 import { NextRequest, NextResponse } from 'next/server';
 
 // export async function GET() {
@@ -21,10 +22,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
     const body = await request.json();
-    const apiToken = body.api_token;
-
+    const { clerkId, apiToken } = body;
+    const metaTestResponse = await storeMetaAction(null, { clerkId, apiToken });
+    const getMetaResponse = await getMetaAction(null, {
+        clerkId,
+    });
     return NextResponse.json({
-        message: 'META POST HIT',
-        token: apiToken,
+        metaResponseData: metaTestResponse,
+        privateMetadata: getMetaResponse.data.metaData,
     });
 }

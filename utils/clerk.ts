@@ -1,6 +1,6 @@
 'use server';
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { currentUser, clerkClient } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { JerichoUserType, MeetingType } from './types';
 import { uploadImage } from './supabase';
@@ -13,6 +13,7 @@ import {
 } from './schemas';
 import db from './db';
 import { getAuthUser } from './jericho';
+import { request } from 'http';
 
 //   ================================================================
 //   PROVIDE IMAGE TO UserIcon in NavBar
@@ -105,6 +106,57 @@ export const updateProfileImageAction = async (
     } catch (error) {
         return renderError(error);
     }
+};
+//   ================================================================
+//   PROVIDE ability to store meta variable from app/profile page
+//   ================================================================
+export const storeMetaAction = async (
+    prevState: any,
+    requestData: any
+): Promise<{ response: any }> => {
+    try {
+        const client = await clerkClient;
+        const { clerkId, apiToken } = requestData;
+        await client.users.updateUserMetadata(clerkId, {
+            privateMetadata: {
+                meeterSession: {
+                    apiToken: apiToken,
+                },
+            },
+        });
+        return {
+            response: {
+                status: 200,
+                message: 'storeMetaAction successfully called',
+            },
+        };
+    } catch (error) {
+        return {
+            response: {
+                status: 500,
+                message: 'storeMetaAction failure [uc:137]',
+            },
+        };
+    }
+};
+//   ================================================================
+//   PROVIDE ability to get meta data
+//   ================================================================
+export const getMetaAction = async (
+    prevState: any,
+    requestData: any
+): Promise<{ data: any }> => {
+    const { clerkId } = requestData;
+    const client = await clerkClient;
+
+    const user = await client.users.getUser(clerkId);
+
+    return {
+        data: {
+            message: 'getMetaAction successfully called',
+            metaData: user.privateMetadata,
+        },
+    };
 };
 
 //   ================================================================

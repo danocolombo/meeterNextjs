@@ -20,33 +20,32 @@ userId: string;
 */
 export default async function CreateProfilePage() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
     //* ---------------------------------
     //* get Clerk user data
     //* ---------------------------------
-    const user: any = await currentUser();
-    const primaryEmailAddressId = user?.primaryEmailAddressId;
-    const clerkPrimaryEmailAddress = await user?.emailAddresses.find(
-        (email: any) => {
+    const clerkCurrentUser: any = await currentUser();
+    // console.log('APC:27--clerkCurrentUser:\n', clerkCurrentUser);
+    const primaryEmailAddressId = clerkCurrentUser?.primaryEmailAddressId;
+    const clerkPrimaryEmailAddress =
+        await clerkCurrentUser?.emailAddresses.find((email: any) => {
             return email.id === primaryEmailAddressId;
-        }
-    );
+        });
     let variables: SessionPayloadType = {
-        clerkId: user?.id || '0',
+        clerkId: clerkCurrentUser?.id || '0',
         userEmail: clerkPrimaryEmailAddress?.emailAddress || '',
-        orgId: user?.privateMetadata?.organization?.id || null,
-        orgCode: user?.privateMetadata?.organization?.code || null,
-        orgName: user?.privateMetadata?.organization?.name || null,
-        orgRole: user?.privateMetadata?.organization?.role || null,
+        orgId: clerkCurrentUser?.privateMetadata?.organization?.id || null,
+        orgCode: clerkCurrentUser?.privateMetadata?.organization?.code || null,
+        orgName: clerkCurrentUser?.privateMetadata?.organization?.name || null,
+        orgRole: clerkCurrentUser?.privateMetadata?.organization?.role || null,
         expiresAt: new Date(),
     };
-    // console.log('PCP:26--> variables:\n', variables);
+    // console.log('PCP:43--> variables:\n', variables);
 
     //* ---------------------------------
     //* get APITOKEN from Jericho
     //* ---------------------------------
     const authRequest = {
-        id: user?.id,
+        id: clerkCurrentUser?.id,
         email: clerkPrimaryEmailAddress.emailAddress,
     };
     const apiAuthResponse = await fetch(
@@ -61,7 +60,7 @@ export default async function CreateProfilePage() {
         }
     );
     const apiAuth = await apiAuthResponse.json();
-    console.log('APC:64--apiAuth information:', apiAuth);
+    // console.log('APC:64--apiAuth information:', apiAuth);
     //todo: ___________________________________________
     //todo: NEED TO CHECK IF apiAuth.status !== 200
     //todo: ___________________________________________
@@ -75,7 +74,8 @@ export default async function CreateProfilePage() {
             Accept: 'application/json',
         },
         body: JSON.stringify({
-            api_token: apiAuth.apiToken.plainTextToken,
+            apiToken: apiAuth.apiToken.plainTextToken,
+            clerkId: clerkCurrentUser?.id,
         }),
     });
     const postResults = await postTestResults.json();
@@ -97,7 +97,7 @@ export default async function CreateProfilePage() {
     // console.log('APC:97--getResults:\n', getResults);
 
     // const testStatus = 'active';
-    // const testCID = '435n43ib5nr346bnbgj399';
+    // const testCID = '435n43ij399';
     // console.log('APC:101++++++++++++++++++++++++++++++++++++++++++++++++++++');
     // const getQueryTestResults = await fetch(
     //     new URL(`/api/users/meta?status=${testStatus}&cid=${testCID}`, baseUrl),
