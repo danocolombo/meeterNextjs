@@ -61,7 +61,7 @@ export default async function CreateProfilePage() {
         }
     );
     const apiAuth = await apiAuthResponse.json();
-    console.log('APC:61--apiAuth information:', apiAuth);
+    console.log('APC:64--apiAuth information:', apiAuth);
     //todo: ___________________________________________
     //todo: NEED TO CHECK IF apiAuth.status !== 200
     //todo: ___________________________________________
@@ -69,16 +69,6 @@ export default async function CreateProfilePage() {
     //* ---------------------------------
     //* save apiToken to session variable
     //* ---------------------------------
-    console.log('APC:69++++++++++++++++++++++++++++++++++++++++++++++++++++');
-    const getTestResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-        },
-    });
-    const getResults = await getTestResults.json();
-    console.log('APC:77--getResults:\n', getResults);
-
     const postTestResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
         method: 'POST',
         headers: {
@@ -89,7 +79,37 @@ export default async function CreateProfilePage() {
         }),
     });
     const postResults = await postTestResults.json();
-    console.log('APC:89--postResults:\n', postResults);
+    console.log('APC:82--postResults:\n', postResults);
+
+    //todo: ___________________________________________
+    //todo: THESE ARE JUST TWO GET EXAMPLES THAT DO
+    //todo: NOTHING, REMOVE B4 PROD
+    //todo: ___________________________________________
+
+    // console.log('APC:89++++++++++++++++++++++++++++++++++++++++++++++++++++');
+    // const getTestResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
+    //     method: 'GET',
+    //     headers: {
+    //         Accept: 'application/json',
+    //     },
+    // });
+    // const getResults = await getTestResults.json();
+    // console.log('APC:97--getResults:\n', getResults);
+
+    // const testStatus = 'active';
+    // const testCID = '435n43ib5nr346bnbgj399';
+    // console.log('APC:101++++++++++++++++++++++++++++++++++++++++++++++++++++');
+    // const getQueryTestResults = await fetch(
+    //     new URL(`/api/users/meta?status=${testStatus}&cid=${testCID}`, baseUrl),
+    //     {
+    //         method: 'GET',
+    //         headers: {
+    //             Accept: 'application/json',
+    //         },
+    //     }
+    // );
+    // const getQueryResults = await getQueryTestResults.json();
+    // console.log('APC:109--getQueryResults:\n', getQueryResults);
 
     return <div>CreateProfilePage</div>;
 }
