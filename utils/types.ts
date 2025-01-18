@@ -81,14 +81,25 @@ export type JerichoUserType = {
     email: string | null;
     default_org_id?: string | null;
 };
+
+export type AffiliationType = {
+    id: string | null;
+    organizationId: string | null;
+    role: string | null;
+    status: string | null;
+};
+
 // Define the session payload structure
-export interface SessionPayloadType {
+export interface UserProfileType {
     clerkId: string;
     username?: string;
-    userEmail?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
     jerichoId?: string;
-    cognitoSub?: string;
-    meeterUserRole?: string;
+    jerichoSub?: string;
+    defaultOrgId?: string;
+    meeterUserRole?: string | null;
     orgId?: string;
     orgCode?: string;
     orgName?: string;
@@ -96,6 +107,7 @@ export interface SessionPayloadType {
     cognitoToken?: string;
     jerichoToken?: string;
     asOf?: Date;
+    affiliations?: AffiliationType[];
 }
 export interface IronSessionData {
     apiToken?: string;

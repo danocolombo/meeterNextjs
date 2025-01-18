@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server';
 
-import { SessionPayloadType } from '@/utils/types';
+import { UserProfileType } from '@/utils/types';
 
 /*
 userId: string;
@@ -78,33 +78,47 @@ export default async function CreateProfilePage() {
         console.log('APC:77--ERROR postUserMetaResults !== 200 [apc:77]');
     }
     const userMeta = await userMetaResponse.privateMetadata;
-    // console.log('APC:80--userMeta:\n', userMeta);
+    console.log('APC:81--userMeta:\n', userMeta);
 
     //* ---------------------------------
     //* get Jericho user profile
     //* ---------------------------------
-    // const meeterUserProfile = await fetch(
-    //     new URL(`/api/users/${testStatus}&cid=${testCID}`, baseUrl),
-    //     {
-    //         method: 'GET',
-    //         headers: {
-    //             Accept: 'application/json',
-    //         },
-    //     }
-    // );
-    // const getQueryResults = await getQueryTestResults.json();
-    // console.log('APC:109--getQueryResults:\n', getQueryResults);
-
-    let variables: SessionPayloadType = {
+    const jerichoUserProfile = await fetch(
+        new URL(`/api/users/${userMeta.jerichoId}`, baseUrl),
+        {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                apiToken: apiAuth.apiToken.plainTextToken,
+            }),
+        }
+    );
+    const jerichoUserResults = await jerichoUserProfile.json();
+    if (jerichoUserResults.status !== 200) {
+        console.log('jerichoUserResults:', jerichoUserResults);
+        console.log('APC:101--ERROR jerichoUserResults !== 200 [apc:101]');
+    }
+    // console.log('APC:96--jerichoUserResults:\n', jerichoUserResults);
+    const userProfile = jerichoUserResults.data;
+    console.log('APC:105-->userProfile:\n', userProfile);
+    let profile: UserProfileType = {
         clerkId: clerkCurrentUser?.id || '0',
-        userEmail: clerkPrimaryEmailAddress?.emailAddress || '',
-        orgId: userMeta?.meeter?.organization?.id || null,
-        orgCode: userMeta?.meeter?.organization?.code || null,
-        orgName: userMeta?.meeter?.organization?.name || null,
-        orgRole: userMeta?.meeter?.organization?.role || null,
+        jerichoId: userProfile?.id || '0',
+        jerichoSub: userProfile?.cognito_sub || '0',
+        username: userProfile?.username || '',
+        firstName: userProfile?.first_name || '',
+        lastName: userProfile?.last_name || '',
+        email: userProfile?.email || userMeta.email || '',
+        defaultOrgId: userProfile?.default_org_id || null,
+        orgId: null,
+        orgCode: null,
+        orgName: null,
+        orgRole: null,
         asOf: new Date(),
     };
-    console.log('PCP:63--> variables:\n', variables);
+    console.log('PCP:107--> profile:\n', profile);
 
     //todo: ___________________________________________
     //todo: THESE ARE JUST TWO GET EXAMPLES THAT DO

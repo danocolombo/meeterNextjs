@@ -1,34 +1,60 @@
 import { NextResponse } from 'next/server';
 
-export async function GET(
-    req: Request,
+export async function POST(
+    request: any,
+
     { params }: { params: { id: string } }
 ) {
+    const { id } = await params;
+    const body = await request.json();
+    const { apiToken } = body;
+    //* ------------------------------------------------
+    //* attempt to get Jericho profile for user
+    //* ------------------------------------------------
     try {
-        const { id } = await params;
-
-        return NextResponse.json({
-            message: `GET api/user/[${id}]`,
-            cognitoSub: id,
+        const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
+        const jerichoResponse: any = await fetch(`${baseUrl}/person/${id}`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiToken}`,
+            },
         });
+
+        const jerichoResponseData = await jerichoResponse.json();
+        if (jerichoResponseData.status != 200) {
+            return NextResponse.json({
+                status: jerichoResponseData.status,
+                message: `ERROR: no profile found for ${id}. ${body}`,
+                data: jerichoResponseData,
+            });
+        }
+        if (jerichoResponseData.status === 200) {
+            return NextResponse.json({
+                status: jerichoResponseData.status,
+                message: `POST response for user ${id}`,
+                data: jerichoResponseData.data,
+            });
+        }
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ status: 500, error: error.message });
     }
 }
 
-export async function POST(req: Request) {
-    const requestData = await req.json();
-    return NextResponse.json({
-        message: 'POSt api/user/[id]',
-        body: requestData,
-    });
-}
-export async function PUT() {
-    return NextResponse.json({ message: 'PUT api/user/[id]' });
-}
-export async function DELETE() {
-    return NextResponse.json({ message: 'DELETE api/user/[id]' });
-}
-export async function PATCH() {
-    return NextResponse.json({ message: 'PATCH api/user/[id]' });
-}
+// export async function POST(req: Request) {
+//     const requestData = await req.json();
+//     return NextResponse.json({
+//         message: 'POSt api/user/[id]',
+//         body: requestData,
+//     });
+// }
+// export async function PUT() {
+//     return NextResponse.json({ message: 'PUT api/user/[id]' });
+// }
+// export async function DELETE() {
+//     return NextResponse.json({ message: 'DELETE api/user/[id]' });
+// }
+// export async function PATCH() {
+//     return NextResponse.json({ message: 'PATCH api/user/[id]' });
+// }
