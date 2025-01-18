@@ -4,13 +4,14 @@ import FormContainer from '@/components/form/FormContainer';
 import FormInput from '@/components/form/FormInput';
 import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { createProfileAction, checkJerichoUser } from '@/utils/actions';
+import { checkJerichoUser } from '@/utils/actions';
+import { createProfileAction } from '@/utils/clerk';
 import { useToast } from '@/hooks/use-toast';
 import { JerichoUserType } from '@/utils/types';
 import { fetchJerichoUser } from '@/providers/users';
 import { SubmitButton } from '@/components/form/Buttons';
 import axios from 'axios';
-import { SessionPayloadType } from '@/types/types';
+import { SessionPayloadType } from '@/utils/types';
 
 /*
 userId: string;

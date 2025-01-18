@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchProfileImage } from '@/utils/actions';
+import { fetchProfileImage } from '@/utils/clerk';
 import { LuUser } from 'react-icons/lu';
 async function UserIcon() {
     try {

@@ -15,7 +15,7 @@ export type MeetingType = {
     updated_at?: string | null;
     meeting_date?: string | null; // Assuming format is compatible with Date
     title?: string | null;
-    meeting_type?: MeetingTypeEnum | null; // Define enum for meeting types (e.g., "Testimony", "Worship")
+    meeting_type?: string | null;
     mtg_comp_key?: string | null;
     announcements_contact?: string | null;
     attendance_count?: number | null;
@@ -81,3 +81,22 @@ export type JerichoUserType = {
     email: string | null;
     default_org_id?: string | null;
 };
+// Define the session payload structure
+export interface SessionPayloadType {
+    clerkId: string;
+    username?: string;
+    userEmail?: string;
+    jerichoId?: string;
+    cognitoSub?: string;
+    meeterUserRole?: string;
+    orgId?: string;
+    orgCode?: string;
+    orgName?: string;
+    orgRole?: string;
+    cognitoToken?: string;
+    jerichoToken?: string;
+    expiresAt?: Date;
+}
+export interface IronSessionData {
+    apiToken?: string;
+}

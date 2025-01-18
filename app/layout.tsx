@@ -7,13 +7,6 @@ import NavBar from '@/components/navbar/NavBar';
 import Providers from '@/app/providers';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster } from '@/components/ui/toaster';
-// import {
-//     ClerkProvider,
-//     SignInButton,
-//     SignedIn,
-//     SignedOut,
-//     UserButton,
-// } from '@clerk/nextjs';
 
 const inter = Inter({ subsets: ['latin'] });
 

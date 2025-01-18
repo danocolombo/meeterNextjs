@@ -1,115 +1,167 @@
-import * as jose from 'jose';
-import { SignJWT, jwtVerify } from 'jose';
-import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
-import { serialize } from 'cookie';
-import { GetServerSideProps } from 'next';
+'use server';
+import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
-import { checkJerichoUser } from '@/utils/actions';
-import { JerichoUserType } from '@/utils/types';
-import { encryptValue, decryptValue } from '@/utils/encryption';
-
-// const secretKey = 'secret';
-const secretKey = process.env.MEETER_JOSE_SECRET_KEY;
-const key = new TextEncoder().encode(secretKey);
-
-export async function encrypt(payload: any) {
-    return await new SignJWT(payload)
-        .setProtectedHeader({ alg: 'HS256' })
-        .setIssuedAt()
-        .setExpirationTime('10 sec from now')
-        .sign(key);
-}
-
-export async function decrypt(input: string): Promise<any> {
-    const { payload } = await jwtVerify(input, key, {
-        algorithms: ['HS256'],
-    });
-    return payload;
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const jerichoUser: JerichoUserType = await checkJerichoUser(
-        'jdoe@gmail.com'
-    );
-    const user = await currentUser();
-
-    const session = await startSession({
-        cogId: jerichoUser.cog_id,
-        supaId: user!.id,
-    });
-    context.res.setHeader(
-        'Set-Cookie',
-        serialize('session', session, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 60, // 1 hour
-            path: '/',
-        })
-    );
-
+import { revalidatePath } from 'next/cache';
+import { JerichoUserType, MeetingType } from './types';
+import { uploadImage } from './supabase';
+import {
+    imageSchema,
+    meetingSchema,
+    profileSchema,
+    propertySchema,
+    validateWithZodSchema,
+} from './schemas';
+import db from './db';
+import { getAuthUser } from './jericho';
+const renderError = (error: unknown): { message: string } => {
+    console.log(error);
     return {
-        props: {}, // will be passed to the page component as props
+        message: error instanceof Error ? error.message : 'An error occurred',
     };
 };
+// const getAuthUser = async () => {
+//     const user = await currentUser();
+//     if (!user) {
+//         throw new Error('You must be logged in to access this route');
+//     }
+//     //* looking to see if there is a meeter definition in
+//     //* the privateMetadata object
+//     if (!user.privateMetadata.hasProfile) redirect('/profile/create');
+//     // if (!user.privateMetadata.hasProfile) redirect('/test');
+//     return user;
+// };
 
-export async function startSession({
-    cogId,
-    supaId,
-}: {
-    cogId: string;
-    supaId: string;
-}) {
-    // Verify credentials && get the user
+export const createProfileAction = async (
+    prevState: any,
+    formData: FormData,
+    jerichoUser?: any
+) => {
+    try {
+        const user = await currentUser();
+        if (!user) throw new Error('Please login to create a profile');
+        const rawData = Object.fromEntries(formData);
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
+        console.log('Form Data:', rawData);
+        if (jerichoUser) {
+            console.log('Jericho User:', jerichoUser);
+        }
+        console.log('++++++++++++++++++++++++++++++++++++++++++++');
 
-    const user = {
-        cogId,
-        supaId,
-    };
-    // Create the session
-    const expires = new Date(Date.now() + 60 * 1000);
-    const session = await encrypt({ user, expires });
+        const validatedFields = validateWithZodSchema(profileSchema, rawData);
+        console.log('validatedFields\n', validatedFields);
 
-    console.log('cookie set ....');
-    return session;
-}
-
-export async function endSession() {
-    // Destroy the session
-    cookies().set('session', '', { expires: new Date(0) });
-}
-
-export async function getSession() {
-    const session = cookies().get('session')?.value;
-    if (!session) return null;
-    return await decrypt(session);
-}
-
-export async function updateSession(request: NextRequest) {
-    const session = request.cookies.get('session')?.value;
-    if (!session) return;
-
-    // Refresh the session so it doesn't expire
-    const parsed = await decrypt(session);
-    parsed.expires = new Date(Date.now() + 10 * 1000);
-    const res = NextResponse.next();
-    res.cookies.set({
-        name: 'session',
-        value: await encrypt(parsed),
-        httpOnly: true,
-        expires: parsed.expires,
-    });
-    return res;
-}
-
-export async function testEncryption() {
-    const payload = 'This is test data';
-    const encrypted = await encryptValue(payload);
-    const decrypted = await decryptValue(encrypted);
-
-    if (decrypted === payload) {
-        return 'Encryption works!';
-    } else {
-        return 'Encryption failed!';
+        // await db.profile.create({
+        //     data: {
+        //         clerkId: user.id,
+        //         email: user.emailAddresses[0].emailAddress,
+        //         profileImage: user.imageUrl ?? '',
+        //         ...validatedFields,
+        //     },
+        // });
+        // await clerkClient.users.updateUserMetadata(user.id, {
+        //     privateMetadata: {
+        //         hasProfile: true,
+        //     },
+        // });
+        return {
+            ...prevState,
+            message: 'Profile created successfully!',
+        };
+    } catch (error) {
+        return renderError(error);
     }
-}
+    redirect('/');
+};
+
+export const fetchProfileImage = async () => {
+    const user = await currentUser();
+    if (!user) return null;
+
+    const profile = await db.profile.findUnique({
+        where: {
+            clerkId: user.id,
+        },
+        select: {
+            profileImage: true,
+        },
+    });
+
+    return profile?.profileImage;
+};
+export const fetchProfile = async () => {
+    //this checks if the user is logged in
+    const user: any = await getAuthUser();
+    // now get the user from the database
+    const profile = await db.profile.findUnique({
+        where: {
+            clerkId: user.id,
+        },
+    });
+
+    if (!profile) redirect('/profile/create');
+    // if (!profile) redirect('/test');
+    return profile;
+};
+export const updateProfileAction = async (
+    prevState: any,
+    formData: FormData
+): Promise<{ message: string }> => {
+    const user: any = await getAuthUser();
+
+    try {
+        const rawData = Object.fromEntries(formData);
+        const validatedFields = validateWithZodSchema(profileSchema, rawData);
+
+        await db.profile.update({
+            where: {
+                clerkId: user.id,
+            },
+            data: validatedFields,
+        });
+
+        revalidatePath('/profile');
+        return { message: 'Profile updated successfully' };
+    } catch (error) {
+        return renderError(error);
+    }
+};
+
+export const updateProfileImageAction = async (
+    prevState: any,
+    formData: FormData
+): Promise<{ message: string }> => {
+    const user: any = await getAuthUser();
+    try {
+        const image = formData.get('image') as File;
+        const validatedFields: any = validateWithZodSchema(imageSchema, {
+            image,
+        });
+        const fullPath = await uploadImage(validatedFields.image);
+        await db.profile.update({
+            where: {
+                clerkId: user.id,
+            },
+            data: {
+                profileImage: fullPath,
+            },
+        });
+        revalidatePath('/profile');
+        return { message: 'Profile image updated successfully' };
+    } catch (error) {
+        return renderError(error);
+    }
+};
+export const createPropertyAction = async (
+    prevState: any,
+    formData: FormData
+): Promise<{ message: string }> => {
+    const user = await getAuthUser();
+    try {
+        const rawData = Object.fromEntries(formData);
+        const validatedFields = validateWithZodSchema(propertySchema, rawData);
+        return { message: 'Property created successfully' };
+    } catch (error) {
+        return renderError(error);
+    }
+    // redirect('/');
+};
