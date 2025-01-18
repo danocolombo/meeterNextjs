@@ -23,12 +23,25 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
     const body = await request.json();
     const { clerkId, apiToken } = body;
-    const metaTestResponse = await storeMetaAction(null, { clerkId, apiToken });
-    const getMetaResponse = await getMetaAction(null, {
+    const storeMetaResponse: any = await storeMetaAction(null, {
+        clerkId,
+        apiToken,
+    });
+    const getMetaResponse: any = await getMetaAction(null, {
         clerkId,
     });
+
+    if (storeMetaResponse.data.status !== 200) {
+        return NextResponse.json({
+            status: 500,
+            message: 'Error storing meta [aaum:33]',
+            response: storeMetaResponse,
+        });
+    }
+
     return NextResponse.json({
-        metaResponseData: metaTestResponse,
+        status: 200,
+        storeMetaResponse: storeMetaResponse,
         privateMetadata: getMetaResponse.data.metaData,
     });
 }

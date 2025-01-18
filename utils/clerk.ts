@@ -58,7 +58,7 @@ export const fetchProfile = async () => {
 export const updateProfileAction = async (
     prevState: any,
     formData: FormData
-): Promise<{ message: string }> => {
+): Promise<{ data: any }> => {
     const user: any = await getAuthUser();
 
     try {
@@ -73,7 +73,7 @@ export const updateProfileAction = async (
         });
 
         revalidatePath('/profile');
-        return { message: 'Profile updated successfully' };
+        return { data: 'Profile updated successfully' };
     } catch (error) {
         return renderError(error);
     }
@@ -85,7 +85,7 @@ export const updateProfileAction = async (
 export const updateProfileImageAction = async (
     prevState: any,
     formData: FormData
-): Promise<{ message: string }> => {
+): Promise<{ data: any }> => {
     const user: any = await getAuthUser();
     try {
         const image = formData.get('image') as File;
@@ -102,7 +102,7 @@ export const updateProfileImageAction = async (
             },
         });
         revalidatePath('/profile');
-        return { message: 'Profile image updated successfully' };
+        return { data: 'Profile image updated successfully' };
     } catch (error) {
         return renderError(error);
     }
@@ -113,26 +113,26 @@ export const updateProfileImageAction = async (
 export const storeMetaAction = async (
     prevState: any,
     requestData: any
-): Promise<{ response: any }> => {
+): Promise<{ data: any }> => {
     try {
         const client = await clerkClient;
         const { clerkId, apiToken } = requestData;
         await client.users.updateUserMetadata(clerkId, {
             privateMetadata: {
-                meeterSession: {
+                meeter: {
                     apiToken: apiToken,
                 },
             },
         });
         return {
-            response: {
+            data: {
                 status: 200,
                 message: 'storeMetaAction successfully called',
             },
         };
     } catch (error) {
         return {
-            response: {
+            data: {
                 status: 500,
                 message: 'storeMetaAction failure [uc:137]',
             },
@@ -153,6 +153,7 @@ export const getMetaAction = async (
 
     return {
         data: {
+            status: 200,
             message: 'getMetaAction successfully called',
             metaData: user.privateMetadata,
         },
@@ -167,12 +168,12 @@ export const getMetaAction = async (
 export const createPropertyAction = async (
     prevState: any,
     formData: FormData
-): Promise<{ message: string }> => {
+): Promise<{ data: any }> => {
     const user = await getAuthUser();
     try {
         const rawData = Object.fromEntries(formData);
         const validatedFields = validateWithZodSchema(propertySchema, rawData);
-        return { message: 'Property created successfully' };
+        return { data: 'Property created successfully' };
     } catch (error) {
         return renderError(error);
     }
@@ -182,9 +183,9 @@ export const createPropertyAction = async (
 //   ================================================================
 //   LOCAL: common error handler
 //   ================================================================
-const renderError = (error: unknown): { message: string } => {
+const renderError = (error: unknown): { data: string } => {
     console.log(error);
     return {
-        message: error instanceof Error ? error.message : 'An error occurred',
+        data: error instanceof Error ? error.message : 'An error occurred',
     };
 };

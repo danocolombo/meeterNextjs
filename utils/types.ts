@@ -95,7 +95,7 @@ export interface SessionPayloadType {
     orgRole?: string;
     cognitoToken?: string;
     jerichoToken?: string;
-    expiresAt?: Date;
+    asOf?: Date;
 }
 export interface IronSessionData {
     apiToken?: string;

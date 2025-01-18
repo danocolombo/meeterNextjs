@@ -30,16 +30,6 @@ export default async function CreateProfilePage() {
         await clerkCurrentUser?.emailAddresses.find((email: any) => {
             return email.id === primaryEmailAddressId;
         });
-    let variables: SessionPayloadType = {
-        clerkId: clerkCurrentUser?.id || '0',
-        userEmail: clerkPrimaryEmailAddress?.emailAddress || '',
-        orgId: clerkCurrentUser?.privateMetadata?.organization?.id || null,
-        orgCode: clerkCurrentUser?.privateMetadata?.organization?.code || null,
-        orgName: clerkCurrentUser?.privateMetadata?.organization?.name || null,
-        orgRole: clerkCurrentUser?.privateMetadata?.organization?.role || null,
-        expiresAt: new Date(),
-    };
-    // console.log('PCP:43--> variables:\n', variables);
 
     //* ---------------------------------
     //* get APITOKEN from Jericho
@@ -60,6 +50,7 @@ export default async function CreateProfilePage() {
         }
     );
     const apiAuth = await apiAuthResponse.json();
+
     // console.log('APC:64--apiAuth information:', apiAuth);
     //todo: ___________________________________________
     //todo: NEED TO CHECK IF apiAuth.status !== 200
@@ -68,18 +59,52 @@ export default async function CreateProfilePage() {
     //* ---------------------------------
     //* save apiToken to session variable
     //* ---------------------------------
-    const postTestResults = await fetch(new URL(`/api/users/meta`, baseUrl), {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-        },
-        body: JSON.stringify({
-            apiToken: apiAuth.apiToken.plainTextToken,
-            clerkId: clerkCurrentUser?.id,
-        }),
-    });
-    const postResults = await postTestResults.json();
-    console.log('APC:82--postResults:\n', postResults);
+    const postUserMetaResults = await fetch(
+        new URL(`/api/users/meta`, baseUrl),
+        {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                apiToken: apiAuth.apiToken.plainTextToken,
+                clerkId: clerkCurrentUser?.id,
+            }),
+        }
+    );
+    const userMetaResponse: any = await postUserMetaResults.json();
+    if (userMetaResponse.status !== 200) {
+        console.log('userMetaResponse:', userMetaResponse);
+        console.log('APC:77--ERROR postUserMetaResults !== 200 [apc:77]');
+    }
+    const userMeta = await userMetaResponse.privateMetadata;
+    // console.log('APC:80--userMeta:\n', userMeta);
+
+    //* ---------------------------------
+    //* get Jericho user profile
+    //* ---------------------------------
+    // const meeterUserProfile = await fetch(
+    //     new URL(`/api/users/${testStatus}&cid=${testCID}`, baseUrl),
+    //     {
+    //         method: 'GET',
+    //         headers: {
+    //             Accept: 'application/json',
+    //         },
+    //     }
+    // );
+    // const getQueryResults = await getQueryTestResults.json();
+    // console.log('APC:109--getQueryResults:\n', getQueryResults);
+
+    let variables: SessionPayloadType = {
+        clerkId: clerkCurrentUser?.id || '0',
+        userEmail: clerkPrimaryEmailAddress?.emailAddress || '',
+        orgId: userMeta?.meeter?.organization?.id || null,
+        orgCode: userMeta?.meeter?.organization?.code || null,
+        orgName: userMeta?.meeter?.organization?.name || null,
+        orgRole: userMeta?.meeter?.organization?.role || null,
+        asOf: new Date(),
+    };
+    console.log('PCP:63--> variables:\n', variables);
 
     //todo: ___________________________________________
     //todo: THESE ARE JUST TWO GET EXAMPLES THAT DO
