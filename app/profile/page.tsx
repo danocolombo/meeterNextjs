@@ -9,18 +9,12 @@ import { SubmitButton } from '@/components/form/Buttons';
 import ImageInputContainer from '@/components/form/ImageInputContainer';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card } from '@/components/ui/card';
+import { fetchProfileImage } from '@/utils/clerk';
 async function ProfilePage() {
-    const profile = await fetchProfile();
-    const user: any = await currentUser();
-    console.log('Profile:15-->profile:\n', profile);
-    console.log('Profile:16-->user:\n', user);
-    const {
-        id: orgId,
-        code: orgCode,
-        name: orgName,
-        role: role,
-    } = user!.privateMetadata.organization;
-    console.log('Profile:21-->role:\n', role);
+    const clerkCurrentUser: any = await currentUser();
+    const profileImage = await fetchProfileImage();
+    const profile = clerkCurrentUser.privateMetadata.meeter;
+    console.log('ap15-->clerkCurrentUser:\n', clerkCurrentUser);
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
@@ -28,8 +22,8 @@ async function ProfilePage() {
             </h1>
             <div className='border p-8 rounded-md '>
                 <ImageInputContainer
-                    image={profile.profileImage}
-                    name={profile.username}
+                    image={profileImage}
+                    name={clerkCurrentUser.username}
                     action={updateProfileImageAction}
                     text='Update Profile Image'
                 />
@@ -59,10 +53,9 @@ async function ProfilePage() {
                                     Organization
                                 </h2>
                                 <div className='flex flex-col'>
-                                    <span>id: {orgId}</span>
-                                    <span>code: {orgCode}</span>
-                                    <span>name: {orgName}</span>
-                                    <span>role: {role}</span>
+                                    <span>id: {profile.orgId}</span>
+                                    <span>code: {profile.orgCode}</span>
+                                    <span>name: {profile.orgName}</span>
                                 </div>
                             </Card>
                         </div>

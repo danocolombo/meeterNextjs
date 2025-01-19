@@ -1,6 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server';
 
 import { UserProfileType } from '@/utils/types';
+import { redirect } from 'next/navigation';
 
 export default async function CreateProfilePage() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -140,6 +141,12 @@ export default async function CreateProfilePage() {
         }
         const userMeta = await userMetaResponse.privateMetadata;
         // console.log('APC:81--userMeta:\n', userMeta);
+    }
+    if (profile.username !== '') {
+        console.log('APC:185--profile.username:', profile.username);
+        redirect('/profile');
+    } else {
+        console.log('APC:187--profile.username is empty');
     }
     //todo: ___________________________________________
     //todo: THESE ARE JUST TWO GET EXAMPLES THAT DO
