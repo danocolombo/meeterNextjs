@@ -116,12 +116,14 @@ export const storeMetaAction = async (
 ): Promise<{ data: any }> => {
     try {
         const client = await clerkClient;
-        const { clerkId, apiToken } = requestData;
+        const { clerkId, apiToken, userProfile } = requestData;
         await client.users.updateUserMetadata(clerkId, {
             privateMetadata: {
                 meeter: {
                     apiToken: apiToken,
+                    ...userProfile,
                 },
+                clerkId: clerkId,
             },
         });
         return {

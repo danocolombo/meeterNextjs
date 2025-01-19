@@ -2,22 +2,6 @@ import { currentUser } from '@clerk/nextjs/server';
 
 import { UserProfileType } from '@/utils/types';
 
-/*
-userId: string;
-    clerkId: string;
-    username?: string;
-    userEmail?: string;
-    jerichoId?: string;
-    cognitoSub?: string;
-    meeterUserRole?: string;
-    orgId?: string;
-    orgCode?: string;
-    orgName?: string;
-    orgRole?: string;
-    cognitoToken?: string;
-    jerichoToken?: string;
-    expiresAt?: Date;
-*/
 export default async function CreateProfilePage() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     //* ---------------------------------
@@ -57,34 +41,13 @@ export default async function CreateProfilePage() {
     //todo: ___________________________________________
 
     //* ---------------------------------
-    //* save apiToken to session variable
-    //* ---------------------------------
-    const postUserMetaResults = await fetch(
-        new URL(`/api/users/meta`, baseUrl),
-        {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-            },
-            body: JSON.stringify({
-                apiToken: apiAuth.apiToken.plainTextToken,
-                clerkId: clerkCurrentUser?.id,
-            }),
-        }
-    );
-    const userMetaResponse: any = await postUserMetaResults.json();
-    if (userMetaResponse.status !== 200) {
-        console.log('userMetaResponse:', userMetaResponse);
-        console.log('APC:77--ERROR postUserMetaResults !== 200 [apc:77]');
-    }
-    const userMeta = await userMetaResponse.privateMetadata;
-    console.log('APC:81--userMeta:\n', userMeta);
-
-    //* ---------------------------------
     //* get Jericho user profile
     //* ---------------------------------
     const jerichoUserProfile = await fetch(
-        new URL(`/api/users/${userMeta.jerichoId}`, baseUrl),
+        new URL(
+            `/api/users/${clerkCurrentUser?.privateMetadata?.jerichoId}`,
+            baseUrl
+        ),
         {
             method: 'POST',
             headers: {
@@ -102,7 +65,37 @@ export default async function CreateProfilePage() {
     }
     // console.log('APC:96--jerichoUserResults:\n', jerichoUserResults);
     const userProfile = jerichoUserResults.data;
-    console.log('APC:105-->userProfile:\n', userProfile);
+
+    // console.log('APC:69--userProfile:\n', userProfile);
+    //* =====================================================
+    //* remove unnecessary data from userProfile
+    //* =====================================================
+    delete userProfile.created_at;
+    delete userProfile.updated_at;
+    delete userProfile.shirt;
+    delete userProfile.aws_id;
+    delete userProfile.aws_def_org_id;
+    delete userProfile.aws_location_id;
+    delete userProfile.forgot_password_token;
+    delete userProfile.verify_token;
+    delete userProfile.forgot_password_token_expiry;
+    delete userProfile.verify_token_expiry;
+
+    //* =====================================================
+    //* need to get all the roles the user has for the
+    //* default org, based on the affiliations array.
+    //* =====================================================
+    let roles: string[] = [];
+    userProfile.affiliations.forEach((affiliation: any) => {
+        if (affiliation.organization_id === userProfile.default_org_id) {
+            if (affiliation.status === 'active') {
+                roles.push(affiliation.role);
+            }
+        }
+    });
+    // console.log('APC:118-->roles:\n', roles);
+    const affiliations = userProfile.affiliations || [];
+    // console.log('APC:105-->userProfile:\n', userProfile);
     let profile: UserProfileType = {
         clerkId: clerkCurrentUser?.id || '0',
         jerichoId: userProfile?.id || '0',
@@ -110,16 +103,44 @@ export default async function CreateProfilePage() {
         username: userProfile?.username || '',
         firstName: userProfile?.first_name || '',
         lastName: userProfile?.last_name || '',
-        email: userProfile?.email || userMeta.email || '',
+        email: userProfile?.email || '',
         defaultOrgId: userProfile?.default_org_id || null,
-        orgId: null,
-        orgCode: null,
-        orgName: null,
-        orgRole: null,
+        orgId: userProfile?.default_org?.id,
+        orgCode: userProfile?.default_org?.code,
+        orgName: userProfile?.default_org?.name,
+        roles: roles,
         asOf: new Date(),
     };
-    console.log('PCP:107--> profile:\n', profile);
+    const sizeInBytes = Buffer.byteLength(JSON.stringify(userProfile));
+    // console.log(`Size of userProfile in bytes: ${sizeInBytes}`);
+    // console.log('PCP:150--> profile:\n', profile);
 
+    //* ---------------------------------
+    //* save apiToken to session variable
+    //* ---------------------------------
+    if (sizeInBytes < 8000) {
+        const postUserMetaResults = await fetch(
+            new URL(`/api/users/meta`, baseUrl),
+            {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    apiToken: apiAuth.apiToken.plainTextToken,
+                    clerkId: clerkCurrentUser?.id,
+                    userProfile: profile,
+                }),
+            }
+        );
+        const userMetaResponse: any = await postUserMetaResults.json();
+        if (userMetaResponse.status !== 200) {
+            console.log('userMetaResponse:', userMetaResponse);
+            console.log('APC:77--ERROR postUserMetaResults !== 200 [apc:77]');
+        }
+        const userMeta = await userMetaResponse.privateMetadata;
+        // console.log('APC:81--userMeta:\n', userMeta);
+    }
     //todo: ___________________________________________
     //todo: THESE ARE JUST TWO GET EXAMPLES THAT DO
     //todo: NOTHING, REMOVE B4 PROD

@@ -99,15 +99,14 @@ export interface UserProfileType {
     jerichoId?: string;
     jerichoSub?: string;
     defaultOrgId?: string;
-    meeterUserRole?: string | null;
-    orgId?: string;
-    orgCode?: string;
-    orgName?: string;
-    orgRole?: string;
+    orgId?: string | null;
+    orgCode?: string | null;
+    orgName?: string | null;
+    orgRole?: string | null;
+    roles: string[];
     cognitoToken?: string;
     jerichoToken?: string;
     asOf?: Date;
-    affiliations?: AffiliationType[];
 }
 export interface IronSessionData {
     apiToken?: string;
