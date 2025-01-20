@@ -51,29 +51,28 @@ export default async function CreateProfilePage() {
     //* we will get {error: 'Error: Unauthorized'
     //* redirect to /home with toast message
     //* ---------------------------------
-    if (apiAuth.error) {
-        async function exitNow() {
-            console.log('APC:52--apiAuth.error:', apiAuth.error);
-            const currentDate = new Date();
+    // if (apiAuth.error) {
 
-            const formattedDate = currentDate.toLocaleString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-            });
-            await signOut();
-            toast({
-                title: 'Unauthorized, please register...',
-                description: formattedDate,
-            });
-            redirect('/');
-        }
-        await exitNow();
-    }
+    //         console.log('APC:52--apiAuth.error:', apiAuth.error);
+    //         const currentDate = new Date();
+
+    //         const formattedDate = currentDate.toLocaleString('en-US', {
+    //             weekday: 'long',
+    //             year: 'numeric',
+    //             month: 'long',
+    //             day: 'numeric',
+    //             hour: 'numeric',
+    //             minute: 'numeric',
+    //             second: 'numeric',
+    //         });
+    //         await signOut();
+    //         toast({
+    //             title: 'Unauthorized, please register...',
+    //             description: formattedDate,
+    //         });
+    //         redirect('/');
+    //     }
+    // }
     console.log('APC:64--apiAuth information:', apiAuth);
     //todo: ___________________________________________
     //todo: NEED TO CHECK IF apiAuth.status !== 200

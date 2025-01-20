@@ -1,12 +1,19 @@
 import { Button } from '@/components/ui/button';
 import FormInput from '@/components/form/FormInput';
+import { currentUser } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 const createProfileAction = async (formData: FormData) => {
     'use server';
     const firstName = formData.get('firstName') as string;
     console.log(firstName);
 };
 
-function CreateProfile() {
+async function CreateProfile() {
+    const clerkCurrentUser: any = await currentUser();
+    console.log('APS:12--clerkCurrentUser:\n', clerkCurrentUser);
+    if (!clerkCurrentUser?.privateMetadata?.jerichoId) {
+        redirect('/register');
+    }
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>new user</h1>
