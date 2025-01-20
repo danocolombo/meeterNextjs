@@ -12,14 +12,14 @@ const createProfileAction = async (formData: FormData) => {
     console.log(phone);
     redirect('/register/confirmed');
 };
-const RegisterPage = async () => {
+const RegisterConfirmedPage = async () => {
     const clerkCurrentUser: any = await currentUser();
     console.log('APS:12--clerkCurrentUser:\n', clerkCurrentUser);
 
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
-                registration page
+                Thanks for registering
             </h1>
             <div className='border p-8 rounded-md max-w-lg'>
                 <form action={createProfileAction}>
@@ -50,4 +50,4 @@ const RegisterPage = async () => {
     );
 };
 
-export default RegisterPage;
+export default RegisterConfirmedPage;
