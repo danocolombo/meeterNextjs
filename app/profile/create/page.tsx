@@ -1,9 +1,19 @@
+'use client';
 import { currentUser } from '@clerk/nextjs/server';
-
+import { useClerk } from '@clerk/clerk-react';
 import { UserProfileType } from '@/utils/types';
 import { redirect } from 'next/navigation';
-
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+const createProfileAction = async (formData: FormData) => {
+    const firstName = formData.get('firstName') as string;
+    console.log(firstName);
+};
 export default async function CreateProfilePage() {
+    const { signOut, session } = useClerk();
+    const { toast } = useToast();
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     //* ---------------------------------
     //* get Clerk user data
@@ -36,7 +46,35 @@ export default async function CreateProfilePage() {
     );
     const apiAuth = await apiAuthResponse.json();
 
-    // console.log('APC:64--apiAuth information:', apiAuth);
+    //* ---------------------------------
+    //* if the user does not have an account in clerk
+    //* we will get {error: 'Error: Unauthorized'
+    //* redirect to /home with toast message
+    //* ---------------------------------
+    if (apiAuth.error) {
+        async function exitNow() {
+            console.log('APC:52--apiAuth.error:', apiAuth.error);
+            const currentDate = new Date();
+
+            const formattedDate = currentDate.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+            });
+            await signOut();
+            toast({
+                title: 'Unauthorized, please register...',
+                description: formattedDate,
+            });
+            redirect('/');
+        }
+        await exitNow();
+    }
+    console.log('APC:64--apiAuth information:', apiAuth);
     //todo: ___________________________________________
     //todo: NEED TO CHECK IF apiAuth.status !== 200
     //todo: ___________________________________________
@@ -178,5 +216,20 @@ export default async function CreateProfilePage() {
     // const getQueryResults = await getQueryTestResults.json();
     // console.log('APC:109--getQueryResults:\n', getQueryResults);
 
-    return <div>CreateProfilePage</div>;
+    return (
+        <section>
+            <h1 className='text-2xl font-semibold mb-8 capitalize'>new user</h1>
+            <div className='border p-8 rounded-md max-w-lg'>
+                <form action={createProfileAction}>
+                    <div className='mb-2'>
+                        <Label htmlFor='firstName'>First Name</Label>
+                        <Input id='firstName' name='firstName' type='text' />
+                    </div>
+                    <Button type='submit' size='lg'>
+                        Create Profile
+                    </Button>
+                </form>
+            </div>
+        </section>
+    );
 }
