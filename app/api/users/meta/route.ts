@@ -22,9 +22,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
     const body = await request.json();
-    const { clerkId, apiToken, userProfile } = body;
+    const { clerkId, status, apiToken, userProfile } = body;
     const storeMetaResponse: any = await storeMetaAction(null, {
         clerkId,
+        status,
         apiToken,
         userProfile,
     });

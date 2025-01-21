@@ -167,6 +167,7 @@ export default async function CreateProfilePage() {
                 body: JSON.stringify({
                     apiToken: apiAuth.apiToken.plainTextToken,
                     clerkId: clerkCurrentUser?.id,
+                    status: 'active',
                     userProfile: profile,
                 }),
             }

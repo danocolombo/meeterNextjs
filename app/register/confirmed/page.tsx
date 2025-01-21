@@ -7,6 +7,7 @@ const createProfileAction = async (formData: FormData) => {
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
     const phone = formData.get('phone') as string;
+    const email = formData.get('email') as string;
     console.log(firstName);
     console.log(lastName);
     console.log(phone);
@@ -14,37 +15,35 @@ const createProfileAction = async (formData: FormData) => {
 };
 const RegisterConfirmedPage = async () => {
     const clerkCurrentUser: any = await currentUser();
-    console.log('APS:12--clerkCurrentUser:\n', clerkCurrentUser);
+    // console.log('APS:12--clerkCurrentUser:\n', clerkCurrentUser);
 
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
                 Thanks for registering
             </h1>
-            <div className='border p-8 rounded-md max-w-lg'>
-                <form action={createProfileAction}>
-                    <div className='flex flex-row mb-2 space-x-4'>
-                        <FormInput
-                            name='firstName'
-                            label='First Name'
-                            type='text'
-                            defaultValue={clerkCurrentUser?.firstName}
-                        />
-                        <FormInput
-                            name='lastName'
-                            label='Last Name'
-                            type='text'
-                            defaultValue={clerkCurrentUser?.lastName}
-                        />
-                    </div>
-                    <div className='flex flex-row mb-2 space-x-4'>
-                        <FormInput name='phone' label='Phone' type='text' />
-                    </div>
-                    <div className='mb-2'></div>
-                    <Button type='submit' size='lg'>
-                        Create Profile
-                    </Button>
-                </form>
+            <div className='p-2 max-w-lg'>
+                <p>
+                    Thank you, {clerkCurrentUser?.firstName}, for completing
+                    your registration request. The Meeter admins will review
+                    your request and take proper action and notifying you if
+                    your request is approved.
+                </p>
+            </div>
+            <div className='p-2 max-w-lg'>
+                <p>
+                    Notification will be sent to
+                    <b>
+                        {' '}
+                        {
+                            clerkCurrentUser?.emailAddresses.find(
+                                (item: any) =>
+                                    item.id ===
+                                    clerkCurrentUser?.primaryEmailAddressId
+                            )?.emailAddress
+                        }
+                    </b>
+                </p>
             </div>
         </section>
     );

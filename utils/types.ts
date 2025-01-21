@@ -96,6 +96,7 @@ export interface UserProfileType {
     firstName?: string;
     lastName?: string;
     email?: string;
+    phone?: string;
     jerichoId?: string;
     jerichoSub?: string;
     defaultOrgId?: string;
