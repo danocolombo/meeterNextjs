@@ -178,6 +178,9 @@ export default async function CreateProfilePage() {
     // );
     // const getQueryResults = await getQueryTestResults.json();
     // console.log('APC:109--getQueryResults:\n', getQueryResults);
-
+    if (profile) {
+        redirect('/profile');
+        return null;
+    }
     return <div>CreateProfilePage</div>;
 }
