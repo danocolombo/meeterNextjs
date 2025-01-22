@@ -19,13 +19,13 @@ const RegisterConfirmedPage = async () => {
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
-                Registration being reviewed
+                Registration Pending
             </h1>
             <div className='p-2 max-w-lg'>
                 <p>
                     Thank you, {clerkCurrentUser?.firstName}, your registration
-                    request is pending. The Meeter admins will review your
-                    request and take proper action and notifying you if your
+                    request is pending. The Meeter admins will be reviewing your
+                    request and take proper action. You will be notified if your
                     request is approved.
                 </p>
                 <p>Check with them if you have any questions or concerns.</p>
