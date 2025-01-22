@@ -93,7 +93,7 @@ export default async function CreateProfilePage() {
     //* default org, based on the affiliations array.
     //* =====================================================
     let roles: string[] = [];
-    userProfile.affiliations.forEach((affiliation: any) => {
+    userProfile?.affiliations?.forEach((affiliation: any) => {
         if (affiliation.organization_id === userProfile.default_org_id) {
             if (affiliation.status === 'active') {
                 roles.push(affiliation.role);

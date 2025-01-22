@@ -15,20 +15,20 @@ const createProfileAction = async (formData: FormData) => {
 };
 const RegisterConfirmedPage = async () => {
     const clerkCurrentUser: any = await currentUser();
-    // console.log('APS:12--clerkCurrentUser:\n', clerkCurrentUser);
 
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
-                Thanks for registering
+                Registration being reviewed
             </h1>
             <div className='p-2 max-w-lg'>
                 <p>
-                    Thank you, {clerkCurrentUser?.firstName}, for completing
-                    your registration request. The Meeter admins will review
-                    your request and take proper action and notifying you if
-                    your request is approved.
+                    Thank you, {clerkCurrentUser?.firstName}, your registration
+                    request is pending. The Meeter admins will review your
+                    request and take proper action and notifying you if your
+                    request is approved.
                 </p>
+                <p>Check with them if you have any questions or concerns.</p>
             </div>
             <div className='p-2 max-w-lg'>
                 <p>

@@ -55,6 +55,10 @@ const createProfileAction = async (formData: FormData) => {
 };
 const RegisterPage = async () => {
     const clerkCurrentUser: any = await currentUser();
+    if (clerkCurrentUser?.privateMetadata?.status === 'pending') {
+        redirect('/register/confirmed?message=Retry');
+        return null;
+    }
     // console.log('APS:12--clerkCurrentUser:\n', clerkCurrentUser);
 
     return (
