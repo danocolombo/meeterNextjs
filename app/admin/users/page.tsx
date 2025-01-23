@@ -107,6 +107,20 @@ const ShowUsersPage = async () => {
             default_org_id: '10',
         },
     ];
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+    const apiClerkUsersResponse: any = await fetch(
+        `${baseUrl}/admin/clerk/users`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    // const clerkUsersList = await apiClerkUsersResponse.json();
+    console.log('AAU:123--apiClerkUsersResponse:\n', apiClerkUsersResponse);
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {users.map((user) => (

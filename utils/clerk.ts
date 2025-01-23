@@ -164,6 +164,21 @@ export const getMetaAction = async (
 };
 
 //   ================================================================
+//   PROVIDE list of users in the clerk system (for admin use)
+//   ================================================================
+export const getClerkUsers = async (): Promise<{ data: any }> => {
+    const userListResponse = await clerkClient.users.getUserList();
+
+    return {
+        data: {
+            status: 200,
+            message: 'getMetaAction successfully called',
+            userList: userListResponse,
+        },
+    };
+};
+
+//   ================================================================
 //*  ================================================================
 //todo:  this is sample to use for updating values. DELETE B4 PROD
 //*  ================================================================

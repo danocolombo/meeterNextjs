@@ -1,6 +1,7 @@
 import React from 'react';
 import { checkRole, getSessionInfo } from '@/utils/roles';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 const AdminPage = async () => {
     // Protect the page from users who are not admins
     const sessionInfo = await getSessionInfo();

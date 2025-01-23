@@ -9,7 +9,8 @@ export async function POST(req: Request) {
     //* attempt to get Jericho api token for user
     //* ------------------------------------------------
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
+        const baseUrl =
+            process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
         const { id, email } = await req.json();
         const jerichoRequest = {
             email,
