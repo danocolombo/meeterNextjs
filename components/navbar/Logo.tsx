@@ -2,17 +2,15 @@ import React from 'react';
 import Link from 'next/link';
 import { TbCircleLetterMFilled } from 'react-icons/tb';
 import { Button } from '@/components/ui/button';
+import Meeter from '@/components/navbar/Meeter';
 function Logo() {
     return (
-        <Button size='icon' asChild>
+        <Button size='logo' asChild>
             <Link
                 href='/'
                 className='flex items-center justify-center bg-primary'
             >
-                <TbCircleLetterMFilled
-                    className='w-full h-full text-accent bg-primary'
-                    size={150}
-                />
+                <Meeter />
             </Link>
         </Button>
     );

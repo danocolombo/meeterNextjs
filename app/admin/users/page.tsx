@@ -2,6 +2,7 @@ import React from 'react';
 import UserCard from '@/components/admin/userCard';
 
 const ShowUsersPage = () => {
+    const response = await clerkClient.users.getUserList();
     const users: UserProfileType[] = [
         {
             jericho_id: '1',
