@@ -1,9 +1,11 @@
 import React from 'react';
+import { clerkClient } from '@clerk/nextjs/server';
 import UserCard from '@/components/admin/userCard';
+import { UserProfileType } from '@/utils/types';
 
-const ShowUsersPage = () => {
+const ShowUsersPage = async () => {
     const response = await clerkClient.users.getUserList();
-    const users: UserProfileType[] = [
+    const users = [
         {
             jericho_id: '1',
             created_at: '2021-08-04T16:00:00.000Z',
