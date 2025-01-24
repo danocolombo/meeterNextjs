@@ -3,6 +3,7 @@ import React from 'react';
 const UserCard = (params) => {
     const {
         key,
+        username,
         firstName,
         lastName,
         email,
@@ -10,9 +11,12 @@ const UserCard = (params) => {
         clerkId,
         jerichoId,
         sub,
+        imageURL,
+        hasImage,
         orgId,
         orgCode,
         orgName,
+        banned,
     } = params;
     return (
         <div className='border p-8 rounded-md '>

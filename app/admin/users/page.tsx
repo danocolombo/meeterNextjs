@@ -1,12 +1,12 @@
 import React from 'react';
 import { clerkClient } from '@clerk/nextjs/server';
 import UserCard from '@/components/admin/userCard';
-import { UserProfileType } from '@/utils/types';
+import { UserProfileType, ClerkUserType } from '@/utils/types';
 import { printObject } from '@/utils/helpers';
 
 const ShowUsersPage = async () => {
     const response = await clerkClient.users.getUserList();
-    const users = [
+    const oldUsersList = [
         {
             jericho_id: '1',
             created_at: '2021-08-04T16:00:00.000Z',
@@ -121,22 +121,64 @@ const ShowUsersPage = async () => {
         }
     );
     const clerkUsersList = await apiClerkUsersResponse.json();
-    printObject('AAU:123--clerkUsersList:\n', clerkUsersList);
+    // printObject('AAU:123--clerkUsersList:\n', clerkUsersList);
+    const users = clerkUsersList?.userList.data?.userList.data.map(
+        (user: ClerkUserType) => {
+            return {
+                id: user?.id || '',
+                passwordEnabled: user?.passwordEnabled || false,
+                totpEnabled: user?.totpEnabled || false,
+                backupCodeEnabled: user?.backupCodeEnabled || false,
+                twoFactorEnabled: user?.twoFactorEnabled || false,
+                banned: user?.banned || false,
+                createdAt: user?.createdAt || null,
+                updatedAt: user?.updatedAt || null,
+                imageUrl: user?.imageUrl || '',
+                hasImage: user?.hasImage || false,
+                primaryEmailAddressId: user?.primaryEmailAddressId || '',
+                primaryPhoneNumberId: user?.primaryPhoneNumberId || '',
+                primaryWeb3WalletId: user?.primaryWeb3WalletId || '',
+                lastSignInAt: user?.lastSignInAt || null,
+                externalId: user?.externalId || '',
+                username: user?.username || '',
+                firstName: user?.firstName || '',
+                lastName: user?.lastName || '',
+                publicMetadata: user?.publicMetadata || {},
+                privateMetadata: user?.privateMetadata || {},
+                unsafeMetadata: user?.unsafeMetadata || {},
+                emailAddresses: user?.emailAddresses || [],
+                phoneNumbers: user?.phoneNumbers || [],
+                web3Wallets: user?.web3Wallets || [],
+                externalAccounts: user?.externalAccounts || [],
+                samlAccounts: user?.samlAccounts || [],
+                lastActiveAt: user?.lastActiveAt || null,
+                createOrganizationEnabled:
+                    user?.createOrganizationEnabled || false,
+            };
+        }
+    );
+    console.log('AAU:123--users count:\n', users.length);
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {users.map((user) => (
                 <UserCard
-                    key={user.jericho_id}
-                    firstName={user.first_name}
-                    lastName={user.last_name}
-                    email={user.email}
-                    id={user.jericho_id}
-                    clerkId={user.jericho_id}
-                    jerichoId={user.jericho_id}
-                    sub={user.cognito_sub}
-                    orgId={user.default_org_id}
-                    orgCode={user.default_org_id}
-                    orgName={user.default_org_id}
+                    key={user.id}
+                    status={user?.publicMetadata?.status}
+                    username={user?.privateMetadata?.meeter?.username}
+                    firstName={user?.privateMetadata?.meeter?.firstName}
+                    lastName={user?.privateMetadata?.meeter?.lastName}
+                    email={user?.privateMetadata?.meeter?.email}
+                    id={user?.privateMetadata?.meeter?.id}
+                    clerkId={user?.privateMetadata?.meeter?.clerkId}
+                    jerichoId={user?.privateMetadata?.meeter?.jerichoId}
+                    sub={user?.privateMetadata?.meeter?.sub}
+                    imageURL={user?.imageUrl}
+                    hasImage={user?.hasImage}
+                    roles={user?.publicMetadata?.roles}
+                    orgId={user?.privateMetadata?.meeter?.orgId}
+                    orgCode={user?.privateMetadata?.meeter?.orgCode}
+                    orgName={user?.privateMetadata}
+                    banned={user?.banned}
                 />
             ))}
         </div>

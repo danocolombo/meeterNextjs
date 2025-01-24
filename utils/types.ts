@@ -1,3 +1,4 @@
+import { Boolean } from './../node_modules/.prisma/client/index.d';
 export type actionFunction = (
     prevState: any,
     formData: FormData
@@ -111,4 +112,34 @@ export interface UserProfileType {
 }
 export interface IronSessionData {
     apiToken?: string;
+}
+export interface ClerkUserType {
+    id?: string | null;
+    passwordEnabled?: Boolean | null;
+    totpEnabled?: Boolean | null;
+    backupCodeEnabled?: Boolean | null;
+    twoFactorEnabled?: Boolean | null;
+    banned?: Boolean | null;
+    createdAt?: number | null;
+    updatedAt?: number | null;
+    imageUrl?: string | null;
+    hasImage?: Boolean | null;
+    primaryEmailAddressId?: string | null;
+    primaryPhoneNumberId?: string | null;
+    primaryWeb3WalletId?: string | null;
+    lastSignInAt?: number | null;
+    externalId?: string | null;
+    username?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    publicMetadata?: any;
+    privateMetadata?: any;
+    unsafeMetadata?: any;
+    emailAddresses?: any[] | null;
+    phoneNumbers?: [] | null;
+    web3Wallets?: [] | null;
+    externalAccounts?: [] | null;
+    samlAccounts?: [] | null;
+    lastActiveAt?: number | null;
+    createOrganizationEnabled?: Boolean | null;
 }
