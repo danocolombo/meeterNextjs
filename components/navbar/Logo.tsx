@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { TbCircleLetterMFilled } from 'react-icons/tb';
 import { Button } from '@/components/ui/button';
 import Meeter from '@/components/navbar/Meeter';
 function Logo() {

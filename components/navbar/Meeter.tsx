@@ -1,10 +1,18 @@
 import React from 'react';
-
+import { charmFont, newsreaderFont } from '@/components/ui/fonts';
 const Meeter = () => {
     return (
         <div className='flex flex-col items-center'>
-            <span className='text-6xl font-bold'>M</span>
-            <span className='text-xl -mt-1'>Meeter</span>
+            <font
+                className={`${charmFont.className} text-32xl font-bold md:text-5xl mb-0 mt-2`}
+            >
+                M
+            </font>
+            <span
+                className={`${newsreaderFont.className} text-32xl font-bold md:text-2xl -mt-2`}
+            >
+                Meeter
+            </span>
         </div>
     );
 };
