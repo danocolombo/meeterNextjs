@@ -4,12 +4,12 @@ const Meeter = () => {
     return (
         <div className='flex flex-col items-center'>
             <font
-                className={`${charmFont.className} text-32xl font-bold md:text-5xl mb-0 mt-2`}
+                className={`${charmFont.className} text-4xl font-bold md:text-5xl mb-0 mt-2`}
             >
                 M
             </font>
             <span
-                className={`${newsreaderFont.className} text-32xl font-bold md:text-2xl -mt-2`}
+                className={`${newsreaderFont.className} text-1xl font-bold md:text-2xl -mt-2`}
             >
                 Meeter
             </span>
