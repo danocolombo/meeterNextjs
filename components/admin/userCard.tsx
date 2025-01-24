@@ -23,7 +23,7 @@ const UserCard = (params) => {
     return (
         <div
             className={`border p-8 rounded-md ${
-                jerichoId === '0' ? 'bg-orange-500' : ''
+                jerichoId === '0' ? 'bg-warning text-warning-foreground' : ''
             }`}
         >
             <p className='text-lg font-semibold'>
@@ -36,7 +36,9 @@ const UserCard = (params) => {
             ) : jerichoId === '0' ? (
                 <p className='text-md text-white-800 underline'>PENDING</p>
             ) : (
-                <p className='text-sm text-gray-500'>No Meeter definition</p>
+                <p className='text-md text-warning-foreground underline'>
+                    No Meeter definition
+                </p>
             )}
         </div>
     );
