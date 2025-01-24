@@ -1,4 +1,5 @@
 import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { clerkClient } from '@clerk/nextjs/server';
 import UserCard from '@/components/admin/userCard';
 import { UserProfileType, ClerkUserType } from '@/utils/types';
@@ -124,8 +125,13 @@ const ShowUsersPage = async () => {
     // printObject('AAU:123--clerkUsersList:\n', clerkUsersList);
     const users = clerkUsersList?.userList.data?.userList.data.map(
         (user: ClerkUserType) => {
+            //   there may be times when clerk has user but
+            //   account is in process of registration, and/or
+            //   no jericho_id is assigned yet. For these cases
+            //   need to pull up additional information to identify
+            printObject('AAU:132--user:\n', user);
             return {
-                id: user?.id || '',
+                id: user?.id,
                 passwordEnabled: user?.passwordEnabled || false,
                 totpEnabled: user?.totpEnabled || false,
                 backupCodeEnabled: user?.backupCodeEnabled || false,
@@ -157,17 +163,22 @@ const ShowUsersPage = async () => {
             };
         }
     );
-    console.log('AAU:123--users count:\n', users.length);
+    // console.log('AAU:123--users count:\n', users.length);
+    // printObject('AAU:123--users:\n', users);
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {users.map((user) => (
                 <UserCard
-                    key={user.id}
+                    key={user?.id}
                     status={user?.publicMetadata?.status}
                     username={user?.privateMetadata?.meeter?.username}
                     firstName={user?.privateMetadata?.meeter?.firstName}
                     lastName={user?.privateMetadata?.meeter?.lastName}
-                    email={user?.privateMetadata?.meeter?.email}
+                    email={
+                        user.emailAddresses.find(
+                            (e) => e.id === user.primaryEmailAddressId
+                        )?.emailAddress
+                    }
                     id={user?.privateMetadata?.meeter?.id}
                     clerkId={user?.privateMetadata?.meeter?.clerkId}
                     jerichoId={user?.privateMetadata?.meeter?.jerichoId}
