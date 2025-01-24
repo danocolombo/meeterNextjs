@@ -13,3 +13,6 @@ export const formattedCurrentDate = () => {
     });
     return formattedDate.toString;
 };
+export function printObject(label, target) {
+    console.log(label, JSON.stringify(target, null, 2));
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { clerkClient } from '@clerk/nextjs/server';
 import UserCard from '@/components/admin/userCard';
 import { UserProfileType } from '@/utils/types';
+import { printObject } from '@/utils/helpers';
 
 const ShowUsersPage = async () => {
     const response = await clerkClient.users.getUserList();
@@ -110,7 +111,7 @@ const ShowUsersPage = async () => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
     const apiClerkUsersResponse: any = await fetch(
-        `${baseUrl}/admin/clerk/users`,
+        `${baseUrl}/api/admin/clerk/users`,
         {
             method: 'GET',
             headers: {
@@ -119,8 +120,8 @@ const ShowUsersPage = async () => {
             },
         }
     );
-    // const clerkUsersList = await apiClerkUsersResponse.json();
-    console.log('AAU:123--apiClerkUsersResponse:\n', apiClerkUsersResponse);
+    const clerkUsersList = await apiClerkUsersResponse.json();
+    printObject('AAU:123--clerkUsersList:\n', clerkUsersList);
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {users.map((user) => (
