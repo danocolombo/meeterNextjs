@@ -67,31 +67,31 @@ const ShowUsersPage = async () => {
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {users.map((user) => (
-                // <Link key={user?.id} href={`/admin/user/${user.id}`}>
-                <UserCard
-                    key={user?.id}
-                    status={user?.publicMetadata?.status}
-                    username={user?.privateMetadata?.meeter?.username}
-                    firstName={user?.privateMetadata?.meeter?.firstName}
-                    lastName={user?.privateMetadata?.meeter?.lastName}
-                    email={
-                        user.emailAddresses.find(
-                            (e) => e.id === user.primaryEmailAddressId
-                        )?.emailAddress
-                    }
-                    id={user?.privateMetadata?.meeter?.id}
-                    clerkId={user?.privateMetadata?.meeter?.clerkId}
-                    jerichoId={user?.privateMetadata?.meeter?.jerichoId}
-                    sub={user?.privateMetadata?.meeter?.sub}
-                    imageURL={user?.imageUrl}
-                    hasImage={user?.hasImage}
-                    roles={user?.publicMetadata?.roles}
-                    orgId={user?.privateMetadata?.meeter?.orgId}
-                    orgCode={user?.privateMetadata?.meeter?.orgCode}
-                    orgName={user?.privateMetadata}
-                    banned={user?.banned}
-                />
-                // </Link>
+                <Link key={user?.id} href={`/admin/user/${user.id}`}>
+                    <UserCard
+                        key={user?.id}
+                        status={user?.publicMetadata?.status}
+                        username={user?.privateMetadata?.meeter?.username}
+                        firstName={user?.privateMetadata?.meeter?.firstName}
+                        lastName={user?.privateMetadata?.meeter?.lastName}
+                        email={
+                            user.emailAddresses.find(
+                                (e) => e.id === user.primaryEmailAddressId
+                            )?.emailAddress
+                        }
+                        id={user?.privateMetadata?.meeter?.id}
+                        clerkId={user?.privateMetadata?.meeter?.clerkId}
+                        jerichoId={user?.privateMetadata?.meeter?.jerichoId}
+                        sub={user?.privateMetadata?.meeter?.sub}
+                        imageURL={user?.imageUrl}
+                        hasImage={user?.hasImage}
+                        roles={user?.publicMetadata?.roles}
+                        orgId={user?.privateMetadata?.meeter?.orgId}
+                        orgCode={user?.privateMetadata?.meeter?.orgCode}
+                        orgName={user?.privateMetadata}
+                        banned={user?.banned}
+                    />
+                </Link>
             ))}
         </div>
     );

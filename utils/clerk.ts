@@ -182,14 +182,20 @@ export const getClerkUsers = async (): Promise<{ data: any }> => {
 //   Provide clerk object for specific clerk id
 //   ================================================================
 export const getClerkUser = async (id: string): Promise<any> => {
-    const response = await clerkClient.users.getUser(id);
-    printObject('UC:186--response:\n', response);
-    return {
-        id: response.id,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        email: response.emailAddresses[0]?.emailAddress,
-    };
+    try {
+        const response = await clerkClient.users.getUser(id);
+        return {
+            status: 200,
+            clerkId: id,
+            data: JSON.parse(JSON.stringify(response)), // Ensure plain object
+        };
+    } catch (error) {
+        return {
+            status: 500,
+            message: 'Failed to fetch user',
+            error: JSON.parse(JSON.stringify(error)), // Ensure plain object
+        };
+    }
 };
 
 //   ================================================================

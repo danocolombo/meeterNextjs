@@ -61,7 +61,7 @@ export default async function CreateProfilePage() {
                 Accept: 'application/json',
             },
             body: JSON.stringify({
-                apiToken: apiAuth.apiToken.plainTextToken,
+                apiToken: apiAuth?.apiToken?.plainTextToken,
             }),
         }
     );
@@ -134,7 +134,7 @@ export default async function CreateProfilePage() {
                     Accept: 'application/json',
                 },
                 body: JSON.stringify({
-                    apiToken: apiAuth.apiToken.plainTextToken,
+                    apiToken: apiAuth?.apiToken?.plainTextToken,
                     clerkId: clerkCurrentUser?.id,
                     status: 'active',
                     userProfile: profile,
