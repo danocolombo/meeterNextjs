@@ -1,88 +1,95 @@
-import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { clerkClient } from '@clerk/nextjs/server';
-import UserCard from '@/components/admin/userCard';
-import { UserProfileType, ClerkUserType } from '@/utils/types';
+'use client';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
-import MeetingCard from './meetingCard';
 
-const MeetingsList = async () => {
-    const response = await clerkClient.users.getUserList();
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const STORAGE_KEY = 'jericho_api_token';
 
-    const meetings: any = await fetch(
-        `${baseUrl}/api/jericho/meetings/org/9abfdbc2-378d-4c69-b140-7c55c5db7222`,
-        {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
+interface Meeting {
+    id: string;
+    mtg: {
+        id: string;
+        // add other meeting properties as needed
+    };
+}
+
+const MeetingsList = ({ apiToken }: { apiToken: string }) => {
+    const [meetings, setMeetings] = useState<Meeting[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [currentToken, setCurrentToken] = useState<string>('');
+    printObject('CMML:15-->apiToken:\n', apiToken);
+
+    // useEffect(() => {
+    //     // Try to get existing token from localStorage
+    //     const storedToken = localStorage.getItem(STORAGE_KEY);
+
+    //     if (storedToken) {
+    //         setCurrentToken(storedToken);
+    //     } else if (apiToken) {
+    //         // Store new token if provided
+    //         localStorage.setItem(STORAGE_KEY, apiToken);
+    //         setCurrentToken(apiToken);
+    //     }
+    // }, [apiToken]);
+
+    useEffect(() => {
+        const getMeetings = async () => {
+            try {
+                if (!apiToken) {
+                    throw new Error('No API token available');
+                }
+
+                console.log('Fetching meetings with token:', currentToken);
+
+                const response: any = await fetch(
+                    '/api/jericho/meetings/organization/9abfdbc2-378d-4c69-b140-7c55c5db7222',
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            jerichotoken: apiToken,
+                        },
+                    }
+                );
+
+                console.log('⚽️⚽️⚽️Response status:', response);
+
+                // Ensure we're getting an array of meetings
+
+                // setMeetings([]);
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to fetch meetings'
+                );
+                console.error('Error fetching meetings:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (apiToken) {
+            console.log('YES');
+            getMeetings();
         }
-    );
-    const meetingData = await meetings.json();
-    printObject('CMML:25--meetingData:\n', meetingData);
-    const apiClerkUsersResponse: any = await fetch(
-        `${baseUrl}/api/admin/clerk/users`,
-        {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        }
-    );
-    const clerkUsersList = await apiClerkUsersResponse.json();
-    // printObject('AAU:123--clerkUsersList:\n', clerkUsersList);
-    const users = clerkUsersList?.userList.data?.userList.data.map(
-        (user: ClerkUserType) => {
-            //   there may be times when clerk has user but
-            //   account is in process of registration, and/or
-            //   no jericho_id is assigned yet. For these cases
-            //   need to pull up additional information to identify
-            return {
-                id: user?.id,
-                passwordEnabled: user?.passwordEnabled || false,
-                totpEnabled: user?.totpEnabled || false,
-                backupCodeEnabled: user?.backupCodeEnabled || false,
-                twoFactorEnabled: user?.twoFactorEnabled || false,
-                banned: user?.banned || false,
-                createdAt: user?.createdAt || null,
-                updatedAt: user?.updatedAt || null,
-                imageUrl: user?.imageUrl || '',
-                hasImage: user?.hasImage || false,
-                primaryEmailAddressId: user?.primaryEmailAddressId || '',
-                primaryPhoneNumberId: user?.primaryPhoneNumberId || '',
-                primaryWeb3WalletId: user?.primaryWeb3WalletId || '',
-                lastSignInAt: user?.lastSignInAt || null,
-                externalId: user?.externalId || '',
-                username: user?.username || '',
-                firstName: user?.firstName || '',
-                lastName: user?.lastName || '',
-                publicMetadata: user?.publicMetadata || {},
-                privateMetadata: user?.privateMetadata || {},
-                unsafeMetadata: user?.unsafeMetadata || {},
-                emailAddresses: user?.emailAddresses || [],
-                phoneNumbers: user?.phoneNumbers || [],
-                web3Wallets: user?.web3Wallets || [],
-                externalAccounts: user?.externalAccounts || [],
-                samlAccounts: user?.samlAccounts || [],
-                lastActiveAt: user?.lastActiveAt || null,
-                createOrganizationEnabled:
-                    user?.createOrganizationEnabled || false,
-            };
-        }
-    );
-    // console.log('AAU:123--users count:\n', users.length);
-    // printObject('AAU:123--users:\n', users);
+    }, [apiToken]);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+
     return (
         <div className='grid md:grid-cols-2 gap-4'>
-            {users.map((user) => (
-                <Link key={user?.id} href={`/admin/user/${user.id}`}>
-                    <MeetingCard />
-                </Link>
-            ))}
+            {Array.isArray(meetings) && meetings.length > 0 ? (
+                meetings.map((mtg: Meeting) => (
+                    <Link key={mtg.id} href={`/admin/user/${mtg.id}`}>
+                        <div>{mtg.mtg?.id || 'No ID'}</div>
+                    </Link>
+                ))
+            ) : (
+                <div>No meetings found</div>
+            )}
         </div>
     );
 };

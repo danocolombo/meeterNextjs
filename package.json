@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "npx prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:clean": "rm -rf .next && next dev"
   },
   "dependencies": {
     "@clerk/nextjs": "5.01",

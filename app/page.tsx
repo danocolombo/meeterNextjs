@@ -1,19 +1,26 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { Button } from '@/components/ui/button';
 import MeetingList from '@/components/meetings/meetingList';
+import { printObject } from '@/utils/helpers';
 // import { getSession } from '@/utils/jose';
 const HomePage = async () => {
     const clerkCurrentUser: any = await currentUser();
-    const profile = clerkCurrentUser?.privateMetadata?.meeter;
-    // const session = await getSession();
+    // printObject('p:8-->clerkCurrentUser:\n', clerkCurrentUser);
+
     return (
         <>
             {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
 
-            {profile ? (
+            {clerkCurrentUser?.privateMetadata ? (
                 <div>
-                    <p className='text-lg'>Welcome {profile?.firstName}</p>
-                    <MeetingList />
+                    <p className='text-lg'>
+                        Welcome {clerkCurrentUser?.firstName}
+                    </p>
+                    <MeetingList
+                        apiToken={
+                            clerkCurrentUser.privateMetadata?.meeter?.apiToken
+                        }
+                    />
                 </div>
             ) : (
                 <div>
