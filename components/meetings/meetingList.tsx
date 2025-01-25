@@ -11,6 +11,18 @@ const MeetingsList = async () => {
     const response = await clerkClient.users.getUserList();
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+    const meetings: any = await fetch(
+        `${baseUrl}/api/jericho/meetings/org/9abfdbc2-378d-4c69-b140-7c55c5db7222`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    const meetingData = await meetings.json();
+    printObject('CMML:25--meetingData:\n', meetingData);
     const apiClerkUsersResponse: any = await fetch(
         `${baseUrl}/api/admin/clerk/users`,
         {
@@ -29,7 +41,6 @@ const MeetingsList = async () => {
             //   account is in process of registration, and/or
             //   no jericho_id is assigned yet. For these cases
             //   need to pull up additional information to identify
-            printObject('AAU:132--user:\n', user);
             return {
                 id: user?.id,
                 passwordEnabled: user?.passwordEnabled || false,
