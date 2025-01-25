@@ -200,7 +200,7 @@ export const getClerkUser = async (id: string): Promise<any> => {
 //   ================================================================
 //   Provide clerkId to set status in meta to 'active'
 //   ================================================================
-export const activateUser = async (id: string): Promise<any> => {
+export const activateClerkUser = async (id: string): Promise<any> => {
     try {
         //const response = await clerkClient.users.getUser(id);
         if (id) {
