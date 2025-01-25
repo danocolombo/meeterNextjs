@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
+import { printObject } from '@/utils/helpers';
 import { JerichoUserType, MeetingType } from './types';
 import { uploadImage } from './supabase';
 import {
@@ -175,6 +176,19 @@ export const getClerkUsers = async (): Promise<{ data: any }> => {
             message: 'getMetaAction successfully called',
             userList: userListResponse,
         },
+    };
+};
+//   ================================================================
+//   Provide clerk object for specific clerk id
+//   ================================================================
+export const getClerkUser = async (id: string): Promise<any> => {
+    const response = await clerkClient.users.getUser(id);
+    printObject('UC:186--response:\n', response);
+    return {
+        id: response.id,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        email: response.emailAddresses[0]?.emailAddress,
     };
 };
 

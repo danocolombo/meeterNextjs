@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { clerkClient } from '@clerk/nextjs/server';
 import UserCard from '@/components/admin/userCard';
 import { UserProfileType, ClerkUserType } from '@/utils/types';
+import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
 
 const ShowUsersPage = async () => {
@@ -66,6 +67,7 @@ const ShowUsersPage = async () => {
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {users.map((user) => (
+                // <Link key={user?.id} href={`/admin/user/${user.id}`}>
                 <UserCard
                     key={user?.id}
                     status={user?.publicMetadata?.status}
@@ -89,6 +91,7 @@ const ShowUsersPage = async () => {
                     orgName={user?.privateMetadata}
                     banned={user?.banned}
                 />
+                // </Link>
             ))}
         </div>
     );
