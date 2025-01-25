@@ -1,45 +1,79 @@
-'use client';
+import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { clerkClient } from '@clerk/nextjs/server';
+import UserCard from '@/components/admin/userCard';
+import { UserProfileType, ClerkUserType } from '@/utils/types';
+import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
-import React, { useState, useEffect } from 'react';
+import MeetingCard from './meetingCard';
 
-const MeetingList = () => {
-    const [userCount, setUserCount] = useState<number | null>(null);
-    const [loading, setLoading] = useState(true);
+const MeetingsList = async () => {
+    const response = await clerkClient.users.getUserList();
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const baseUrl =
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-                const response = await fetch(
-                    `${baseUrl}/api/admin/clerk/users`
-                );
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const clerkUsersList = await response.json();
-                console.log('CMML:19--clerkUsersList:', clerkUsersList);
-                console.log(
-                    'CMML:19--clerkUsersList.length:',
-                    clerkUsersList?.length || 0
-                );
-                setUserCount(clerkUsersList?.length || 0);
-            } catch (error) {
-                console.error('Error in fetchUsers:', error);
-                setUserCount(0);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUsers();
-    }, []);
-
-    if (loading) return <div>Loading...</div>;
-
-    return <div>Number of users: {userCount}</div>;
+    const apiClerkUsersResponse: any = await fetch(
+        `${baseUrl}/api/admin/clerk/users`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    const clerkUsersList = await apiClerkUsersResponse.json();
+    // printObject('AAU:123--clerkUsersList:\n', clerkUsersList);
+    const users = clerkUsersList?.userList.data?.userList.data.map(
+        (user: ClerkUserType) => {
+            //   there may be times when clerk has user but
+            //   account is in process of registration, and/or
+            //   no jericho_id is assigned yet. For these cases
+            //   need to pull up additional information to identify
+            printObject('AAU:132--user:\n', user);
+            return {
+                id: user?.id,
+                passwordEnabled: user?.passwordEnabled || false,
+                totpEnabled: user?.totpEnabled || false,
+                backupCodeEnabled: user?.backupCodeEnabled || false,
+                twoFactorEnabled: user?.twoFactorEnabled || false,
+                banned: user?.banned || false,
+                createdAt: user?.createdAt || null,
+                updatedAt: user?.updatedAt || null,
+                imageUrl: user?.imageUrl || '',
+                hasImage: user?.hasImage || false,
+                primaryEmailAddressId: user?.primaryEmailAddressId || '',
+                primaryPhoneNumberId: user?.primaryPhoneNumberId || '',
+                primaryWeb3WalletId: user?.primaryWeb3WalletId || '',
+                lastSignInAt: user?.lastSignInAt || null,
+                externalId: user?.externalId || '',
+                username: user?.username || '',
+                firstName: user?.firstName || '',
+                lastName: user?.lastName || '',
+                publicMetadata: user?.publicMetadata || {},
+                privateMetadata: user?.privateMetadata || {},
+                unsafeMetadata: user?.unsafeMetadata || {},
+                emailAddresses: user?.emailAddresses || [],
+                phoneNumbers: user?.phoneNumbers || [],
+                web3Wallets: user?.web3Wallets || [],
+                externalAccounts: user?.externalAccounts || [],
+                samlAccounts: user?.samlAccounts || [],
+                lastActiveAt: user?.lastActiveAt || null,
+                createOrganizationEnabled:
+                    user?.createOrganizationEnabled || false,
+            };
+        }
+    );
+    // console.log('AAU:123--users count:\n', users.length);
+    // printObject('AAU:123--users:\n', users);
+    return (
+        <div className='grid md:grid-cols-2 gap-4'>
+            {users.map((user) => (
+                <Link key={user?.id} href={`/admin/user/${user.id}`}>
+                    <MeetingCard />
+                </Link>
+            ))}
+        </div>
+    );
 };
 
-export default MeetingList;
+export default MeetingsList;
