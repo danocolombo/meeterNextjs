@@ -5,6 +5,7 @@ import { getClerkUser, activateClerkUser } from '@/utils/clerk';
 import { printObject } from '@/utils/helpers';
 import { NavigateButton } from '@/components/form/Buttons';
 import ExpandableJson from '@/components/ui/expanableJson';
+import { AdminAttribute } from '@/components/ui/adminAttribute';
 
 const AdminUserPage = () => {
     const { id } = useParams() as { id: string };
@@ -83,27 +84,37 @@ const AdminUserPage = () => {
                 )}
             </div>
             <div className={`border p-2 rounded`}>
-                <div>
-                    id: <span className='font-bold'>{user?.id}</span>
-                </div>
-                <div>
-                    banned:{' '}
-                    <span className='font-bold'>
-                        {user?.banned ? 'true' : 'false'}
-                    </span>
-                </div>
-                <div>
-                    created:{' '}
-                    <span className='font-bold'>
-                        {new Date(user?.createdAt).toLocaleString()}
-                    </span>
-                </div>
+                <AdminAttribute title='id' value={user?.id} />
+                <AdminAttribute
+                    title='meeterId'
+                    value={user?.privateMetadata?.meeter?.id}
+                />
+                <AdminAttribute
+                    title='meeterSub'
+                    value={user?.privateMetadata?.meeter?.sub}
+                />
+                <AdminAttribute
+                    title='username'
+                    value={user?.username || 'null'}
+                />
+                <AdminAttribute
+                    title='firstName'
+                    value={user?.firstName || 'null'}
+                />
+                <AdminAttribute
+                    title='lastName'
+                    value={user?.lastName || 'null'}
+                />
+                <AdminAttribute
+                    title='last login'
+                    value={
+                        user?.lastSignInAt
+                            ? new Date(user.lastSignInAt).toLocaleString()
+                            : 'null'
+                    }
+                />
             </div>
-            <div>
-                <h1>AdminUserPage for user {id}</h1>
-                <pre>id: {user && user.id}</pre>{' '}
-                {/* Example of accessing user object values */}
-            </div>
+
             <ExpandableJson data={user} title='User Details' />
         </div>
     );
