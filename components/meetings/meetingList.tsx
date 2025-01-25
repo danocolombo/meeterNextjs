@@ -3,35 +3,43 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
 
-const STORAGE_KEY = 'jericho_api_token';
-
 interface Meeting {
     id: string;
-    mtg: {
+    meeting_date: string;
+    title: string;
+    meeting_type: string;
+    support_contact: string | null;
+    groups: Array<{
         id: string;
-        // add other meeting properties as needed
+        title: string;
+        location: string;
+        facilitator: string;
+    }>;
+}
+
+interface ApiResponse {
+    status: number;
+    message: string;
+    data: Meeting[];
+    paginationData: {
+        data: {
+            current_page: number;
+            per_page: number;
+            total: number;
+        };
     };
 }
 
-const MeetingsList = ({ apiToken }: { apiToken: string }) => {
+const MeetingsList = ({
+    apiToken,
+    orgId,
+}: {
+    apiToken: string;
+    orgId: string;
+}) => {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [currentToken, setCurrentToken] = useState<string>('');
-    printObject('CMML:15-->apiToken:\n', apiToken);
-
-    // useEffect(() => {
-    //     // Try to get existing token from localStorage
-    //     const storedToken = localStorage.getItem(STORAGE_KEY);
-
-    //     if (storedToken) {
-    //         setCurrentToken(storedToken);
-    //     } else if (apiToken) {
-    //         // Store new token if provided
-    //         localStorage.setItem(STORAGE_KEY, apiToken);
-    //         setCurrentToken(apiToken);
-    //     }
-    // }, [apiToken]);
 
     useEffect(() => {
         const getMeetings = async () => {
@@ -39,25 +47,28 @@ const MeetingsList = ({ apiToken }: { apiToken: string }) => {
                 if (!apiToken) {
                     throw new Error('No API token available');
                 }
-
-                console.log('Fetching meetings with token:', currentToken);
-
-                const response: any = await fetch(
+                const response = await fetch(
                     '/api/jericho/meetings/organization/9abfdbc2-378d-4c69-b140-7c55c5db7222',
                     {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            jerichotoken: apiToken,
+                            jerichoToken: apiToken,
                         },
                     }
                 );
 
-                console.log('⚽️⚽️⚽️Response status:', response);
+                const responseData: ApiResponse = await response.json();
+                console.log('Response data:', responseData);
 
-                // Ensure we're getting an array of meetings
-
-                // setMeetings([]);
+                if (
+                    responseData.status === 200 &&
+                    Array.isArray(responseData.data)
+                ) {
+                    setMeetings(responseData.data);
+                } else {
+                    throw new Error('Invalid response format');
+                }
             } catch (err) {
                 setError(
                     err instanceof Error
@@ -82,9 +93,19 @@ const MeetingsList = ({ apiToken }: { apiToken: string }) => {
     return (
         <div className='grid md:grid-cols-2 gap-4'>
             {Array.isArray(meetings) && meetings.length > 0 ? (
-                meetings.map((mtg: Meeting) => (
-                    <Link key={mtg.id} href={`/admin/user/${mtg.id}`}>
-                        <div>{mtg.mtg?.id || 'No ID'}</div>
+                meetings.map((meeting: Meeting) => (
+                    <Link
+                        key={meeting.id}
+                        href={`/admin/meetings/${meeting.id}`}
+                    >
+                        <div className='p-4 border rounded shadow hover:shadow-md'>
+                            <h3 className='font-bold'>{meeting.title}</h3>
+                            <p>Date: {meeting.meeting_date}</p>
+                            <p>Type: {meeting.meeting_type}</p>
+                            {meeting.groups.length > 0 && (
+                                <p>Groups: {meeting.groups.length}</p>
+                            )}
+                        </div>
                     </Link>
                 ))
             ) : (

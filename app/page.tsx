@@ -20,6 +20,7 @@ const HomePage = async () => {
                         apiToken={
                             clerkCurrentUser.privateMetadata?.meeter?.apiToken
                         }
+                        orgId={clerkCurrentUser.privateMetadata?.meeter?.orgId}
                     />
                 </div>
             ) : (

@@ -3,9 +3,9 @@ import axios from 'axios';
 import { printObject } from '@/utils/helpers';
 export async function GET(
     req: Request,
-    { params }: { params: { org: string } }
+    { params }: { params: { org: string; jerichoToken: string } }
 ) {
-    console.log('GET request received for organization:', params.org);
+    // console.log('GET request received for organization:', params.org);
 
     try {
         const hardCodedBaseUrl = 'https://fortsonguru.com/jericho/public/api';
@@ -38,13 +38,20 @@ export async function GET(
         //     per_page: responseData.data.per_page,
         //     total: responseData.data.total,
         // };
-
-        return NextResponse.json({
+        const returnInformation = {
             status: 200,
             message: 'Success',
-            data: meetings, // Ensure we're sending an array
+            data: meetings,
             paginationData,
-        });
+        };
+        printObject('🥎🥎🥎 returnInformation:\n', returnInformation);
+        return NextResponse.json(returnInformation);
+        // return NextResponse.json({
+        //     status: 200,
+        //     message: 'Success',
+        //     data: meetings, // Ensure we're sending an array
+        //     paginationData,
+        // });
     } catch (error: any) {
         if (axios.isAxiosError(error)) {
             console.error('Full error response:', {
