@@ -197,6 +197,33 @@ export const getClerkUser = async (id: string): Promise<any> => {
         };
     }
 };
+//   ================================================================
+//   Provide clerkId to set status in meta to 'active'
+//   ================================================================
+export const activateUser = async (id: string): Promise<any> => {
+    try {
+        //const response = await clerkClient.users.getUser(id);
+        if (id) {
+            return {
+                status: 200,
+                clerkId: id,
+                data: { id: id }, // Ensure plain object
+            };
+        } else {
+            return {
+                status: 500,
+                message: 'activateUser failed: no id provided',
+                error: 'no id provided', // Ensure plain object
+            };
+        }
+    } catch (error) {
+        return {
+            status: 500,
+            message: 'activateUser failed: no id provided',
+            error: JSON.parse(JSON.stringify(error)), // Ensure plain object
+        };
+    }
+};
 
 //   ================================================================
 //*  ================================================================

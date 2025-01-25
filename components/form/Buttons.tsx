@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SignInButton } from '@clerk/nextjs';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import { LuTrash2, LuSquare } from 'react-icons/lu';
+import { useRouter } from 'next/navigation';
 
 // these types provide the ability to set
 // values as enums. Props will default to 'sm'
@@ -104,6 +105,29 @@ export const IconButton = ({ actionType }: { actionType: actionType }) => {
             className='p-2 cursor-pointer'
         >
             {pending ? <ReloadIcon className=' animate-spin' /> : renderIcon()}
+        </Button>
+    );
+};
+
+export const NavigateButton = ({
+    label,
+    path,
+    className = '',
+}: {
+    label: string;
+    path: string;
+    className?: string;
+}) => {
+    const router = useRouter();
+    return (
+        <Button
+            type='button'
+            onClick={() => router.push(path)}
+            variant='secondary'
+            size='sm'
+            className={`bg-black text-white hover:bg-gray-800 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300 ${className}`}
+        >
+            {label}
         </Button>
     );
 };

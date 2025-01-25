@@ -3,6 +3,8 @@ import React from 'react';
 import { useParams, redirect } from 'next/navigation';
 import { getClerkUser } from '@/utils/clerk';
 import { printObject } from '@/utils/helpers';
+import { NavigateButton } from '@/components/form/Buttons';
+import ExpandableJson from '@/components/ui/expanableJson';
 
 const AdminUserPage = () => {
     const { id } = useParams();
@@ -33,8 +35,9 @@ const AdminUserPage = () => {
     printObject('AAU:33--user:', user);
     return (
         <div className='mx-10 my-2'>
-            <div>
+            <div className='flex justify-between items-center mb-4'>
                 <h1>User Information</h1>
+                <NavigateButton label='All Users' path='/admin/users' />
             </div>
             <div className={`border p-2 rounded`}>
                 <div>
@@ -58,7 +61,7 @@ const AdminUserPage = () => {
                 <pre>id: {user && user.id}</pre>{' '}
                 {/* Example of accessing user object values */}
             </div>
-            <pre>{JSON.stringify(user, null, 2)}</pre>
+            <ExpandableJson data={user} title='User Details' />
         </div>
     );
 };
