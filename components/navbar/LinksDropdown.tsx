@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,8 +15,10 @@ import SignOutLink from '@/components/navbar/SignOutLink';
 import { SignedOut, SignedIn, SignInButton, SignUpButton } from '@clerk/nextjs';
 
 function LinksDropdown() {
+    const [open, setOpen] = React.useState(false);
+
     return (
-        <DropdownMenu>
+        <DropdownMenu open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger asChild>
                 <Button variant='outline' className='flex gap-4 max-w-[100px]'>
                     <LuAlignLeft className='w-6 h-6' />
@@ -45,6 +48,7 @@ function LinksDropdown() {
                                 <Link
                                     href={link.href}
                                     className='capitalize w-full'
+                                    onClick={() => setOpen(false)}
                                 >
                                     {link.label}
                                 </Link>

@@ -1,27 +1,36 @@
-import React from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import { fetchProfileImage } from '@/utils/clerk';
 import { LuUser } from 'react-icons/lu';
-async function UserIcon() {
-    try {
-        const profileImage = await fetchProfileImage();
-        if (profileImage) {
-            return (
-                <img
-                    src={profileImage}
-                    alt='Profile Image'
-                    className='h-6 w-6 rounded-full object-cover'
-                />
-            );
-        }
+
+function UserIcon() {
+    const [profileImage, setProfileImage] = useState<string | null>(null);
+
+    useEffect(() => {
+        const getProfileImage = async () => {
+            try {
+                const image = await fetchProfileImage();
+                setProfileImage(image);
+            } catch (error) {
+                console.error('Error fetching profile image: ', error);
+                setProfileImage(null);
+            }
+        };
+
+        getProfileImage();
+    }, []);
+
+    if (profileImage) {
         return (
-            <LuUser className='h=6 w-6 bg-primary rounded-full text-white' />
-        );
-    } catch (error) {
-        console.error('Error fetching profile image: ', error);
-        return (
-            <LuUser className='h=6 w-6 bg-primary rounded-full text-white' />
+            <img
+                src={profileImage}
+                alt='Profile Image'
+                className='h-6 w-6 rounded-full object-cover'
+            />
         );
     }
+
+    return <LuUser className='h-6 w-6 bg-primary rounded-full text-white' />;
 }
 
 export default UserIcon;

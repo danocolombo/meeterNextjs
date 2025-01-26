@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import NavSearch from '@/components/navbar/NavSearch';
 import LinksDropdown from '@/components/navbar/LinksDropdown';
