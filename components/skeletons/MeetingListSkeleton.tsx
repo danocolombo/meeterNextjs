@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { printObject } from '@/utils/helpers';
 const MeetingListSkeleton = () => {
     return (
         <div className='grid md:grid-cols-2 gap-4'>
