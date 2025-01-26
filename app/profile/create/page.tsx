@@ -5,9 +5,9 @@ import { printObject } from '@/utils/helpers';
 import axios from 'axios';
 
 export default async function CreateProfilePage() {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
     try {
-        const baseUrl =
-            process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
         //* ---------------------------------
         //* get Clerk user data
         //* ---------------------------------
@@ -17,7 +17,6 @@ export default async function CreateProfilePage() {
         //* ------------------------------------------------
         if (clerkCurrentUser?.privateMetadata?.status !== 'active') {
             redirect('/register?message=Please complete registration');
-            return null;
         }
         // console.log('APC:27--clerkCurrentUser:\n', clerkCurrentUser);
         const primaryEmailAddressId = clerkCurrentUser?.primaryEmailAddressId;
@@ -158,9 +157,8 @@ export default async function CreateProfilePage() {
             );
             const userMetaResponse: any = await postUserMetaResults.json();
             if (userMetaResponse.status !== 200) {
-                console.log('userMetaResponse:', userMetaResponse);
-                console.log(
-                    'APC:77--ERROR postUserMetaResults !== 200 [apc:77]'
+                throw new Error(
+                    `Failed to save user metadata: ${userMetaResponse.message}`
                 );
             }
             const userMeta = await userMetaResponse.privateMetadata;
@@ -172,18 +170,14 @@ export default async function CreateProfilePage() {
             console.log('😀😀😀 APCP:151--userMeta:\n', userMeta);
         }
         console.log('😀😀😀 APCP:174--profile:\n', profile);
-
-        // Simplified redirect logic
-        if (profile && Object.keys(profile).length > 0) {
-            redirect('/profile');
-            return null;
-        }
-
-        // Fallback UI
-        return <div>CreateProfilePage</div>;
     } catch (error: any) {
         console.error('Authentication failed:', error.message);
-        redirect('/error?message=Authentication+failed');
-        return null;
+        redirect(
+            '/error?message=' +
+                encodeURIComponent('Authentication failed: ' + error.message)
+        );
     }
+
+    // Place redirect outside of try-catch
+    redirect('/profile');
 }

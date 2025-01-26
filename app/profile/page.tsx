@@ -10,7 +10,9 @@ import ImageInputContainer from '@/components/form/ImageInputContainer';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card } from '@/components/ui/card';
 import { fetchProfileImage } from '@/utils/clerk';
+import { printObject } from '@/utils/helpers';
 async function ProfilePage() {
+    printObject('🥖🥖🥖APC:44--apiAuth Data:\n', null);
     const clerkCurrentUser: any = await currentUser();
     const profileImage = await fetchProfileImage();
     const profile = clerkCurrentUser.privateMetadata.meeter;
