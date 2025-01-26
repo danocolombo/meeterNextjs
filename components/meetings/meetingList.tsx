@@ -48,7 +48,7 @@ const MeetingsList = ({
                     throw new Error('No API token available');
                 }
                 const response = await fetch(
-                    '/api/jericho/meetings/organization/9abfdbc2-378d-4c69-b140-7c55c5db7222',
+                    `/api/jericho/meetings/organization/${orgId}`,
                     {
                         method: 'GET',
                         headers: {
