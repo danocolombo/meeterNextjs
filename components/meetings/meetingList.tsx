@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
+import MeetingListSkeleton from '../skeletons/MeetingListSkeleton';
 
 interface Meeting {
     id: string;
@@ -87,7 +88,7 @@ const MeetingsList = ({
         }
     }, [apiToken]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <MeetingListSkeleton />;
     if (error) return <div>Error: {error}</div>;
 
     return (
