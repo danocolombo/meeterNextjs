@@ -1,6 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { UserProfileType } from '@/utils/types';
+import { printObject } from '@/utils/helpers';
 
 export default async function CreateProfilePage() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -40,6 +41,8 @@ export default async function CreateProfilePage() {
             body: JSON.stringify(authRequest),
         }
     );
+
+    printObject('🥖🥖🥖APC:44--apiAuthResponse:\n', apiAuthResponse);
     const apiAuth = await apiAuthResponse.json();
 
     // console.log('APC:64--apiAuth information:', apiAuth);
@@ -147,7 +150,8 @@ export default async function CreateProfilePage() {
             console.log('APC:77--ERROR postUserMetaResults !== 200 [apc:77]');
         }
         const userMeta = await userMetaResponse.privateMetadata;
-        // console.log('APC:81--userMeta:\n', userMeta);
+        console.log('😀😀😀 APCP:150-->apiAuthResponse:\n', apiAuthResponse);
+        console.log('😀😀😀 APCP:151--userMeta:\n', userMeta);
     }
     //todo: ___________________________________________
     //todo: THESE ARE JUST TWO GET EXAMPLES THAT DO

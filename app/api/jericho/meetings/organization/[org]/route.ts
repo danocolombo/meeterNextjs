@@ -3,16 +3,25 @@ import axios from 'axios';
 import { printObject } from '@/utils/helpers';
 export async function GET(
     req: Request,
-    { params }: { params: { org: string; jerichoToken: string } }
+    { params }: { params: { org: string } }
 ) {
     // console.log('GET request received for organization:', params.org);
 
     try {
+        const jerichoToken = String(req.headers.get('jerichoToken'));
         const hardCodedBaseUrl = 'https://fortsonguru.com/jericho/public/api';
         const { org } = params;
 
         // Use the known working token
-        const token = '2|L717ylnkKOWrh6kE08DNXtIGAJiqDLVwC4y6v2wS79d6b80c';
+        // const token = '2|L717ylnkKOWrh6kE08DNXtIGAJiqDLVwC4y6v2wS79d6b80c';
+        const token = '1359|cFhgm9hLWUyvee9SeuFjoWBeWI7woYCgh3wvQBeh9004cd2b';
+        printObject('🔲🔲🔲 GET:16-->jerichoToken:\n', jerichoToken);
+        console.log(
+            '🔲🔲🔲 GET:16-->type of jerichoToken:\n',
+            typeof jerichoToken
+        );
+        console.log('🔲🔲🔲 GET:17-->token:\n', token);
+        console.log('🔲🔲🔲 GET:18-->type of token:\n', typeof token);
 
         const response = await axios({
             method: 'get',
@@ -20,7 +29,7 @@ export async function GET(
             params: { direction: 'desc' },
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${jerichoToken}`,
             },
         });
 
