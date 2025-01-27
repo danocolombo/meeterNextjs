@@ -1,10 +1,11 @@
 import FormContainer from '../form/FormContainer';
 import FormInput from '../form/FormInput';
 import { MeetingType } from '@/app/meetings/[id]/page';
+import { handleMeetingSubmit } from '@/app/actions/meetingActions';
 
 export default function MeetingForm({ meeting }: { meeting: MeetingType }) {
     return (
-        <FormContainer action={async () => ({})}>
+        <FormContainer action={handleMeetingSubmit}>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormInput
                     name='title'

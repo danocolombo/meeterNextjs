@@ -40,27 +40,23 @@ export type MeetingType = {
     youth_contact?: string | null;
     youth_count?: number | null;
     organization_id?: string | null;
-    aws_id?: string | null;
-    aws_org_id?: string | null;
     groups?: GroupType[]; // Changed from [GroupType] to GroupType[]
 };
 export type GroupType = {
-    id: string | null;
-    created_at: string | null;
-    updated_at: string | null;
-    meeting_date: string | null;
-    grp_comp_key: string | null;
-    title: string | null;
-    location: string | null;
-    gender: string | null;
-    attendance: number | null;
-    facilitator: string | null;
-    notes: string | null;
-    meeting_id: string | null;
-    organization_id: string | null;
-    aws_id: string | null;
-    aws_org_id: string | null;
-    cofacilitator: string | null;
+    id?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+    meeting_date?: string | null;
+    grp_comp_key?: string | null;
+    title?: string | null;
+    location?: string | null;
+    gender?: string | null;
+    attendance?: number | null;
+    facilitator?: string | null;
+    notes?: string | null;
+    meeting_id?: string | null;
+    organization_id?: string | null;
+    cofacilitator?: string | null;
 };
 const meeting: MeetingType = {
     id: 'f0aa6943-b2c8-47b4-b55a-83f59b5a7811',
@@ -100,8 +96,6 @@ const meeting: MeetingType = {
     youth_contact: null,
     youth_count: null,
     organization_id: '067da614-c220-404b-a3d2-66abb9897155',
-    aws_id: null,
-    aws_org_id: null,
     groups: [
         {
             id: '469a2583-1b37-4bbb-ae67-0b86f3c2a2dc',
@@ -117,9 +111,6 @@ const meeting: MeetingType = {
             cofacilitator: null,
             notes: null,
             meeting_id: 'f0aa6943-b2c8-47b4-b55a-83f59b5a7811',
-            aws_id: null,
-            aws_mtg_id: null,
-            aws_org_id: null,
             organization_id: null,
         },
         {
@@ -135,9 +126,6 @@ const meeting: MeetingType = {
             cofacilitator: null,
             notes: null,
             meeting_id: 'f0aa6943-b2c8-47b4-b55a-83f59b5a7811',
-            aws_id: null,
-            aws_mtg_id: null,
-            aws_org_id: null,
             organization_id: null,
         },
     ],
@@ -152,8 +140,8 @@ interface PageProps {
 const MeetingPage = ({ params }: PageProps) => {
     // For now, we'll use the hardcoded meeting if its id matches,
     // otherwise return null or some placeholder
-    const displayMeeting = meeting.id === params.id ? meeting : null;
-
+    // const displayMeeting = meeting.id === params.id ? meeting : null;
+    const displayMeeting = meeting;
     if (!displayMeeting) {
         return <div>Meeting not found</div>;
     }

@@ -95,10 +95,7 @@ const MeetingsList = ({
         <div className='grid md:grid-cols-2 gap-4'>
             {Array.isArray(meetings) && meetings.length > 0 ? (
                 meetings.map((meeting: Meeting) => (
-                    <Link
-                        key={meeting.id}
-                        href={`/admin/meetings/${meeting.id}`}
-                    >
+                    <Link key={meeting.id} href={`/meetings/${meeting.id}`}>
                         <div className='p-4 border rounded shadow hover:shadow-md'>
                             <h3 className='font-bold'>{meeting.title}</h3>
                             <p>Date: {meeting.meeting_date}</p>

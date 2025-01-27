@@ -1,4 +1,3 @@
-import { Boolean } from './../node_modules/.prisma/client/index.d';
 export type actionFunction = (
     prevState: any,
     formData: FormData

@@ -2,10 +2,11 @@ import React from 'react';
 import FormContainer from '../form/FormContainer';
 import FormInput from '../form/FormInput';
 import { GroupType } from '@/app/meetings/[id]/page';
+import { handleGroupSubmit } from '@/app/actions/meetingActions';
 
 const GroupsComponent = ({ group }: { group: GroupType }) => {
     return (
-        <FormContainer action={async () => ({})}>
+        <FormContainer action={handleGroupSubmit}>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
                 <FormInput
                     name='title'
