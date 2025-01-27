@@ -73,36 +73,45 @@ interface PageProps {
 }
 
 const MeetingPage = ({ params }: PageProps) => {
+    const { user } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const { user } = useUser();
 
     useEffect(() => {
-        const fetchMeetingData = async () => {
+        const fetchData = async () => {
             try {
+                // Fetch clerk metadata first
+                const clerkResponse = await axios.get('/api/clerkMeta');
+                if (!clerkResponse.data) {
+                    throw new Error('Failed to fetch clerk metadata');
+                }
                 const orgId =
-                    user?.publicMetadata?.orgId ||
-                    process.env.NEXT_PUBLIC_ORG_ID;
+                    clerkResponse.data?.data?.privateMetadata?.meeter?.orgId;
+                const apiToken =
+                    clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
 
-                if (!orgId) {
-                    throw new Error('Organization ID is not available');
+                if (!orgId || !apiToken) {
+                    throw new Error(
+                        'Organization ID or API Token is not available'
+                    );
                 }
 
+                // Only proceed with meeting data fetch if we have valid clerk data
                 const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${orgId}/${params.id}`;
                 const response = await axios.get(endpoint, {
                     headers: {
                         'Content-Type': 'application/json',
+                        Authorization: `Bearer ${apiToken}`,
                     },
                 });
-
-                if (response.status === 200) {
-                    setMeetingData(response.data);
+                if (response?.data?.status === 200) {
+                    setMeetingData(response?.data?.data);
                 } else {
                     throw new Error('Failed to fetch meeting data');
                 }
             } catch (error) {
-                console.error('Error fetching meeting data:', error);
+                console.error('Error fetching data:', error);
                 setError(
                     error instanceof Error ? error.message : 'An error occurred'
                 );
@@ -112,9 +121,9 @@ const MeetingPage = ({ params }: PageProps) => {
         };
 
         if (user) {
-            fetchMeetingData();
+            fetchData();
         }
-    }, [params.id, user]);
+    }, [params.id, user]); // Remove clerkInfo from dependencies
 
     if (isLoading) {
         return <MeetingFormSkeleton />;

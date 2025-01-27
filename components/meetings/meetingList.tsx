@@ -55,6 +55,7 @@ const MeetingsList = ({
                         headers: {
                             'Content-Type': 'application/json',
                             jerichoToken: apiToken,
+                            organizationId: orgId,
                         },
                     }
                 );
@@ -98,10 +99,6 @@ const MeetingsList = ({
                         key={meeting.id}
                         href={{
                             pathname: `/meetings/${meeting.id}`,
-                            query: {
-                                orgId: orgId,
-                                apiToken: apiToken,
-                            },
                         }}
                     >
                         <div className='p-4 border rounded shadow hover:shadow-md'>

@@ -1,9 +1,5 @@
 import FormContainer from '@/components/form/FormContainer';
-import {
-    updateProfileAction,
-    fetchProfile,
-    updateProfileImageAction,
-} from '@/utils/actions';
+import { updateProfileAction, updateProfileImageAction } from '@/utils/actions';
 import FormInput from '@/components/form/FormInput';
 import { SubmitButton } from '@/components/form/Buttons';
 import ImageInputContainer from '@/components/form/ImageInputContainer';
@@ -12,11 +8,9 @@ import { Card } from '@/components/ui/card';
 import { fetchProfileImage } from '@/utils/clerk';
 import { printObject } from '@/utils/helpers';
 async function ProfilePage() {
-    printObject('🥖🥖🥖APC:44--apiAuth Data:\n', null);
     const clerkCurrentUser: any = await currentUser();
     const profileImage = await fetchProfileImage();
-    const profile = clerkCurrentUser.privateMetadata.meeter;
-    console.log('ap15-->profile:\n', profile);
+    const profile = clerkCurrentUser?.privateMetadata?.meeter || {};
     return (
         <section>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>
@@ -24,7 +18,7 @@ async function ProfilePage() {
             </h1>
             <div className='border p-8 rounded-md '>
                 <ImageInputContainer
-                    image={profileImage}
+                    image={profileImage || ''}
                     name={clerkCurrentUser.username}
                     action={updateProfileImageAction}
                     text='Update Profile Image'
@@ -35,25 +29,25 @@ async function ProfilePage() {
                             type='text'
                             name='firstName'
                             label='First Name'
-                            defaultValue={profile.firstName}
+                            defaultValue={profile.firstName || ''}
                         />
                         <FormInput
                             type='text'
                             name='lastName'
                             label='Last Name'
-                            defaultValue={profile.lastName}
+                            defaultValue={profile.lastName || ''}
                         />
                         <FormInput
                             type='text'
                             name='phone'
                             label='Phone'
-                            defaultValue={profile.phone}
+                            defaultValue={profile.phone || ''}
                         />
                         <FormInput
                             type='text'
                             name='birthday'
                             label='Birthday'
-                            defaultValue={profile.birthday}
+                            defaultValue={profile.birthday || ''}
                         />
                     </div>
                     <h2 className='text-xl font-semibold mt-2'>
@@ -69,27 +63,41 @@ async function ProfilePage() {
                                                 Personal Information
                                             </span>
                                             <span>
-                                                username: {profile.username}
-                                            </span>
-                                            <span>email: {profile.email}</span>
-                                            <span>id: {profile.id}</span>
-                                            <span>
-                                                clerkId: {profile.clerkId}
+                                                username:{' '}
+                                                {profile.username || 'N/A'}
                                             </span>
                                             <span>
-                                                jerichoId: {profile.jerichoId}
+                                                email: {profile.email || 'N/A'}
                                             </span>
                                             <span>
-                                                cognitoSub: {profile.sub}
+                                                id: {profile.id || 'N/A'}
+                                            </span>
+                                            <span>
+                                                clerkId:{' '}
+                                                {profile.clerkId || 'N/A'}
+                                            </span>
+                                            <span>
+                                                jerichoId:{' '}
+                                                {profile.jerichoId || 'N/A'}
+                                            </span>
+                                            <span>
+                                                cognitoSub:{' '}
+                                                {profile.sub || 'N/A'}
                                             </span>
                                         </div>
                                         <div className='flex flex-col'>
                                             <span className='text-lg font-semibold'>
                                                 Organization
                                             </span>
-                                            <span>id: {profile.orgId}</span>
-                                            <span>code: {profile.orgCode}</span>
-                                            <span>name: {profile.orgName}</span>
+                                            <span>
+                                                id: {profile.orgId || 'N/A'}
+                                            </span>
+                                            <span>
+                                                code: {profile.orgCode || 'N/A'}
+                                            </span>
+                                            <span>
+                                                name: {profile.orgName || 'N/A'}
+                                            </span>
                                         </div>
                                     </div>
                                 </Card>

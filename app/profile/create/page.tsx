@@ -32,7 +32,6 @@ export default async function CreateProfilePage() {
             id: clerkCurrentUser?.id,
             email: clerkPrimaryEmailAddress.emailAddress,
         };
-        console.log('🤍🤍🤍 APCP:36-->baseUrl:\n', baseUrl);
         const apiAuthResponse = await axios.post(
             new URL('/api/apitoken/login', baseUrl).toString(),
             authRequest,
@@ -55,11 +54,11 @@ export default async function CreateProfilePage() {
         const apiToken = apiAuth.apiToken;
 
         // Safe logging of relevant data only
-        printObject('🥖🥖🥖APC:44--apiAuth Data:\n', {
-            status: apiAuth.status,
-            message: apiAuth.message,
-            apiToken: apiAuth.apiToken,
-        });
+        // printObject('🥖🥖🥖APC:44--apiAuth Data:\n', {
+        //     status: apiAuth.status,
+        //     message: apiAuth.message,
+        //     apiToken: apiAuth.apiToken,
+        // });
 
         //* ---------------------------------
         //* get Jericho user profile
@@ -162,14 +161,7 @@ export default async function CreateProfilePage() {
                 );
             }
             const userMeta = await userMetaResponse.privateMetadata;
-            console.log('😀😀😀 APCP:150-->apiAuth Data:\n', {
-                status: apiAuth.status,
-                message: apiAuth.message,
-                apiToken: apiAuth.apiToken,
-            });
-            console.log('😀😀😀 APCP:151--userMeta:\n', userMeta);
         }
-        console.log('😀😀😀 APCP:174--profile:\n', profile);
     } catch (error: any) {
         console.error('Authentication failed:', error.message);
         redirect(

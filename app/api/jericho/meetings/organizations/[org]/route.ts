@@ -7,8 +7,10 @@ export async function GET(
     try {
         const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
         const hardCodedBaseUrl = 'https://fortsonguru.com/jericho/public/api';
-        const { org } = await params;
+
+        // const { org } = await params;
         const apiToken = req.headers.get('jerichoToken');
+        const organizationId = req.headers.get('jerichoToken');
 
         if (!apiToken) {
             return NextResponse.json({
@@ -18,7 +20,7 @@ export async function GET(
         }
 
         const { data: jerichoResponseData } = await axios.get(
-            `${hardCodedBaseUrl}/meetings/${org}`,
+            `${baseUrl}/meetings/${organizationId}`,
             {
                 params: { direction: 'desc' },
                 headers: {
