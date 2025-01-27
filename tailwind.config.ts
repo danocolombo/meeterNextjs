@@ -51,6 +51,11 @@ const config = {
                 card: {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))',
+                    background: {
+                        DEFAULT: 'hsl(var(--card-background))',
+                        dark: 'hsl(var(--card-background-dark))',
+                        light: 'hsl(var(--card-background-light))',
+                    },
                 },
                 chart: {
                     '1': 'hsl(var(--chart-1))',

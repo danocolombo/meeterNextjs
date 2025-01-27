@@ -18,6 +18,7 @@ export const charmFont = Charm({
 });
 export const newsreaderFont = Newsreader({
     subsets: ['latin'],
-    weight: '300',
-    style: 'normal',
+    weight: ['300', '400'],
+    style: ['normal'],
+    variable: '--font-newsreader',
 });

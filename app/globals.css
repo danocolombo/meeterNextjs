@@ -6,13 +6,16 @@
   .container {
     @apply mx-auto max-w-6xl xl:max-w-7xl px-8;
   }
+  .meetings-list-card {
+    @apply bg-[hsl(var(--card-background))] text-[hsl(var(--card-background-foreground))] p-4 border rounded shadow hover:shadow-md transition-shadow duration-200;
+  }
 }
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
-    --card: 0 0% 100%;
+    --card: 0 0% 100%; /* white in light mode */
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
@@ -37,12 +40,14 @@
     --chart-5: 27 87% 67%;
     --warning: 45 100% 51%; /* Example value for warning */
     --warning-foreground: 45 100% 30%; /* Example value for warning foreground */
+    --card-background: 215 28% 17%; /* dark grey for light mode */
+    --card-background-foreground: 0 0% 100%; /* white text for light mode */
   }
 
   .dark {
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 215 28% 17%; /* dark gray instead of black */
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
@@ -66,6 +71,8 @@
     --chart-5: 340 75% 55%;
     --warning: 45 100% 51%; /* Example value for warning */
     --warning-foreground: 300 100% 20%; /* Example value for warning foreground */
+    --card-background: 0 0% 90%; /* light grey for dark mode */
+    --card-background-foreground: 0 0% 0%; /* black text for dark mode */
   }
 }
 

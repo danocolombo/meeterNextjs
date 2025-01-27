@@ -101,7 +101,7 @@ const MeetingsList = ({
                             pathname: `/meetings/${meeting.id}`,
                         }}
                     >
-                        <div className='p-4 border rounded shadow hover:shadow-md'>
+                        <div className='meetings-list-card'>
                             <h3 className='font-bold'>{meeting.title}</h3>
                             <p>Date: {meeting.meeting_date}</p>
                             <p>Type: {meeting.meeting_type}</p>

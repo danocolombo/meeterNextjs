@@ -6,45 +6,47 @@ import { handleGroupSubmit } from '@/app/actions/meetingActions';
 
 const GroupsComponent = ({ group }: { group: GroupType }) => {
     return (
-        <FormContainer action={handleGroupSubmit}>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
-                <FormInput
-                    name='title'
-                    type='text'
-                    defaultValue={group.title || ''}
-                />
-                <FormInput
-                    name='location'
-                    type='text'
-                    defaultValue={group.location || ''}
-                />
-                <FormInput
-                    name='gender'
-                    type='text'
-                    defaultValue={group.gender || ''}
-                />
-                <FormInput
-                    name='attendance'
-                    type='number'
-                    defaultValue={group.attendance?.toString()}
-                />
-                <FormInput
-                    name='facilitator'
-                    type='text'
-                    defaultValue={group.facilitator || ''}
-                />
-                <FormInput
-                    name='cofacilitator'
-                    type='text'
-                    defaultValue={group.cofacilitator || ''}
-                />
-                <FormInput
-                    name='notes'
-                    type='text'
-                    defaultValue={group.notes || ''}
-                />
-            </div>
-        </FormContainer>
+        <div className='group-component-card'>
+            <FormContainer action={handleGroupSubmit}>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
+                    <FormInput
+                        name='title'
+                        type='text'
+                        defaultValue={group.title || ''}
+                    />
+                    <FormInput
+                        name='location'
+                        type='text'
+                        defaultValue={group.location || ''}
+                    />
+                    <FormInput
+                        name='gender'
+                        type='text'
+                        defaultValue={group.gender || ''}
+                    />
+                    <FormInput
+                        name='attendance'
+                        type='number'
+                        defaultValue={group.attendance?.toString()}
+                    />
+                    <FormInput
+                        name='facilitator'
+                        type='text'
+                        defaultValue={group.facilitator || ''}
+                    />
+                    <FormInput
+                        name='cofacilitator'
+                        type='text'
+                        defaultValue={group.cofacilitator || ''}
+                    />
+                    <FormInput
+                        name='notes'
+                        type='text'
+                        defaultValue={group.notes || ''}
+                    />
+                </div>
+            </FormContainer>
+        </div>
     );
 };
 
