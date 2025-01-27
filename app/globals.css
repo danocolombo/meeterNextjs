@@ -9,6 +9,49 @@
   .meetings-list-card {
     @apply bg-[hsl(var(--card-background))] text-[hsl(var(--card-background-foreground))] p-4 border rounded shadow hover:shadow-md transition-shadow duration-200;
   }
+  .meeting-form-card {
+    @apply bg-[hsl(var(--card-background))] text-[hsl(var(--card-background-foreground))] p-6 rounded-lg shadow-md mb-4;
+  }
+  
+  .group-component-card {
+    @apply bg-[hsl(var(--card-background))] text-[hsl(var(--card-background-foreground))] p-4 rounded-lg shadow-md;
+  }
+
+  .form-input {
+    @apply block w-full px-4 py-0 text-sm font-normal
+    bg-[hsl(var(--card-background))] 
+    text-[hsl(var(--form-text))]
+    border border-gray-300 rounded-md
+    focus:ring-2 focus:ring-blue-500 focus:border-transparent
+    transition duration-150 ease-in-out;
+  }
+
+  .form-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.8;
+  }
+
+  .form-input[type="number"]::-webkit-inner-spin-button,
+  .form-input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+    color: hsl(var(--form-text));
+  }
+
+  .form-label {
+    @apply block text-sm font-medium mb-1
+    text-[hsl(var(--form-text))];
+  }
+
+  .form-group {
+    @apply flex flex-col gap-1 mb-1;
+  }
+
+  .form-container {
+    @apply space-y-6 w-full max-w-4xl mx-auto
+    bg-[hsl(var(--form-background))]
+    text-[hsl(var(--form-text))]
+    rounded-lg shadow-md p-6;
+  }
 }
 
 @layer base {
@@ -42,6 +85,8 @@
     --warning-foreground: 45 100% 30%; /* Example value for warning foreground */
     --card-background: 215 28% 17%; /* dark grey for light mode */
     --card-background-foreground: 0 0% 100%; /* white text for light mode */
+    --form-background: 0 0% 90%; /* light grey for light mode */
+    --form-text: 0 0% 0%; /* black text for light mode */
   }
 
   .dark {
@@ -73,6 +118,8 @@
     --warning-foreground: 300 100% 20%; /* Example value for warning foreground */
     --card-background: 0 0% 90%; /* light grey for dark mode */
     --card-background-foreground: 0 0% 0%; /* black text for dark mode */
+    --form-background: 0 0% 90%; /* light grey for dark mode */
+    --form-text: 220 70% 40%; /* Changed to dark blue */
   }
 }
 

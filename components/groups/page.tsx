@@ -6,12 +6,13 @@ import { handleGroupSubmit } from '@/app/actions/meetingActions';
 
 const GroupsComponent = ({ group }: { group: GroupType }) => {
     return (
-        <div className='group-component-card'>
+        <div className='form-container'>
             <FormContainer action={handleGroupSubmit}>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
                     <FormInput
                         name='title'
                         type='text'
+                        className='form-input'
                         defaultValue={group.title || ''}
                     />
                     <FormInput
