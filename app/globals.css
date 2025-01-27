@@ -83,10 +83,10 @@
     --chart-5: 27 87% 67%;
     --warning: 45 100% 51%; /* Example value for warning */
     --warning-foreground: 45 100% 30%; /* Example value for warning foreground */
-    --card-background: 215 28% 17%; /* dark grey for light mode */
-    --card-background-foreground: 0 0% 100%; /* white text for light mode */
-    --form-background: 0 0% 90%; /* light grey for light mode */
-    --form-text: 0 0% 0%; /* black text for light mode */
+    --card-background: 0 0% 100%; /* white for light mode */
+    --card-background-foreground: 215 28% 17%; /* dark text for light mode */
+    --form-background: 0 0% 98%; /* slightly off-white for light mode */
+    --form-text: 215 28% 17%; /* dark text for light mode */
   }
 
   .dark {
@@ -116,10 +116,10 @@
     --chart-5: 340 75% 55%;
     --warning: 45 100% 51%; /* Example value for warning */
     --warning-foreground: 300 100% 20%; /* Example value for warning foreground */
-    --card-background: 0 0% 90%; /* light grey for dark mode */
-    --card-background-foreground: 0 0% 0%; /* black text for dark mode */
-    --form-background: 0 0% 90%; /* light grey for dark mode */
-    --form-text: 220 70% 40%; /* Changed to dark blue */
+    --card-background: 215 28% 17%; /* dark blue-grey for dark mode */
+    --card-background-foreground: 0 0% 98%; /* light text for dark mode */
+    --form-background: 215 28% 17%; /* match card background in dark mode */
+    --form-text: 210 20% 98%; /* light text for dark mode */
   }
 }
 

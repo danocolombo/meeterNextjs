@@ -9,6 +9,8 @@ import { Group } from 'lucide-react';
 import React from 'react';
 import { printObject } from '@/utils/helpers';
 import axios from 'axios';
+import { Button } from '@/components/ui/button';
+
 export type MeetingType = {
     id?: string | null;
     created_at?: string | null; // Assuming format is compatible with Date
@@ -77,6 +79,7 @@ const MeetingPage = ({ params }: PageProps) => {
     const [isLoading, setIsLoading] = useState(true);
     const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [newGroupIds, setNewGroupIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const fetchData = async () => {
@@ -137,6 +140,37 @@ const MeetingPage = ({ params }: PageProps) => {
         }
     }, [params.id, user]); // Remove clerkInfo from dependencies
 
+    const handleAddGroup = () => {
+        if (!meetingData) return;
+
+        const tempId = `temp_${Math.random()}`; // Generate a temporary ID
+        const newGroup: GroupType = {
+            id: tempId,
+            created_at: null,
+            updated_at: null,
+            meeting_date: meetingData.meeting_date || null,
+            grp_comp_key: null,
+            title: null,
+            location: null,
+            gender: null,
+            attendance: null,
+            facilitator: null,
+            notes: null,
+            meeting_id: meetingData.id || null,
+            organization_id: meetingData.organization_id || null,
+            cofacilitator: null,
+        };
+
+        setNewGroupIds((prev) => new Set(prev).add(tempId));
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                groups: [...(prev.groups || []), newGroup],
+            };
+        });
+    };
+
     if (isLoading) {
         return <MeetingFormSkeleton />;
     }
@@ -151,13 +185,26 @@ const MeetingPage = ({ params }: PageProps) => {
 
     return (
         <div className='space-y-8'>
-            <div>Meeting</div>
+            <div className='text-2xl font-bold text-blue-800 dark:text-blue-400'>
+                Meeting
+            </div>
             <MeetingForm meeting={meetingData} />
             <div className='grid gap-4'>
                 {meetingData.groups?.map((group) => (
-                    <GroupsComponent key={group.id} group={group} />
+                    <GroupsComponent
+                        key={group.id || Math.random()}
+                        group={group}
+                        isNew={group.id ? newGroupIds.has(group.id) : false}
+                    />
                 ))}
             </div>
+            <Button
+                variant='default'
+                className='w-full'
+                onClick={handleAddGroup}
+            >
+                Add Group
+            </Button>
         </div>
     );
 };
