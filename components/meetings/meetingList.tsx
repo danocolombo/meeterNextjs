@@ -60,7 +60,7 @@ const MeetingsList = ({
                 );
 
                 const responseData: ApiResponse = await response.json();
-                console.log('Response data:', responseData);
+                // console.log('Response data:', responseData);
 
                 if (
                     responseData.status === 200 &&
@@ -83,7 +83,6 @@ const MeetingsList = ({
         };
 
         if (apiToken) {
-            console.log('YES');
             getMeetings();
         }
     }, [apiToken]);
@@ -95,7 +94,16 @@ const MeetingsList = ({
         <div className='grid md:grid-cols-2 gap-4'>
             {Array.isArray(meetings) && meetings.length > 0 ? (
                 meetings.map((meeting: Meeting) => (
-                    <Link key={meeting.id} href={`/meetings/${meeting.id}`}>
+                    <Link
+                        key={meeting.id}
+                        href={{
+                            pathname: `/meetings/${meeting.id}`,
+                            query: {
+                                orgId: orgId,
+                                apiToken: apiToken,
+                            },
+                        }}
+                    >
                         <div className='p-4 border rounded shadow hover:shadow-md'>
                             <h3 className='font-bold'>{meeting.title}</h3>
                             <p>Date: {meeting.meeting_date}</p>

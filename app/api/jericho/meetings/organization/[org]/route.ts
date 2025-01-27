@@ -15,13 +15,13 @@ export async function GET(
         // Use the known working token
         // const token = '2|L717ylnkKOWrh6kE08DNXtIGAJiqDLVwC4y6v2wS79d6b80c';
         const token = '1359|cFhgm9hLWUyvee9SeuFjoWBeWI7woYCgh3wvQBeh9004cd2b';
-        printObject('🔲🔲🔲 GET:16-->jerichoToken:\n', jerichoToken);
-        console.log(
-            '🔲🔲🔲 GET:16-->type of jerichoToken:\n',
-            typeof jerichoToken
-        );
-        console.log('🔲🔲🔲 GET:17-->token:\n', token);
-        console.log('🔲🔲🔲 GET:18-->type of token:\n', typeof token);
+        // printObject('🔲🔲🔲 GET:16-->jerichoToken:\n', jerichoToken);
+        // console.log(
+        //     '🔲🔲🔲 GET:16-->type of jerichoToken:\n',
+        //     typeof jerichoToken
+        // );
+        // console.log('🔲🔲🔲 GET:17-->token:\n', token);
+        // console.log('🔲🔲🔲 GET:18-->type of token:\n', typeof token);
 
         const response = await axios({
             method: 'get',
@@ -53,7 +53,7 @@ export async function GET(
             data: meetings,
             paginationData,
         };
-        printObject('🥎🥎🥎 returnInformation:\n', returnInformation);
+        // printObject('🥎🥎🥎 returnInformation:\n', returnInformation);
         return NextResponse.json(returnInformation);
         // return NextResponse.json({
         //     status: 200,
