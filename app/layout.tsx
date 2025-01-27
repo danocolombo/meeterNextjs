@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Newsreader } from 'next/font/google';
 import '@/app/globals.css';
 import NavBar from '@/components/navbar/NavBar';
 // import { Toaster } from '@/components/ui/toaster';
@@ -9,6 +9,12 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
+const newsreader = Newsreader({
+    subsets: ['latin'],
+    weight: ['200', '300', '400', '500', '600', '700'],
+    style: ['normal', 'italic'],
+    variable: '--font-newsreader',
+});
 
 export const metadata: Metadata = {
     title: 'Meeter',
@@ -23,7 +29,7 @@ export default function RootLayout({
     return (
         <ClerkProvider>
             <html lang='en' suppressHydrationWarning>
-                <body className={inter.className}>
+                <body className={`${inter.className} ${newsreader.variable}`}>
                     <Providers>
                         <NavBar />
                         <main className='container py-10'>{children}</main>

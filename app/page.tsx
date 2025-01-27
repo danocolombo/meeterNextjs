@@ -16,12 +16,7 @@ const HomePage = async () => {
                     <p className='text-lg'>
                         Welcome {clerkCurrentUser?.firstName}
                     </p>
-                    <MeetingList
-                        apiToken={
-                            clerkCurrentUser.privateMetadata?.meeter?.apiToken
-                        }
-                        orgId={clerkCurrentUser.privateMetadata?.meeter?.orgId}
-                    />
+                    <MeetingList />
                 </div>
             ) : (
                 <div>

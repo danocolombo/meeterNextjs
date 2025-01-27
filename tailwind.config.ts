@@ -1,11 +1,11 @@
 import type { Config } from 'tailwindcss';
 
-const config = {
+const config: Config = {
     darkMode: ['class'],
     content: [
-        './pages/**/*.{ts,tsx}',
-        './components/**/*.{ts,tsx}',
-        './app/**/*.{ts,tsx}',
+        './pages/**/*.{js,ts,jsx,tsx,mdx}',
+        './components/**/*.{js,ts,jsx,tsx,mdx}',
+        './app/**/*.{js,ts,jsx,tsx,mdx}',
         './src/**/*.{ts,tsx}',
     ],
     prefix: '',
@@ -69,6 +69,19 @@ const config = {
                     foreground: 'hsl(var(--warning-foreground))',
                 },
             },
+            fontFamily: {
+                newsreader: ['var(--font-newsreader)', 'serif'],
+            },
+            backgroundColor: {
+                background: 'hsl(var(--background))',
+                foreground: 'hsl(var(--foreground))',
+            },
+            textColor: {
+                foreground: 'hsl(var(--foreground))',
+            },
+            borderColor: {
+                DEFAULT: 'hsl(var(--border))',
+            },
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
@@ -99,6 +112,6 @@ const config = {
         },
     },
     plugins: [require('tailwindcss-animate')],
-} satisfies Config;
+};
 
 export default config;

@@ -81,6 +81,18 @@ const MeetingPage = ({ params }: PageProps) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Skip API call if id is "0" (new meeting)
+                if (params.id === '0') {
+                    setMeetingData({
+                        meeting_date: new Date().toISOString().split('T')[0],
+                        title: '',
+                        meeting_type: '',
+                        groups: [],
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+
                 // Fetch clerk metadata first
                 const clerkResponse = await axios.get('/api/clerkMeta');
                 if (!clerkResponse.data) {
@@ -139,6 +151,7 @@ const MeetingPage = ({ params }: PageProps) => {
 
     return (
         <div className='space-y-8'>
+            <div>Meeting</div>
             <MeetingForm meeting={meetingData} />
             <div className='grid gap-4'>
                 {meetingData.groups?.map((group) => (
