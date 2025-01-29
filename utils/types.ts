@@ -1,3 +1,9 @@
+import {
+    GROUP_LOCATIONS,
+    MEETING_TYPES,
+    GENDER_TYPES,
+} from '@/utils/constants';
+
 export type actionFunction = (
     prevState: any,
     formData: FormData
@@ -10,12 +16,14 @@ export interface ApiError {
 }
 export type MeetingTypeEnum = 'Testimony' | 'Lesson' | 'Special' | 'Other';
 export type MeetingType = {
+    name: string;
+    date?: string;
     id?: string | null;
     created_at?: string | null; // Assuming format is compatible with Date
     updated_at?: string | null;
     meeting_date?: string | null; // Assuming format is compatible with Date
     title?: string | null;
-    meeting_type?: string | null;
+    meeting_type?: (typeof MEETING_TYPES)[number];
     mtg_comp_key?: string | null;
     announcements_contact?: string | null;
     attendance_count?: number | null;
@@ -53,21 +61,21 @@ export type MeetingType = {
 };
 export type GroupType = {
     id: string | null;
-    created_at: string | null;
-    updated_at: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
     meeting_date: string | null;
     grp_comp_key: string | null;
     title: string | null;
-    location: string | null;
-    gender: string | null;
+    location: (typeof GROUP_LOCATIONS)[number];
+    gender: (typeof GENDER_TYPES)[number];
     attendance: number | null;
     facilitator: string | null;
     notes: string | null;
     meeting_id: string | null;
     organization_id: string | null;
-    aws_id: string | null;
-    aws_org_id: string | null;
-    cofacilitator: string | null;
+    aws_id?: string | null;
+    aws_org_id?: string | null;
+    cofacilitator?: string | null;
 };
 
 export type JerichoUserType = {
