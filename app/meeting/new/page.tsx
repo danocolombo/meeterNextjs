@@ -5,12 +5,13 @@ import FormInput from '@/components/form/FormInput';
 import { Button } from '@/components/ui/button';
 import { MeetingType, GroupType } from '@/utils/types';
 import { MEETING_TYPES, GROUP_LOCATIONS } from '@/utils/constants';
+import { printObject } from '@/utils/helpers';
 
 const NewMeetingForm = () => {
     const [step, setStep] = useState(1);
     const [meetingData, setMeetingData] = useState<MeetingType>({
         name: '',
-        meeting_date: '',
+        meeting_date: new Date().toISOString().split('T')[0], // Default to today's date
         title: '',
         meeting_type: 'Lesson',
         mtg_comp_key: '',
@@ -61,9 +62,33 @@ const NewMeetingForm = () => {
         cofacilitator: '',
     });
 
-    const handleMeetingSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleMeetingSubmit = async (
+        e: React.FormEvent<HTMLFormElement>
+    ): Promise<{ message: string }> => {
+        // e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+
+        setMeetingData((prevData) => ({
+            ...prevData,
+            meeting_date:
+                formData.get('meetingDate')?.toString() ||
+                new Date().toISOString().split('T')[0],
+            title: formData.get('title')?.toString() || '',
+            support_contact: formData.get('supportContact')?.toString() || '',
+            meeting_type: formData.get('meetingType')?.toString() || 'Lesson',
+            meal: formData.get('meal')?.toString() || '',
+            meal_contact: formData.get('mealContact')?.toString() || '',
+            meal_count: parseInt(formData.get('mealCount')?.toString() || '0'),
+            attendance_count: parseInt(
+                formData.get('attendanceCount')?.toString() || '0'
+            ),
+            notes: formData.get('notes')?.toString() || '',
+        }));
+
         setStep(2);
+        console.log('AMNP:67-->handleMeetingSubmit: Success');
+        return { message: 'Success' };
     };
 
     const handleAddGroup = (e: React.FormEvent) => {
@@ -105,109 +130,193 @@ const NewMeetingForm = () => {
             console.error('Error submitting meeting:', error);
         }
     };
-
+    printObject('AMNP:133->meetingData:\n', meetingData);
     if (step === 1) {
         return (
-            <FormContainer onSubmit={handleMeetingSubmit}>
+            <FormContainer
+                action={handleMeetingSubmit}
+                className='bg-gray-200 dark:bg-gray-600 p-6 rounded-lg border border-gray-300 dark:border-gray-500 shadow-sm'
+            >
                 <h2 className='text-2xl font-bold mb-4'>New Meeting Details</h2>
-                <FormInput
-                    label='Title'
-                    value={meetingData.name}
-                    onChange={(e) =>
-                        setMeetingData({ ...meetingData, name: e.target.value })
-                    }
-                />
-                <FormInput
-                    label='Date'
-                    type='date'
-                    value={meetingData.date}
-                    onChange={(e) =>
-                        setMeetingData({ ...meetingData, date: e.target.value })
-                    }
-                />
-                <div className='space-y-2'>
-                    <label>Type</label>
-                    <select
-                        className='w-full p-2 border rounded'
-                        value={meetingData.type}
-                        onChange={(e) =>
-                            setMeetingData({
-                                ...meetingData,
-                                type: e.target.value,
-                            })
-                        }
-                    >
-                        <option value=''>Select Type</option>
-                        {MEETING_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                                {type}
-                            </option>
-                        ))}
-                    </select>
+                <div className='flex flex-col space-y-4'>
+                    <div className='flex flex-col md:flex-row md:space-x-4'>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='title'
+                                type='string'
+                                required={true}
+                                label='Title'
+                                defaultValue={meetingData.title || ''}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='meetingDate'
+                                label='Date'
+                                type='date'
+                                defaultValue={meetingData.meeting_date || ''}
+                            />
+                        </div>
+                    </div>
+
+                    <div className='flex flex-col md:flex-row md:space-x-4'>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='supportContact'
+                                label={
+                                    meetingData.meeting_type === 'Lesson'
+                                        ? 'Teacher'
+                                        : 'Guest'
+                                }
+                                type='string'
+                                required={false}
+                                defaultValue={meetingData.support_contact || ''}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label>Type</label>
+                            <select
+                                className='w-full p-2 border rounded'
+                                name='meetingType'
+                                value={meetingData.meeting_type}
+                                onChange={(e) =>
+                                    setMeetingData({
+                                        ...meetingData,
+                                        meeting_type: e.target.value,
+                                    })
+                                }
+                            >
+                                <option value=''>Select Type</option>
+                                {MEETING_TYPES.map((type) => (
+                                    <option key={type} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className='flex flex-col md:flex-row md:space-x-4'>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='meal'
+                                required={false}
+                                label='Meal'
+                                type='string'
+                                defaultValue={meetingData.meal || ''}
+                                placeholder='e.g. Pizza'
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='mealContact'
+                                required={false}
+                                label='Meal Contact'
+                                type='string'
+                                defaultValue={meetingData.meal_contact || ''}
+                                placeholder='who provides the meal'
+                            />
+                        </div>
+                    </div>
+
+                    <div className='flex flex-col md:flex-row md:space-x-4'>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='mealCount'
+                                label='Meal Count'
+                                type='number'
+                                defaultValue={meetingData.meal_count || '0'}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <FormInput
+                                name='attendanceCount'
+                                label='Attendance'
+                                type='number'
+                                defaultValue={
+                                    meetingData.attendance_count || '0'
+                                }
+                            />
+                        </div>
+                    </div>
+                    <div className='w-full'>
+                        <FormInput
+                            name='notes'
+                            required={false}
+                            label='Notes'
+                            type='string'
+                            defaultValue={meetingData.notes || ''}
+                        />
+                    </div>
                 </div>
 
-                <Button type='submit'>Next: Define Groups</Button>
+                <div className='mt-4'>
+                    <Button type='submit'>Next: Define Groups</Button>
+                </div>
             </FormContainer>
         );
     }
 
     return (
-        <div>
-            <FormContainer onSubmit={handleAddGroup}>
+        <div className='space-y-6'>
+            <FormContainer
+                onSubmit={handleAddGroup}
+                className='bg-gray-200 dark:bg-gray-600 p-6 rounded-lg border border-gray-300 dark:border-gray-500 shadow-sm'
+            >
                 <h2 className='text-2xl font-bold mb-4'>Add Groups</h2>
-                <FormInput
-                    label='Group Name'
-                    value={currentGroup.name}
-                    onChange={(e) =>
-                        setCurrentGroup({
-                            ...currentGroup,
-                            name: e.target.value,
-                        })
-                    }
-                />
-                <FormInput
-                    label='Gender'
-                    value={currentGroup.gender}
-                    onChange={(e) =>
-                        setCurrentGroup({
-                            ...currentGroup,
-                            gender: e.target.value,
-                        })
-                    }
-                />
-                <FormInput
-                    label='Attendance'
-                    type='number'
-                    value={currentGroup.attendance}
-                    onChange={(e) =>
-                        setCurrentGroup({
-                            ...currentGroup,
-                            attendance: Number(e.target.value),
-                        })
-                    }
-                />
-                <FormInput
-                    label='Offering'
-                    type='number'
-                    value={currentGroup.offering}
-                    onChange={(e) =>
-                        setCurrentGroup({
-                            ...currentGroup,
-                            offering: Number(e.target.value),
-                        })
-                    }
-                />
-                <Button type='submit'>Add Group</Button>
+                <div className='flex flex-col space-y-4'>
+                    <div className='flex flex-col md:flex-row md:space-x-4'>
+                        <div className='flex-1'>
+                            <FormInput
+                                label='Group Name'
+                                defaultValue={currentGroup.title || ''}
+                                name={'title'}
+                                type={'string'}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <FormInput
+                                label='Gender'
+                                defaultValue={currentGroup.gender}
+                                name={'gender'}
+                                type={''}
+                            />
+                        </div>
+                    </div>
+                    <div className='flex flex-col md:flex-row md:space-x-4'>
+                        <div className='flex-1'>
+                            <FormInput
+                                label='Attendance'
+                                type='number'
+                                defaultValue={
+                                    currentGroup.attendance?.toString() || '0'
+                                }
+                                name={'attendance'}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            {/* Placeholder for symmetry - could add another field here */}
+                        </div>
+                    </div>
+                </div>
+                <div className='mt-4'>
+                    <Button type='submit'>Add Group</Button>
+                </div>
             </FormContainer>
 
             <div className='mt-4'>
                 <h3 className='text-xl font-bold mb-2'>Added Groups:</h3>
-                {groups.map((group, index) => (
-                    <div key={index} className='p-2 border mb-2'>
-                        {group.name} - {group.gender} - Attendance:{' '}
-                        {group.attendance}
-                    </div>
-                ))}
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    {groups.map((group, index) => (
+                        <div
+                            key={index}
+                            className='p-4 border rounded-lg bg-white dark:bg-gray-700'
+                        >
+                            {group.title} - {group.gender} - Attendance:{' '}
+                            {group.attendance}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className='mt-4 flex gap-2'>
