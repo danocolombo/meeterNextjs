@@ -15,7 +15,7 @@ export const groupSchema = z.object({
 
 export const newMeetingSchema = z.object({
     id: z.string().max(36).nullish(),
-    title: z.string().min(10).max(50),
+    title: z.string().min(4).max(50),
     meeting_date: z.string().nullish(),
     meeting_type: z.enum(Object.values(MEETING_TYPE) as [string, ...string[]]),
     facilitator_contact: z.string().max(50).nullish(),

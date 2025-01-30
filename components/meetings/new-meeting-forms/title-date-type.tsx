@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
 import { newMeetingSchema } from '@/features/meeting/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 
 const titleDateTypeSchema = newMeetingSchema.pick({
     title: true,
@@ -26,6 +27,7 @@ const titleDateTypeSchema = newMeetingSchema.pick({
 type TitleDateTypeSchema = z.infer<typeof titleDateTypeSchema>;
 
 export default function TitleDateTypeForm() {
+    const router = useRouter();
     const form = useForm<TitleDateTypeSchema>({
         resolver: zodResolver(titleDateTypeSchema),
         defaultValues: {
@@ -39,6 +41,7 @@ export default function TitleDateTypeForm() {
 
     const onSubmit = (data: TitleDateTypeSchema) => {
         console.log(data);
+        router.push('/meeting/new/worship');
     };
 
     return (
@@ -61,7 +64,7 @@ export default function TitleDateTypeForm() {
                         </FormItem>
                     )}
                 />
-                <FormField
+                {/* <FormField
                     control={form.control}
                     name='meeting_date'
                     render={({ field }) => (
@@ -127,8 +130,8 @@ export default function TitleDateTypeForm() {
                             <FormMessage />
                         </FormItem>
                     )}
-                />
-                <Button type='submit'>Next</Button>
+                /> */}
+                <Button type='submit'>Next: worship</Button>
             </form>
         </Form>
     );
