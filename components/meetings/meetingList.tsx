@@ -123,7 +123,7 @@ const MeetingsList = () => {
         <div className='relative'>
             <h1 className='text-2xl font-semibold mb-8 capitalize'>Meetings</h1>
             <Link
-                href='/meeting/new'
+                href='/meeting/new/basics'
                 className='absolute top-0 right-0 w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md'
             >
                 <span className='text-2xl'>+</span>

@@ -1,8 +1,5 @@
-import {
-    GROUP_LOCATIONS,
-    MEETING_TYPES,
-    GENDER_TYPES,
-} from '@/utils/constants';
+import { Group } from 'lucide-react';
+import { GROUP_LOCATION, MEETING_TYPE, GENDER_TYPE } from '@/utils/constants';
 
 export type actionFunction = (
     prevState: any,
@@ -14,7 +11,7 @@ export interface ApiError {
     message: string;
     details: string;
 }
-export type MeetingTypeEnum = 'Testimony' | 'Lesson' | 'Special' | 'Other';
+
 export type MeetingType = {
     name: string;
     date?: string;
@@ -23,7 +20,7 @@ export type MeetingType = {
     updated_at?: string | null;
     meeting_date?: string | null; // Assuming format is compatible with Date
     title?: string | null;
-    meeting_type?: (typeof MEETING_TYPES)[number];
+    meeting_type?: string | null;
     mtg_comp_key?: string | null;
     announcements_contact?: string | null;
     attendance_count?: number | null;
@@ -66,8 +63,8 @@ export type GroupType = {
     meeting_date: string | null;
     grp_comp_key: string | null;
     title: string | null;
-    location: (typeof GROUP_LOCATIONS)[number];
-    gender: (typeof GENDER_TYPES)[number];
+    location: string;
+    gender: string;
     attendance: number | null;
     facilitator: string | null;
     notes: string | null;
@@ -149,4 +146,9 @@ export interface ClerkUserType {
     samlAccounts?: [] | null;
     lastActiveAt?: number | null;
     createOrganizationEnabled?: Boolean | null;
+}
+export function MeetingTypeEnum(
+    MeetingTypeEnum: any
+): import('zod').ZodNativeEnum<any> {
+    throw new Error('Function not implemented.');
 }
