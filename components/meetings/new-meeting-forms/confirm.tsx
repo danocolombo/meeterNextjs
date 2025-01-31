@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form';
 import { newMeetingSchema } from '@/features/meeting/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -25,20 +26,25 @@ import {
 } from '@/components/ui/select';
 import { MEETING_TYPE } from '@/utils/constants';
 
-const titleDateTypeSchema = newMeetingSchema.pick({
+const confirmSchema = newMeetingSchema.pick({
     title: true,
     meeting_date: true,
     meeting_type: true,
     facilitator_contact: true,
     support_contact: true,
     attendance_count: true,
+    worship: true,
+    meal: true,
+    meal_count: true,
+    meal_contact: true,
+    notes: true,
 });
-type TitleDateTypeSchema = z.infer<typeof titleDateTypeSchema>;
+type ConfirmSchema = z.infer<typeof confirmSchema>;
 
-export default function TitleDateTypeForm() {
+export default function NewMeetingConfirmForm() {
     const router = useRouter();
-    const form = useForm<TitleDateTypeSchema>({
-        resolver: zodResolver(titleDateTypeSchema),
+    const form = useForm<ConfirmSchema>({
+        resolver: zodResolver(confirmSchema),
         defaultValues: {
             title: '',
             meeting_type: 'TESTIMONY',
@@ -48,19 +54,17 @@ export default function TitleDateTypeForm() {
             attendance_count: 0,
         },
     });
-
     const meetingType = form.watch('meeting_type');
-
-    const onSubmit = (data: TitleDateTypeSchema) => {
+    const onSubmit = (data: ConfirmSchema) => {
         console.log(data);
-        router.push('/meeting/new/worship');
+        // router.push('/meeting/new/worship');
     };
 
     return (
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className='w-full max-w-4xl space-y-6'
+                className='w-[300px] space-y-8'
             >
                 <div className='flex flex-col sm:flex-row sm:gap-4 space-y-6 sm:space-y-0'>
                     <div className='flex-1'>
@@ -242,8 +246,83 @@ export default function TitleDateTypeForm() {
                         />
                     </div>
                 </div>
-
-                <Button type='submit'>Next: worship</Button>
+                <FormField
+                    control={form.control}
+                    name='worship'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Worship</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder=''
+                                    {...field}
+                                    value={field.value ?? ''}
+                                />
+                            </FormControl>
+                            <FormDescription>Worship...</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name='meal'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Meal</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder=''
+                                    {...field}
+                                    value={field.value ?? ''}
+                                />
+                            </FormControl>
+                            <FormDescription>
+                                What was on the menu ??
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name='meal_contact'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Meal Contact</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder=''
+                                    {...field}
+                                    value={field.value ?? ''}
+                                />
+                            </FormControl>
+                            <FormDescription>
+                                Who was responsible for meal ??
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name='meal_count'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Meals Served</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder=''
+                                    {...field}
+                                    value={field.value ?? ''}
+                                />
+                            </FormControl>
+                            <FormDescription></FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <Button type='submit'>Save New Meeting</Button>
             </form>
         </Form>
     );

@@ -43,7 +43,7 @@ export default function NewMeetingMealForm() {
 
     const onSubmit = (data: MealSchema) => {
         console.log(data);
-        // router.push('/meeting/new/meal');
+        router.push('/meeting/new/confirm');
     };
 
     return (
