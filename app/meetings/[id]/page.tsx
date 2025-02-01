@@ -139,11 +139,15 @@ const MeetingPage = ({ params }: PageProps) => {
             fetchData();
         }
     }, [params.id, user]); // Remove clerkInfo from dependencies
-
+    const handleUpdate = () => {
+        printObject('MeetingPage:143->\n', meetingData);
+    };
     const handleAddGroup = () => {
+        // this will insert a new group into the meetingData
         if (!meetingData) return;
 
-        const tempId = `temp_${Math.random()}`; // Generate a temporary ID
+        // Generate a temporary ID - NOTE: this will NOT be the final ID, it is defined by API POST
+        const tempId = `NEW_${Math.random()}`;
         const newGroup: GroupType = {
             id: tempId,
             created_at: null,
@@ -160,8 +164,9 @@ const MeetingPage = ({ params }: PageProps) => {
             organization_id: meetingData.organization_id || null,
             cofacilitator: null,
         };
-
+        // save the new group id to the state
         setNewGroupIds((prev) => new Set(prev).add(tempId));
+        // insert the new group into the meetingData
         setMeetingData((prev) => {
             if (!prev) return prev;
             return {
@@ -198,13 +203,22 @@ const MeetingPage = ({ params }: PageProps) => {
                     />
                 ))}
             </div>
-            <Button
-                variant='default'
-                className='w-full'
-                onClick={handleAddGroup}
-            >
-                Add Group
-            </Button>
+            <div className='flex justify-between'>
+                <Button
+                    variant='default'
+                    className='w-1/3'
+                    onClick={handleAddGroup}
+                >
+                    Add New Group
+                </Button>
+                <Button
+                    variant='default'
+                    className='w-1/3'
+                    onClick={handleUpdate}
+                >
+                    Update
+                </Button>
+            </div>
         </div>
     );
 };

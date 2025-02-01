@@ -38,13 +38,14 @@ type TitleDateTypeSchema = z.infer<typeof titleDateTypeSchema>;
 
 interface MeetingFormProps {
     id: string;
-    user: any;
+    apiToken: string;
 }
 
-export default function MeetingEditForm({ id, user }: MeetingFormProps) {
+export default function MeetingEditForm({ id, apiToken }: MeetingFormProps) {
     const router = useRouter();
-    printObject('CMMF:46->id', id);
-    printObject('CMMF:47->user', user);
+
+    console.log('MeetingForm props:', { id, apiToken });
+
     const form = useForm<TitleDateTypeSchema>({
         resolver: zodResolver(titleDateTypeSchema),
         defaultValues: {
@@ -73,10 +74,10 @@ export default function MeetingEditForm({ id, user }: MeetingFormProps) {
                 <div className='flex flex-col sm:flex-row sm:gap-4 space-y-6 sm:space-y-0'>
                     <div className='flex-1'>
                         <div>
-                            <span>id: {id} </span>
+                            <span>Meeting ID: {id}</span>
                         </div>
                         <div>
-                            <span>user: {user} </span>
+                            <span>API Token: {apiToken}</span>
                         </div>
                         <FormField
                             control={form.control}
