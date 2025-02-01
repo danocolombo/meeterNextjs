@@ -176,6 +176,38 @@ const MeetingPage = ({ params }: PageProps) => {
         });
     };
 
+    const handleDeleteGroup = (groupId: string) => {
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                groups:
+                    prev.groups?.filter((group) => group.id !== groupId) || [],
+            };
+        });
+        // Remove from newGroupIds if it was a new group
+        setNewGroupIds((prev) => {
+            const next = new Set(prev);
+            next.delete(groupId);
+            return next;
+        });
+    };
+
+    const handleGroupUpdate = (groupId: string, updatedGroup: GroupType) => {
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                groups:
+                    prev.groups?.map((group) =>
+                        group.id === groupId
+                            ? { ...group, ...updatedGroup }
+                            : group
+                    ) || [],
+            };
+        });
+    };
+
     if (isLoading) {
         return <MeetingFormSkeleton />;
     }
@@ -200,6 +232,8 @@ const MeetingPage = ({ params }: PageProps) => {
                         key={group.id || Math.random()}
                         group={group}
                         isNew={group.id ? newGroupIds.has(group.id) : false}
+                        onDelete={handleDeleteGroup}
+                        onUpdate={handleGroupUpdate}
                     />
                 ))}
             </div>
