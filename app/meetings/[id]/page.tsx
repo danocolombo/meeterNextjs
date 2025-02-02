@@ -80,6 +80,7 @@ const MeetingPage = ({ params }: PageProps) => {
     const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [newGroupIds, setNewGroupIds] = useState<Set<string>>(new Set());
+    const [formData, setFormData] = useState<Partial<MeetingType>>({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -139,9 +140,66 @@ const MeetingPage = ({ params }: PageProps) => {
             fetchData();
         }
     }, [params.id, user]); // Remove clerkInfo from dependencies
-    const handleUpdate = () => {
-        printObject('MeetingPage:143->\n', meetingData);
+
+    const handleFormChange = (updatedFields: Partial<MeetingType>) => {
+        // Update both meetingData and formData simultaneously
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                ...updatedFields,
+            };
+        });
+
+        setFormData((prev) => ({
+            ...prev,
+            ...updatedFields,
+            // Ensure we're capturing the meeting ID and organization_id
+            id: params.id === '0' ? null : params.id,
+            organization_id: meetingData?.organization_id,
+        }));
     };
+
+    const handleUpdate = async () => {
+        if (!meetingData) return;
+
+        try {
+            // Get clerk metadata for API token
+            const clerkResponse = await axios.get('/api/clerkMeta');
+            const apiToken =
+                clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
+
+            if (!apiToken) {
+                throw new Error('API Token is not available');
+            }
+
+            const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
+            const method = params.id === '0' ? 'POST' : 'PUT';
+
+            const response = await axios({
+                method,
+                url: endpoint,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiToken}`,
+                },
+                data: formData,
+            });
+
+            if (response.status === 200) {
+                console.log('Meeting saved successfully');
+                // Optionally redirect or show success message
+            }
+        } catch (error) {
+            console.error('Error saving meeting:', error);
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to save meeting'
+            );
+        }
+    };
+
     const handleAddGroup = () => {
         // this will insert a new group into the meetingData
         if (!meetingData) return;
@@ -225,7 +283,10 @@ const MeetingPage = ({ params }: PageProps) => {
             <div className='text-2xl font-bold text-blue-800 dark:text-blue-400'>
                 Meeting
             </div>
-            <MeetingForm meeting={meetingData} />
+            <MeetingForm
+                meeting={meetingData}
+                onFormChange={handleFormChange}
+            />
             <div className='grid gap-4'>
                 {meetingData.groups?.map((group) => (
                     <GroupsComponent
