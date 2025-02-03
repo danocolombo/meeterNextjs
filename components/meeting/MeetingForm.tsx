@@ -1,265 +1,404 @@
 'use client';
+
 import React from 'react';
-import { z } from 'zod';
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
-import { newMeetingSchema } from '@/features/meeting/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { MEETING_TYPE } from '@/utils/constants';
+import { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
+import MeetingFormSkeleton from '@/components/skeletons/MeetingFormSkeleton';
+import axios from 'axios';
+import FormContainer from '../form/FormContainer';
+import FormInput from '../form/FormInput';
+import { handleMeetingSubmit } from '@/app/actions/meetingActions';
+import GroupsComponent from '../groups/page';
+import { Button } from '../ui/button';
 import { printObject } from '@/utils/helpers';
 
-const titleDateTypeSchema = newMeetingSchema.pick({
-    title: true,
-    meeting_date: true,
-    meeting_type: true,
-    facilitator_contact: true,
-    support_contact: true,
-    attendance_count: true,
-});
-type TitleDateTypeSchema = z.infer<typeof titleDateTypeSchema>;
-
+export type MeetingType = {
+    id?: string | null;
+    created_at?: string | null; // Assuming format is compatible with Date
+    updated_at?: string | null;
+    meeting_date?: string | null; // Assuming format is compatible with Date
+    title?: string | null;
+    meeting_type?: string | null;
+    mtg_comp_key?: string | null;
+    announcements_contact?: string | null;
+    attendance_count?: number | null;
+    av_contact?: string | null;
+    cafe_contact?: string | null;
+    cafe_count?: number | null;
+    children_contact?: string | null;
+    children_count?: number | null;
+    cleanup_contact?: string | null;
+    closing_contact?: string | null;
+    donations?: number | null;
+    facilitator_contact?: string | null;
+    greeter_contact1?: string | null;
+    greeter_contact2?: string | null;
+    meal?: string | null;
+    meal_contact?: string | null;
+    meal_count?: number | null;
+    newcomers_count?: number | null;
+    notes?: string | null;
+    nursery_contact?: string | null;
+    nursery_count?: number | null;
+    resource_contact?: string | null;
+    security_contact?: string | null;
+    setup_contact?: string | null;
+    support_contact?: string | null;
+    transportation_contact?: string | null;
+    transportation_count?: number | null;
+    worship?: string | null;
+    youth_contact?: string | null;
+    youth_count?: number | null;
+    organization_id?: string | null;
+    groups?: GroupType[]; // Changed from [GroupType] to GroupType[]
+};
+export type GroupType = {
+    id?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+    meeting_date?: string | null;
+    grp_comp_key?: string | null;
+    title?: string | null;
+    location?: string | null;
+    gender?: string | null;
+    attendance?: number | null;
+    facilitator?: string | null;
+    notes?: string | null;
+    meeting_id?: string | null;
+    organization_id?: string | null;
+    cofacilitator?: string | null;
+};
 interface MeetingFormProps {
     id: string;
-    apiToken: string;
 }
 
-export default function MeetingEditForm({ id, apiToken }: MeetingFormProps) {
-    const router = useRouter();
+const MeetingForm = ({ id }: MeetingFormProps) => {
+    const { user } = useUser();
+    const [isLoading, setIsLoading] = useState(true);
+    const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [newGroupIds, setNewGroupIds] = useState<Set<string>>(new Set());
+    const [formData, setFormData] = useState<Partial<MeetingType>>({});
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Skip API call if id is "0" (new meeting)
+                if (id === '0') {
+                    setMeetingData({
+                        meeting_date: new Date().toISOString().split('T')[0],
+                        title: '',
+                        meeting_type: '',
+                        groups: [],
+                    });
+                    setIsLoading(false);
+                    return;
+                }
 
-    console.log('MeetingForm props:', { id, apiToken });
+                // Fetch clerk metadata first
+                const clerkResponse = await axios.get('/api/clerkMeta');
+                if (!clerkResponse.data) {
+                    throw new Error('Failed to fetch clerk metadata');
+                }
+                const orgId =
+                    clerkResponse.data?.data?.privateMetadata?.meeter?.orgId;
+                const apiToken =
+                    clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
 
-    const form = useForm<TitleDateTypeSchema>({
-        resolver: zodResolver(titleDateTypeSchema),
-        defaultValues: {
-            title: '',
-            meeting_type: 'TESTIMONY',
-            meeting_date: new Date().toISOString().split('T')[0],
-            facilitator_contact: '',
-            support_contact: '', // Changed from support_contact1
-            attendance_count: 0,
-        },
-    });
+                if (!orgId || !apiToken) {
+                    throw new Error(
+                        'Organization ID or API Token is not available'
+                    );
+                }
 
-    const meetingType = form.watch('meeting_type');
+                // Only proceed with meeting data fetch if we have valid clerk data
+                const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${orgId}/${id}`;
+                const response = await axios.get(endpoint, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${apiToken}`,
+                    },
+                });
+                if (response?.data?.status === 200) {
+                    setMeetingData(response?.data?.data);
+                } else {
+                    throw new Error('Failed to fetch meeting data');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError(
+                    error instanceof Error ? error.message : 'An error occurred'
+                );
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    const onSubmit = (data: TitleDateTypeSchema) => {
-        console.log(data);
-        router.push('/meeting/new/worship');
+        if (user) {
+            fetchData();
+        }
+    }, [id, user]); // Remove clerkInfo from dependencies
+
+    const handleUpdate = async () => {
+        if (!meetingData) return;
+        const dano = true;
+        printObject('CMMF:144->meetingData\n', meetingData);
+        if (dano) return;
+        try {
+            // Get clerk metadata for API token
+            const clerkResponse = await axios.get('/api/clerkMeta');
+            const apiToken =
+                clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
+
+            if (!apiToken) {
+                throw new Error('API Token is not available');
+            }
+
+            const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
+            const method = id === '0' ? 'POST' : 'PUT';
+
+            const response = await axios({
+                method,
+                url: endpoint,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiToken}`,
+                },
+                data: formData,
+            });
+
+            if (response.status === 200) {
+                console.log('Meeting saved successfully');
+                // Optionally redirect or show success message
+            }
+        } catch (error) {
+            console.error('Error saving meeting:', error);
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to save meeting'
+            );
+        }
     };
 
+    const handleAddGroup = () => {
+        // this will insert a new group into the meetingData
+        if (!meetingData) return;
+
+        // Generate a temporary ID - NOTE: this will NOT be the final ID, it is defined by API POST
+        const tempId = `NEW_${Math.random()}`;
+        const newGroup: GroupType = {
+            id: tempId,
+            created_at: null,
+            updated_at: null,
+            meeting_date: meetingData.meeting_date || null,
+            grp_comp_key: null,
+            title: null,
+            location: null,
+            gender: null,
+            attendance: null,
+            facilitator: null,
+            notes: null,
+            meeting_id: meetingData.id || null,
+            organization_id: meetingData.organization_id || null,
+            cofacilitator: null,
+        };
+        // save the new group id to the state
+        setNewGroupIds((prev) => new Set(prev).add(tempId));
+        // insert the new group into the meetingData
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                groups: [...(prev.groups || []), newGroup],
+            };
+        });
+    };
+
+    const handleDeleteGroup = (groupId: string) => {
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                groups:
+                    prev.groups?.filter((group) => group.id !== groupId) || [],
+            };
+        });
+        // Remove from newGroupIds if it was a new group
+        setNewGroupIds((prev) => {
+            const next = new Set(prev);
+            next.delete(groupId);
+            return next;
+        });
+    };
+
+    const handleGroupUpdate = (groupId: string, updatedGroup: GroupType) => {
+        setMeetingData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                groups:
+                    prev.groups?.map((group) =>
+                        group.id === groupId
+                            ? { ...group, ...updatedGroup }
+                            : group
+                    ) || [],
+            };
+        });
+    };
+
+    if (isLoading) {
+        return <MeetingFormSkeleton />;
+    }
+
+    if (error) {
+        return <div className='text-red-500'>Error: {error}</div>;
+    }
+
+    if (!meetingData) {
+        return <div>Meeting not found</div>;
+    }
     return (
-        <Form {...form}>
-            <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className='w-full max-w-4xl space-y-6'
-            >
-                <div className='flex flex-col sm:flex-row sm:gap-4 space-y-6 sm:space-y-0'>
-                    <div className='flex-1'>
-                        <div>
-                            <span>Meeting ID: {id}</span>
+        <div className='space-y-8'>
+            <div className='text-2xl font-bold text-blue-800 dark:text-blue-400'>
+                Meeting {id}
+            </div>
+            <div className='form-container'>
+                <FormContainer action={handleMeetingSubmit}>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-x-4'>
+                        <div className='form-group'>
+                            <FormInput
+                                name='title'
+                                type='text'
+                                defaultValue={meetingData.title || ''}
+                                className='form-input'
+                                label='Title'
+                                labelClassName='form-label'
+                            />
                         </div>
-                        <div>
-                            <span>API Token: {apiToken}</span>
+                        <div className='form-group'>
+                            <FormInput
+                                name='meeting_date'
+                                type='date'
+                                defaultValue={meetingData.meeting_date || ''}
+                                className='form-input'
+                                label='Meeting Date'
+                                labelClassName='form-label'
+                            />
                         </div>
-                        <FormField
-                            control={form.control}
-                            name='title'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder='Title' {...field} />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Meeting Title...
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className='form-group'>
+                            <FormInput
+                                name='meeting_type'
+                                type='text'
+                                defaultValue={meetingData.meeting_type || ''}
+                                className='form-input'
+                                label='Meeting Type'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='attendance_count'
+                                type='number'
+                                defaultValue={meetingData.attendance_count?.toString()}
+                                className='form-input'
+                                label='Attendance Count'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='facilitator_contact'
+                                type='text'
+                                defaultValue={
+                                    meetingData.facilitator_contact || ''
+                                }
+                                className='form-input'
+                                label='Facilitator Contact'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='support_contact'
+                                type='text'
+                                defaultValue={meetingData.support_contact || ''}
+                                className='form-input'
+                                label='Support Contact'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='meal'
+                                type='text'
+                                defaultValue={meetingData.meal || ''}
+                                className='form-input'
+                                label='Meal'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='meal_contact'
+                                type='text'
+                                defaultValue={meetingData.meal_contact || ''}
+                                className='form-input'
+                                label='Meal Contact'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='meal_count'
+                                type='number'
+                                defaultValue={meetingData.meal_count?.toString()}
+                                className='form-input'
+                                label='Meal Count'
+                                labelClassName='form-label'
+                            />
+                        </div>
+                        <div className='form-group'>
+                            <FormInput
+                                name='notes'
+                                type='text'
+                                defaultValue={meetingData.notes || ''}
+                                className='form-input'
+                                label='Notes'
+                                labelClassName='form-label'
+                            />
+                        </div>
                     </div>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name='meeting_date'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Meeting Date</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type='date'
-                                            placeholder='date'
-                                            {...field}
-                                            value={field.value || ''}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Meeting date...
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                </FormContainer>
+                <div className='grid gap-4'>
+                    {meetingData.groups?.map((group) => (
+                        <GroupsComponent
+                            key={group.id || Math.random()}
+                            group={group}
+                            isNew={group.id ? newGroupIds.has(group.id) : false}
+                            onDelete={handleDeleteGroup}
+                            onUpdate={handleGroupUpdate}
                         />
-                    </div>
+                    ))}
                 </div>
-
-                <div className='flex flex-col sm:flex-row sm:gap-4 space-y-6 sm:space-y-0'>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name='meeting_type'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Meeting Type</FormLabel>
-                                    <FormControl>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder='Select meeting type' />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Object.values(
-                                                    MEETING_TYPE
-                                                ).map((type) => (
-                                                    <SelectItem
-                                                        key={type}
-                                                        value={type}
-                                                    >
-                                                        {type}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Meeting type...
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name='support_contact'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        {meetingType === 'LESSON'
-                                            ? 'Instructor'
-                                            : ['TESTIMONY', 'SPECIAL'].includes(
-                                                  meetingType
-                                              )
-                                            ? 'Guest(s)'
-                                            : 'Support Contact'}
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder={
-                                                meetingType === 'LESSON'
-                                                    ? 'Instructor'
-                                                    : [
-                                                          'TESTIMONY',
-                                                          'SPECIAL',
-                                                      ].includes(meetingType)
-                                                    ? 'Guest(s)'
-                                                    : 'Support contact'
-                                            }
-                                            {...field}
-                                            value={field.value ?? ''}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        {meetingType === 'LESSON'
-                                            ? 'Instructor...'
-                                            : ['TESTIMONY', 'SPECIAL'].includes(
-                                                  meetingType
-                                              )
-                                            ? 'Guest(s)...'
-                                            : 'Support contact...'}
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                <div className='flex justify-between'>
+                    <Button
+                        variant='default'
+                        className='w-1/3'
+                        onClick={handleAddGroup}
+                    >
+                        Add New Group
+                    </Button>
+                    <Button
+                        variant='default'
+                        className='w-1/3'
+                        onClick={handleUpdate}
+                    >
+                        Update
+                    </Button>
                 </div>
-
-                <div className='flex flex-col sm:flex-row sm:gap-4 space-y-6 sm:space-y-0'>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name='facilitator_contact'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Facilitator</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder='Facilitator'
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Facilitator...
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <FormField
-                            control={form.control}
-                            name='attendance_count'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Attendance</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type='number'
-                                            min={0}
-                                            {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    Number(e.target.value)
-                                                )
-                                            }
-                                            value={field.value}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Attendance count...
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                </div>
-
-                <Button type='submit'>Next: worship</Button>
-            </form>
-        </Form>
+            </div>
+        </div>
     );
-}
+};
+
+export default MeetingForm;
