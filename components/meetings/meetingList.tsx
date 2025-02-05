@@ -17,6 +17,9 @@ interface Meeting {
         location: string;
         facilitator: string;
     }>;
+    attendance_count: number | null;
+    meal_count: number | null;
+    newcomers_count: number | null;
 }
 
 interface ApiResponse {
@@ -38,6 +41,23 @@ interface PaginationData {
     per_page: number;
     total: number;
 }
+
+const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
+    return (
+        <Link
+            href={`/meeting/${meeting.id}`}
+            className='block meetings-list-card'
+            aria-label={`View meeting: ${meeting.title}`}
+        >
+            <h3 className='font-bold'>{meeting.title}</h3>
+            <p>Date: {meeting.meeting_date}</p>
+            <p>Type: {meeting.meeting_type}</p>
+            {meeting.groups.length > 0 && (
+                <p>Groups: {meeting.groups.length}</p>
+            )}
+        </Link>
+    );
+};
 
 const MeetingsList = () => {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -81,6 +101,24 @@ const MeetingsList = () => {
         }
     };
 
+    const transformMeetingData = (meetings: Meeting[]) => {
+        // Filter out any duplicate meetings by ID
+        const uniqueMeetings = meetings.reduce((acc: Meeting[], current) => {
+            const exists = acc.find((meeting) => meeting.id === current.id);
+            if (!exists) {
+                acc.push(current);
+            }
+            return acc;
+        }, []);
+
+        return uniqueMeetings.map((meeting) => ({
+            ...meeting,
+            attendance_count: meeting.attendance_count ?? 0,
+            meal_count: meeting.meal_count ?? 0,
+            newcomers_count: meeting.newcomers_count ?? 0,
+        }));
+    };
+
     const getMeetings = async (
         orgId: string,
         apiToken: string,
@@ -111,10 +149,13 @@ const MeetingsList = () => {
             console.log('API Response:', responseData);
 
             if (responseData.status === 200 && responseData.data) {
+                const transformedMeetings = transformMeetingData(
+                    responseData.data.data
+                );
                 if (page === 1) {
-                    setMeetings(responseData.data.data);
+                    setMeetings(transformedMeetings);
                 } else {
-                    setMeetings((prev) => [...prev, ...responseData.data.data]);
+                    setMeetings((prev) => [...prev, ...transformedMeetings]);
                 }
 
                 setPagination({
@@ -194,22 +235,8 @@ const MeetingsList = () => {
             </Link>
             <div className='grid md:grid-cols-2 gap-4 mt-12'>
                 {Array.isArray(meetings) && meetings.length > 0 ? (
-                    meetings.map((meeting: Meeting) => (
-                        <Link
-                            key={meeting.id}
-                            href={{
-                                pathname: `/meeting/${meeting.id}`,
-                            }}
-                        >
-                            <div className='meetings-list-card'>
-                                <h3 className='font-bold'>{meeting.title}</h3>
-                                <p>Date: {meeting.meeting_date}</p>
-                                <p>Type: {meeting.meeting_type}</p>
-                                {meeting.groups.length > 0 && (
-                                    <p>Groups: {meeting.groups.length}</p>
-                                )}
-                            </div>
-                        </Link>
+                    meetings.map((meeting) => (
+                        <MeetingCard key={meeting.id} meeting={meeting} />
                     ))
                 ) : (
                     <div>No meetings found</div>
@@ -220,8 +247,7 @@ const MeetingsList = () => {
                     <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto'></div>
                 </div>
             )}
-            <div ref={observerTarget} className='h-20 mt-4' />{' '}
-            {/* Increased height for better detection */}
+            <div ref={observerTarget} className='h-20 mt-4' />
         </div>
     );
 };

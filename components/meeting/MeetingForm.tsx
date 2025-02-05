@@ -88,12 +88,13 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             title: '',
             meeting_date: new Date().toISOString().split('T')[0],
             meeting_type: '',
-            attendance_count: null,
+            attendance_count: 0,
             facilitator_contact: '',
             support_contact: '',
             meal: '',
             meal_contact: '',
-            meal_count: null,
+            meal_count: 0,
+            newcomers_count: 0,
             notes: '',
         },
     });
@@ -105,12 +106,13 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 title: meetingData.title || '',
                 meeting_date: meetingData.meeting_date || '',
                 meeting_type: meetingData.meeting_type || '',
-                attendance_count: meetingData.attendance_count,
+                attendance_count: meetingData.attendance_count || 0,
                 facilitator_contact: meetingData.facilitator_contact || '',
                 support_contact: meetingData.support_contact || '',
                 meal: meetingData.meal || '',
                 meal_contact: meetingData.meal_contact || '',
-                meal_count: meetingData.meal_count,
+                meal_count: meetingData.meal_count || 0,
+                newcomers_count: meetingData.newcomers_count || 0,
                 notes: meetingData.notes || '',
             });
         }
@@ -343,6 +345,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                             <FormInput
                                 {...form.register('attendance_count')}
                                 type='number'
+                                min='0'
                                 className='form-input'
                                 label='Attendance Count'
                                 error={
@@ -399,6 +402,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                             <FormInput
                                 {...form.register('meal_count')}
                                 type='number'
+                                min='0'
                                 className='form-input'
                                 label='Meal Count'
                                 error={
@@ -408,13 +412,28 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                {...form.register('notes')}
-                                type='text'
+                                {...form.register('newcomers_count')}
+                                type='number'
+                                min='0'
                                 className='form-input'
-                                label='Notes'
-                                error={form.formState.errors.notes?.message}
+                                label='Newcomers Count'
+                                error={
+                                    form.formState.errors.newcomers_count
+                                        ?.message
+                                }
                             />
                         </div>
+                    </div>
+
+                    {/* Notes input - Full width */}
+                    <div className='form-group mt-4 w-full'>
+                        <FormInput
+                            {...form.register('notes')}
+                            type='text'
+                            className='form-input w-full'
+                            label='Notes'
+                            error={form.formState.errors.notes?.message}
+                        />
                     </div>
 
                     <div className='grid gap-4'>
