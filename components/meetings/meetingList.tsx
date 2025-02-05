@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
 import MeetingListSkeleton from '../skeletons/MeetingListSkeleton';
@@ -22,101 +22,165 @@ interface Meeting {
 interface ApiResponse {
     status: number;
     message: string;
-    data: Meeting[];
-    paginationData: {
-        data: {
-            current_page: number;
-            per_page: number;
-            total: number;
-        };
+    data: {
+        current_page: number;
+        data: Meeting[];
+        first_page_url: string;
+        last_page: number;
+        per_page: number;
+        total: number;
     };
+}
+
+interface PaginationData {
+    current_page: number;
+    total_pages: number;
+    per_page: number;
+    total: number;
 }
 
 const MeetingsList = () => {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [orgId, setOrgId] = useState<string>('');
     const [apiToken, setApiToken] = useState<string>('');
+    const [pagination, setPagination] = useState<PaginationData | null>(null);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const fetchMetadata = async () => {
-            try {
-                const clerkResponse = await axios.get('/api/clerkMeta');
-                if (!clerkResponse.data) {
-                    throw new Error('Failed to fetch clerk metadata');
-                }
-                const orgId =
-                    clerkResponse.data?.data?.privateMetadata?.meeter?.orgId;
-                const apiToken =
-                    clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
-
-                if (!orgId || !apiToken) {
-                    throw new Error(
-                        'Organization ID or API Token is not available'
-                    );
-                }
-
-                setOrgId(orgId);
-                setApiToken(apiToken);
-                return { orgId, apiToken };
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : 'Failed to fetch metadata'
-                );
-                return null;
+    const fetchMetadata = async () => {
+        try {
+            const clerkResponse = await axios.get('/api/clerkMeta');
+            if (!clerkResponse.data) {
+                throw new Error('Failed to fetch clerk metadata');
             }
-        };
 
-        const getMeetings = async (orgId: string, apiToken: string) => {
-            try {
-                const response = await fetch(
-                    `/api/jericho/meetings/organization/${orgId}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            jerichoToken: apiToken,
-                            organizationId: orgId,
-                        },
-                    }
+            // Get both orgId and API token from clerk metadata
+            const orgId =
+                clerkResponse.data?.data?.privateMetadata?.meeter?.orgId;
+            const apiToken =
+                clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
+
+            console.log('Clerk metadata:', { orgId, apiToken }); // Debug log
+
+            if (!orgId || !apiToken) {
+                throw new Error(
+                    'Organization ID or API Token is not available'
                 );
+            }
 
-                const responseData: ApiResponse = await response.json();
+            setOrgId(orgId);
+            setApiToken(apiToken);
+            return { orgId, apiToken };
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : 'Failed to fetch metadata'
+            );
+            return null;
+        }
+    };
 
-                if (
-                    responseData.status === 200 &&
-                    Array.isArray(responseData.data)
-                ) {
-                    setMeetings(responseData.data);
+    const getMeetings = async (
+        orgId: string,
+        apiToken: string,
+        page: number = 1
+    ) => {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
+            const url = `${baseUrl}/meetings/${orgId}?direction=DESC&page=${page}`;
+
+            console.log('Request details:', {
+                url,
+                authHeader: `Bearer ${apiToken}`,
+                orgId,
+            });
+
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiToken}`, // Make sure it's exactly this format
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const responseData: ApiResponse = await response.json();
+            console.log('API Response:', responseData);
+
+            if (responseData.status === 200 && responseData.data) {
+                if (page === 1) {
+                    setMeetings(responseData.data.data);
                 } else {
-                    throw new Error('Invalid response format');
+                    setMeetings((prev) => [...prev, ...responseData.data.data]);
                 }
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : 'Failed to fetch meetings'
-                );
-                console.error('Error fetching meetings:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
 
+                setPagination({
+                    current_page: responseData.data.current_page,
+                    total_pages: responseData.data.last_page,
+                    per_page: responseData.data.per_page,
+                    total: responseData.data.total,
+                });
+            } else {
+                throw new Error('Invalid response format');
+            }
+        } catch (err) {
+            console.error('Fetch error:', err);
+            setError(
+                err instanceof Error ? err.message : 'Failed to fetch meetings'
+            );
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    const loadMore = useCallback(() => {
+        if (
+            pagination &&
+            !loadingMore &&
+            pagination.current_page < pagination.total_pages
+        ) {
+            setLoadingMore(true);
+            getMeetings(orgId, apiToken, pagination.current_page + 1);
+        }
+    }, [pagination, loadingMore, orgId, apiToken, getMeetings]);
+
+    // Move this effect before the initialization effect
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    loadMore();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [loadMore]);
+
+    // Initial data load effect
+    useEffect(() => {
         const initializeData = async () => {
             const metadata = await fetchMetadata();
             if (metadata) {
-                await getMeetings(metadata.orgId, metadata.apiToken);
+                await getMeetings(metadata.orgId, metadata.apiToken, 1);
             }
         };
 
         initializeData();
     }, []);
 
-    if (loading) return <MeetingListSkeleton />;
+    if (loading && !loadingMore) return <MeetingListSkeleton />;
     if (error) return <div>Error: {error}</div>;
 
     return (
@@ -151,6 +215,13 @@ const MeetingsList = () => {
                     <div>No meetings found</div>
                 )}
             </div>
+            {loadingMore && (
+                <div className='text-center py-4'>
+                    <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto'></div>
+                </div>
+            )}
+            <div ref={observerTarget} className='h-20 mt-4' />{' '}
+            {/* Increased height for better detection */}
         </div>
     );
 };
