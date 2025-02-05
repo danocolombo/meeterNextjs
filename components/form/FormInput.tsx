@@ -1,48 +1,31 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
-interface FormInputProps {
-    name: string;
-    type: string;
-    label?: string;
-    defaultValue?: string;
-    readOnly?: boolean;
-    placeholder?: string;
-    required?: boolean;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+    label: string;
+    error?: string;
+    labelClassName?: string;
 }
 
-const FormInput = ({
-    name,
-    type,
-    label,
-    defaultValue,
-    readOnly = false,
-    placeholder,
-    required = true,
-    onChange,
-}: FormInputProps) => {
-    return (
-        <div className='mb-2'>
-            <Label htmlFor={name} className='capitalize'>
-                {label || name}
-            </Label>
-            <Input
-                id={name}
-                name={name}
-                type={type}
-                defaultValue={defaultValue}
-                placeholder={placeholder}
-                disabled={readOnly}
-                required={required}
-                onChange={onChange}
-            />
-            {readOnly && (
-                <input type='hidden' name={name} value={defaultValue} />
-            )}
-        </div>
-    );
-};
+const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
+    ({ label, error, labelClassName, ...props }, ref) => {
+        return (
+            <div className='form-group'>
+                <label className={labelClassName}>{label}</label>
+                <input
+                    ref={ref}
+                    {...props}
+                    className={`form-input ${error ? 'border-red-500' : ''} ${
+                        props.className || ''
+                    }`}
+                />
+                {error && <span className='text-red-500 text-sm'>{error}</span>}
+            </div>
+        );
+    }
+);
+
+FormInput.displayName = 'FormInput';
 
 export default FormInput;

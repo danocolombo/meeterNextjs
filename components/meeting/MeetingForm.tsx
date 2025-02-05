@@ -1,5 +1,8 @@
 'use client';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { meetingFormSchema, type MeetingFormData } from '@/lib/schemas/meeting';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -7,7 +10,7 @@ import MeetingFormSkeleton from '@/components/skeletons/MeetingFormSkeleton';
 import axios from 'axios';
 import FormContainer from '../form/FormContainer';
 import FormInput from '../form/FormInput';
-import { handleMeetingSubmit } from '@/app/actions/meetingActions';
+// import { handleMeetingSubmit } from '@/app/actions/meetingActions';
 import GroupsComponent from '../groups/page';
 import { Button } from '../ui/button';
 import { printObject } from '@/utils/helpers';
@@ -78,7 +81,41 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
     const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [newGroupIds, setNewGroupIds] = useState<Set<string>>(new Set());
-    const [formData, setFormData] = useState<Partial<MeetingType>>({});
+
+    const form = useForm<MeetingFormData>({
+        resolver: zodResolver(meetingFormSchema),
+        defaultValues: {
+            title: '',
+            meeting_date: new Date().toISOString().split('T')[0],
+            meeting_type: '',
+            attendance_count: null,
+            facilitator_contact: '',
+            support_contact: '',
+            meal: '',
+            meal_contact: '',
+            meal_count: null,
+            notes: '',
+        },
+    });
+
+    // Update form values when meetingData changes
+    useEffect(() => {
+        if (meetingData) {
+            form.reset({
+                title: meetingData.title || '',
+                meeting_date: meetingData.meeting_date || '',
+                meeting_type: meetingData.meeting_type || '',
+                attendance_count: meetingData.attendance_count,
+                facilitator_contact: meetingData.facilitator_contact || '',
+                support_contact: meetingData.support_contact || '',
+                meal: meetingData.meal || '',
+                meal_contact: meetingData.meal_contact || '',
+                meal_count: meetingData.meal_count,
+                notes: meetingData.notes || '',
+            });
+        }
+    }, [meetingData, form]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -138,13 +175,10 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
         }
     }, [id, user]); // Remove clerkInfo from dependencies
 
-    const handleUpdate = async () => {
-        if (!meetingData) return;
-        const dano = true;
-        printObject('CMMF:144->meetingData\n', meetingData);
-        if (dano) return;
+    const handleUpdate = async (formData: MeetingFormData) => {
+        if (!meetingData) return { message: 'No meeting data available' };
+
         try {
-            // Get clerk metadata for API token
             const clerkResponse = await axios.get('/api/clerkMeta');
             const apiToken =
                 clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
@@ -153,6 +187,13 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 throw new Error('API Token is not available');
             }
 
+            // Combine form data with existing meeting data
+            const updatedMeetingData = {
+                ...meetingData,
+                ...formData,
+            };
+            printObject('CMMF:195-->updatedMeetingData:\n', updatedMeetingData);
+            return { message: 'Meeting DEBUG' };
             const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
             const method = id === '0' ? 'POST' : 'PUT';
 
@@ -163,13 +204,14 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${apiToken}`,
                 },
-                data: formData,
+                data: updatedMeetingData,
             });
 
             if (response.status === 200) {
                 console.log('Meeting saved successfully');
-                // Optionally redirect or show success message
+                return { message: 'Meeting saved successfully' };
             }
+            return { message: 'Failed to save meeting' };
         } catch (error) {
             console.error('Error saving meeting:', error);
             setError(
@@ -177,6 +219,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                     ? error.message
                     : 'Failed to save meeting'
             );
+            return { message: 'Error saving meeting' };
         }
     };
 
@@ -263,139 +306,149 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 Meeting {id}
             </div>
             <div className='form-container'>
-                <FormContainer action={handleMeetingSubmit}>
+                <form onSubmit={form.handleSubmit(handleUpdate)}>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-x-4'>
                         <div className='form-group'>
                             <FormInput
-                                name='title'
+                                {...form.register('title')}
                                 type='text'
-                                defaultValue={meetingData.title || ''}
                                 className='form-input'
                                 label='Title'
-                                labelClassName='form-label'
+                                error={form.formState.errors.title?.message}
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='meeting_date'
+                                {...form.register('meeting_date')}
                                 type='date'
-                                defaultValue={meetingData.meeting_date || ''}
                                 className='form-input'
                                 label='Meeting Date'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.meeting_date?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='meeting_type'
+                                {...form.register('meeting_type')}
                                 type='text'
-                                defaultValue={meetingData.meeting_type || ''}
                                 className='form-input'
                                 label='Meeting Type'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.meeting_type?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='attendance_count'
+                                {...form.register('attendance_count')}
                                 type='number'
-                                defaultValue={meetingData.attendance_count?.toString()}
                                 className='form-input'
                                 label='Attendance Count'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.attendance_count
+                                        ?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='facilitator_contact'
+                                {...form.register('facilitator_contact')}
                                 type='text'
-                                defaultValue={
-                                    meetingData.facilitator_contact || ''
-                                }
                                 className='form-input'
                                 label='Facilitator Contact'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.facilitator_contact
+                                        ?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='support_contact'
+                                {...form.register('support_contact')}
                                 type='text'
-                                defaultValue={meetingData.support_contact || ''}
                                 className='form-input'
                                 label='Support Contact'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.support_contact
+                                        ?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='meal'
+                                {...form.register('meal')}
                                 type='text'
-                                defaultValue={meetingData.meal || ''}
                                 className='form-input'
                                 label='Meal'
-                                labelClassName='form-label'
+                                error={form.formState.errors.meal?.message}
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='meal_contact'
+                                {...form.register('meal_contact')}
                                 type='text'
-                                defaultValue={meetingData.meal_contact || ''}
                                 className='form-input'
                                 label='Meal Contact'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.meal_contact?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='meal_count'
+                                {...form.register('meal_count')}
                                 type='number'
-                                defaultValue={meetingData.meal_count?.toString()}
                                 className='form-input'
                                 label='Meal Count'
-                                labelClassName='form-label'
+                                error={
+                                    form.formState.errors.meal_count?.message
+                                }
                             />
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                name='notes'
+                                {...form.register('notes')}
                                 type='text'
-                                defaultValue={meetingData.notes || ''}
                                 className='form-input'
                                 label='Notes'
-                                labelClassName='form-label'
+                                error={form.formState.errors.notes?.message}
                             />
                         </div>
                     </div>
-                </FormContainer>
-                <div className='grid gap-4'>
-                    {meetingData.groups?.map((group) => (
-                        <GroupsComponent
-                            key={group.id || Math.random()}
-                            group={group}
-                            isNew={group.id ? newGroupIds.has(group.id) : false}
-                            onDelete={handleDeleteGroup}
-                            onUpdate={handleGroupUpdate}
-                        />
-                    ))}
-                </div>
-                <div className='flex justify-between'>
-                    <Button
-                        variant='default'
-                        className='w-1/3'
-                        onClick={handleAddGroup}
-                    >
-                        Add New Group
-                    </Button>
-                    <Button
-                        variant='default'
-                        className='w-1/3'
-                        onClick={handleUpdate}
-                    >
-                        Update
-                    </Button>
-                </div>
+
+                    <div className='grid gap-4'>
+                        {meetingData.groups?.map((group) => (
+                            <GroupsComponent
+                                key={group.id || Math.random()}
+                                group={group}
+                                isNew={
+                                    group.id ? newGroupIds.has(group.id) : false
+                                }
+                                onDelete={handleDeleteGroup}
+                                onUpdate={handleGroupUpdate}
+                            />
+                        ))}
+                    </div>
+                    <div className='flex justify-between'>
+                        <Button
+                            variant='default'
+                            className='w-1/3'
+                            onClick={handleAddGroup}
+                            type='button'
+                        >
+                            Add New Group
+                        </Button>
+                        <Button
+                            variant='default'
+                            className='w-1/3'
+                            type='submit'
+                            disabled={!form.formState.isDirty}
+                        >
+                            Update
+                        </Button>
+                    </div>
+                </form>
             </div>
         </div>
     );

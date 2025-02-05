@@ -134,7 +134,7 @@ const MeetingsList = () => {
                         <Link
                             key={meeting.id}
                             href={{
-                                pathname: `/meetings/${meeting.id}`,
+                                pathname: `/meeting/${meeting.id}`,
                             }}
                         >
                             <div className='meetings-list-card'>
