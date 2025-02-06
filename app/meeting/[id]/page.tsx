@@ -1,6 +1,6 @@
 'use client';
 
-import GroupsComponent from '@/components/groups/page';
+import GroupsComponent from '@/components/groups/GroupForm';
 import MeetingFormSkeleton from '@/components/skeletons/MeetingFormSkeleton';
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';

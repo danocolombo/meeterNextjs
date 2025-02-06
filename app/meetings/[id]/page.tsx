@@ -1,6 +1,6 @@
 'use client';
 
-import GroupsComponent from '@/components/groups/page';
+import GroupsComponent from '@/components/groups/GroupForm';
 import MeetingForm from '@/components/meetings/meetingForm';
 import MeetingFormSkeleton from '@/components/skeletons/MeetingFormSkeleton';
 import { useEffect, useState } from 'react';

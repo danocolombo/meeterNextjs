@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import FormContainer from '../form/FormContainer';
-import FormInput from '../form/FormInput';
+import { useForm } from 'react-hook-form';
+import FormContainer from '@/components/form/FormContainer';
+import FormInput from '@/components/form/FormInput';
 import { GroupType } from '@/app/meetings/[id]/page';
 import { handleGroupSubmit } from '@/app/actions/meetingActions';
 import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { groupFormSchema } from '@/lib/schemas/group';
 import { GROUP_LOCATION, GENDER_TYPE } from '@/utils/constants';

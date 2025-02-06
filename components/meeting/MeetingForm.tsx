@@ -1,18 +1,17 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { meetingFormSchema, type MeetingFormData } from '@/lib/schemas/meeting';
+
 import React from 'react';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useUser } from '@clerk/nextjs';
 import MeetingFormSkeleton from '@/components/skeletons/MeetingFormSkeleton';
-import axios from 'axios';
-import FormContainer from '../form/FormContainer';
-import FormInput from '../form/FormInput';
-// import { handleMeetingSubmit } from '@/app/actions/meetingActions';
-import GroupsComponent from '../groups/page';
-import { Button } from '../ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { meetingFormSchema, type MeetingFormData } from '@/lib/schemas/meeting';
+import FormInput from '@/components/form/FormInput';
+import GroupsComponent from '@/components/groups/GroupForm';
+import { Button } from '@/components/ui/button';
 import { printObject } from '@/utils/helpers';
 
 export type MeetingType = {
