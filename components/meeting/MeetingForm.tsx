@@ -80,7 +80,9 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
     const [isLoading, setIsLoading] = useState(true);
     const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [pendingGroups, setPendingGroups] = useState<GroupType[]>([]);
     const [newGroupIds, setNewGroupIds] = useState<Set<string>>(new Set());
+    const [groupsChanged, setGroupsChanged] = useState(false);
 
     const form = useForm<MeetingFormData>({
         resolver: zodResolver(meetingFormSchema),
@@ -193,6 +195,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             const updatedMeetingData = {
                 ...meetingData,
                 ...formData,
+                groups: meetingData.groups, // Ensure groups are always included
             };
             printObject('CMMF:195-->updatedMeetingData:\n', updatedMeetingData);
             return { message: 'Meeting DEBUG' };
@@ -226,16 +229,13 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
     };
 
     const handleAddGroup = () => {
-        // this will insert a new group into the meetingData
-        if (!meetingData) return;
-
-        // Generate a temporary ID - NOTE: this will NOT be the final ID, it is defined by API POST
-        const tempId = `NEW_${Math.random()}`;
+        // Generate a temporary ID for the pending group
+        const tempId = `PENDING_${Math.random()}`;
         const newGroup: GroupType = {
             id: tempId,
             created_at: null,
             updated_at: null,
-            meeting_date: meetingData.meeting_date || null,
+            meeting_date: meetingData?.meeting_date || null,
             grp_comp_key: null,
             title: null,
             location: null,
@@ -243,23 +243,43 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             attendance: null,
             facilitator: null,
             notes: null,
-            meeting_id: meetingData.id || null,
-            organization_id: meetingData.organization_id || null,
+            meeting_id: meetingData?.id || null,
+            organization_id: meetingData?.organization_id || null,
             cofacilitator: null,
         };
-        // save the new group id to the state
-        setNewGroupIds((prev) => new Set(prev).add(tempId));
-        // insert the new group into the meetingData
+
+        // Add to pending groups instead of meetingData
+        setPendingGroups((prev) => [...prev, newGroup]);
+    };
+
+    const handleGroupValidated = (
+        groupId: string,
+        validatedGroup: GroupType
+    ) => {
+        // Remove from pending groups
+        setPendingGroups((prev) => prev.filter((g) => g.id !== groupId));
+
+        // Add to meetingData
         setMeetingData((prev) => {
             if (!prev) return prev;
             return {
                 ...prev,
-                groups: [...(prev.groups || []), newGroup],
+                groups: [...(prev.groups || []), validatedGroup],
             };
         });
+
+        setNewGroupIds((prev) => new Set(prev).add(groupId));
+        setGroupsChanged(true);
     };
 
     const handleDeleteGroup = (groupId: string) => {
+        // Check if it's a pending group first
+        if (groupId.startsWith('PENDING_')) {
+            setPendingGroups((prev) => prev.filter((g) => g.id !== groupId));
+            return;
+        }
+
+        // Otherwise handle as before
         setMeetingData((prev) => {
             if (!prev) return prev;
             return {
@@ -268,12 +288,12 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                     prev.groups?.filter((group) => group.id !== groupId) || [],
             };
         });
-        // Remove from newGroupIds if it was a new group
         setNewGroupIds((prev) => {
             const next = new Set(prev);
             next.delete(groupId);
             return next;
         });
+        setGroupsChanged(true);
     };
 
     const handleGroupUpdate = (groupId: string, updatedGroup: GroupType) => {
@@ -289,6 +309,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                     ) || [],
             };
         });
+        setGroupsChanged(true); // Mark groups as changed
     };
 
     if (isLoading) {
@@ -436,6 +457,20 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         />
                     </div>
 
+                    <div className='flex justify-end mt-4'>
+                        <Button
+                            variant='default'
+                            className='w-1/3'
+                            type='submit'
+                            disabled={!form.formState.isDirty && !groupsChanged}
+                        >
+                            Update
+                        </Button>
+                    </div>
+                </form>
+
+                {/* Groups section moved outside the main form */}
+                <div className='mt-8'>
                     <div className='grid gap-4'>
                         {meetingData.groups?.map((group) => (
                             <GroupsComponent
@@ -446,10 +481,22 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                                 }
                                 onDelete={handleDeleteGroup}
                                 onUpdate={handleGroupUpdate}
+                                onValidated={handleGroupValidated}
+                            />
+                        ))}
+                        {pendingGroups.map((group) => (
+                            <GroupsComponent
+                                key={group.id}
+                                group={group}
+                                isNew={true}
+                                isPending={true}
+                                onDelete={handleDeleteGroup}
+                                onUpdate={handleGroupUpdate}
+                                onValidated={handleGroupValidated}
                             />
                         ))}
                     </div>
-                    <div className='flex justify-between'>
+                    <div className='mt-4'>
                         <Button
                             variant='default'
                             className='w-1/3'
@@ -458,16 +505,8 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         >
                             Add New Group
                         </Button>
-                        <Button
-                            variant='default'
-                            className='w-1/3'
-                            type='submit'
-                            disabled={!form.formState.isDirty}
-                        >
-                            Update
-                        </Button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

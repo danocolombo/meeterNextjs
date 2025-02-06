@@ -4,145 +4,183 @@ import FormInput from '../form/FormInput';
 import { GroupType } from '@/app/meetings/[id]/page';
 import { handleGroupSubmit } from '@/app/actions/meetingActions';
 import { Button } from '@/components/ui/button';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { groupFormSchema } from '@/lib/schemas/group';
+import { GROUP_LOCATION, GENDER_TYPE } from '@/utils/constants';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 interface GroupsComponentProps {
     group: GroupType;
-    isNew?: boolean;
-    onDelete?: (groupId: string) => void;
-    onUpdate?: (groupId: string, updatedGroup: GroupType) => void;
+    isNew: boolean;
+    isPending?: boolean;
+    onDelete: (id: string) => void;
+    onUpdate: (id: string, group: GroupType) => void;
+    onValidated: (id: string, group: GroupType) => void;
 }
 
 const GroupsComponent = ({
     group,
     isNew,
+    isPending,
     onDelete,
     onUpdate,
+    onValidated,
 }: GroupsComponentProps) => {
-    const [isChanged, setIsChanged] = useState(false);
-    const [formData, setFormData] = useState<GroupType>(group);
+    const [showOptionalFields, setShowOptionalFields] = useState(true);
+    const form = useForm<GroupType>({
+        resolver: zodResolver(groupFormSchema),
+        defaultValues: {
+            ...group,
+            attendance: group.attendance || 0,
+        },
+    });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        let processedValue: string | number | null = value;
-
-        // Handle number fields
-        if (name === 'attendance') {
-            processedValue = value === '' ? null : Number(value);
-        }
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: processedValue,
-        }));
-        setIsChanged(true);
-    };
-
-    // Reset form data when group prop changes
-    useEffect(() => {
-        setFormData(group);
-        setIsChanged(false);
-    }, [group]);
-
-    const handleUpdate = () => {
-        if (onUpdate && group.id) {
-            onUpdate(group.id, formData);
-            setIsChanged(false);
+    const handleSave = (data: GroupType) => {
+        if (isPending) {
+            // For pending groups, validate and add to meetingData
+            onValidated(group.id!, data);
+        } else if (isNew) {
+            // For new groups being added
+            onValidated(group.id!, data);
+        } else {
+            // For existing groups, update the meetingData
+            onUpdate(group.id!, data);
         }
     };
 
     return (
-        <div
-            className={`p-4 rounded-lg border ${
-                isNew
-                    ? 'bg-green-100 text-green-800 dark:bg-green-700/50 dark:text-green-50'
-                    : 'bg-[hsl(var(--form-background))] text-[hsl(var(--form-text))]'
-            }`}
-        >
-            <div className='flex justify-between items-center mb-4'>
-                <div className='text-2xl font-bold text-blue-800 dark:text-blue-400'>
-                    Group
-                </div>
-                <Button
-                    type='button'
-                    variant='ghost'
-                    onClick={() => group.id && onDelete?.(group.id)}
-                    className='text-red-500 hover:text-red-700 hover:bg-red-100 px-2 py-1 text-sm'
-                >
-                    REMOVE
-                </Button>
-            </div>
-            <FormContainer action={handleGroupSubmit}>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
-                    <FormInput
-                        name='title'
-                        type='text'
-                        className='form-input'
-                        defaultValue={formData.title || ''}
-                        label='Title'
-                        onChange={handleInputChange}
-                    />
-                    <FormInput
-                        name='location'
-                        type='text'
-                        defaultValue={formData.location || ''}
-                        label='Location'
-                        onChange={handleInputChange}
-                    />
-                    <FormInput
-                        name='gender'
-                        type='text'
-                        defaultValue={formData.gender || ''}
-                        label='Gender'
-                        onChange={handleInputChange}
-                    />
-                    <FormInput
-                        name='attendance'
-                        type='number'
-                        defaultValue={formData.attendance?.toString()}
-                        label='Attendance'
-                        onChange={handleInputChange}
-                    />
-                    <FormInput
-                        name='facilitator'
-                        type='text'
-                        defaultValue={formData.facilitator || ''}
-                        label='Facilitator'
-                        onChange={handleInputChange}
-                    />
-                    <FormInput
-                        name='cofacilitator'
-                        type='text'
-                        defaultValue={formData.cofacilitator || ''}
-                        label='Co-facilitator'
-                        onChange={handleInputChange}
-                    />
-                    <div className='md:col-span-2'>
-                        <FormInput
-                            name='notes'
-                            type='text'
-                            defaultValue={formData.notes || ''}
-                            label='Notes'
-                            onChange={handleInputChange}
-                        />
+        <form onSubmit={form.handleSubmit(handleSave)}>
+            <div
+                className={`p-4 rounded-lg border ${
+                    isNew
+                        ? 'bg-green-100 text-green-800 dark:bg-green-700/50 dark:text-green-50'
+                        : 'bg-[hsl(var(--form-background))] text-[hsl(var(--form-text))]'
+                }`}
+            >
+                <div className='flex justify-between items-center mb-4'>
+                    <div className='text-2xl font-bold text-blue-800 dark:text-blue-400'>
+                        Group
                     </div>
+                    <Button
+                        type='button'
+                        variant='ghost'
+                        onClick={() => group.id && onDelete?.(group.id)}
+                        className='text-red-500 hover:text-red-700 hover:bg-red-100 px-2 py-1 text-sm'
+                    >
+                        REMOVE
+                    </Button>
                 </div>
-            </FormContainer>
-            <div className='mt-4 flex justify-end'>
-                <Button
-                    type='button'
-                    variant='default'
-                    onClick={handleUpdate}
-                    disabled={!isChanged}
-                    className={`w-24 ${
-                        isChanged
-                            ? 'bg-blue-500 hover:bg-blue-600'
-                            : 'bg-gray-300'
-                    }`}
-                >
-                    {isChanged ? 'Update' : 'Updated'}
-                </Button>
+                <FormContainer>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
+                        {/* Required Fields */}
+                        <FormInput
+                            {...form.register('title')}
+                            type='text'
+                            label='Title *'
+                            error={form.formState.errors.title?.message}
+                        />
+
+                        <div className='flex flex-col space-y-1.5'>
+                            <label htmlFor='location'>Location *</label>
+                            <Select
+                                onValueChange={(value) =>
+                                    form.setValue('location', value)
+                                }
+                                defaultValue={group.location || undefined}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder='Select location' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Object.values(GROUP_LOCATION).map(
+                                        (loc) => (
+                                            <SelectItem key={loc} value={loc}>
+                                                {loc}
+                                            </SelectItem>
+                                        )
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className='flex flex-col space-y-1.5'>
+                            <label htmlFor='gender'>Gender *</label>
+                            <Select
+                                onValueChange={(value) =>
+                                    form.setValue('gender', value)
+                                }
+                                defaultValue={group.gender || undefined}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder='Select gender' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Object.entries(GENDER_TYPE).map(
+                                        ([key, value]) => (
+                                            <SelectItem key={key} value={key}>
+                                                {value}
+                                            </SelectItem>
+                                        )
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Optional Fields */}
+                        <FormInput
+                            {...form.register('attendance', {
+                                valueAsNumber: true,
+                                value: 0,
+                            })}
+                            type='number'
+                            label='Attendance'
+                            defaultValue={0}
+                        />
+
+                        <FormInput
+                            {...form.register('facilitator')}
+                            type='text'
+                            label='Facilitator'
+                        />
+
+                        <FormInput
+                            {...form.register('cofacilitator')}
+                            type='text'
+                            label='Co-facilitator'
+                        />
+
+                        <div className='md:col-span-2'>
+                            <FormInput
+                                {...form.register('notes')}
+                                type='text'
+                                label='Notes'
+                            />
+                        </div>
+                    </div>
+                </FormContainer>
+                <div className='mt-4 flex justify-end'>
+                    <Button
+                        type='submit'
+                        variant='default'
+                        disabled={!form.formState.isDirty}
+                        className={`w-24 ${
+                            form.formState.isDirty
+                                ? 'bg-blue-500 hover:bg-blue-600'
+                                : 'bg-gray-300'
+                        }`}
+                    >
+                        {isNew ? 'Save Group' : 'Update Group'}
+                    </Button>
+                </div>
             </div>
-        </div>
+        </form>
     );
 };
 
