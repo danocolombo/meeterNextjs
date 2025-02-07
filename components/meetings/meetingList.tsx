@@ -94,6 +94,8 @@ const MeetingsList = () => {
             setApiToken(apiToken);
             return { orgId, apiToken };
         } catch (err) {
+            console.log('🟨 => meetingList.tsx:98 => err:', err);
+
             setError(
                 err instanceof Error ? err.message : 'Failed to fetch metadata'
             );

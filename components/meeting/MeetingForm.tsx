@@ -82,6 +82,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
     const [pendingGroups, setPendingGroups] = useState<GroupType[]>([]);
     const [newGroupIds, setNewGroupIds] = useState<Set<string>>(new Set());
     const [groupsChanged, setGroupsChanged] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const form = useForm<MeetingFormData>({
         resolver: zodResolver(meetingFormSchema),
@@ -180,11 +181,19 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
 
     const handleUpdate = async (formData: MeetingFormData) => {
         if (!meetingData) return { message: 'No meeting data available' };
+        setIsSubmitting(true);
 
         try {
             const clerkResponse = await axios.get('/api/clerkMeta');
             const apiToken =
                 clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
+
+            console.log('🟨 => MeetingForm.tsx:189 => apiToken:', apiToken);
+
+            console.log(
+                '🟨 => MeetingForm.tsx:192 => clerkResponse:',
+                clerkResponse
+            );
 
             if (!apiToken) {
                 throw new Error('API Token is not available');
@@ -196,23 +205,39 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 ...formData,
                 groups: meetingData.groups, // Ensure groups are always included
             };
-            printObject('CMMF:195-->updatedMeetingData:\n', updatedMeetingData);
-            return { message: 'Meeting DEBUG' };
-            const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
-            const method = id === '0' ? 'POST' : 'PUT';
 
-            const response = await axios({
-                method,
-                url: endpoint,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${apiToken}`,
-                },
-                data: updatedMeetingData,
-            });
+            console.log(
+                '🟨 => MeetingForm.tsx:208 => updatedMeetingData:',
+                updatedMeetingData
+            );
 
+            // const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
+            // const method = id === '0' ? 'POST' : 'PUT';
+
+            // const response = await axios({
+            //     method,
+            //     url: endpoint,
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         Authorization: `Bearer ${apiToken}`,
+            //     },
+            //     data: updatedMeetingData,
+            // });
+            const response = { status: 200 };
             if (response.status === 200) {
-                console.log('Meeting saved successfully');
+                // Update local meetingData to match server
+                setMeetingData(updatedMeetingData);
+                // Reset form state but keep the current values
+                form.reset(formData, {
+                    keepValues: true,
+                    keepDirty: false,
+                    keepErrors: false,
+                    keepTouched: false,
+                    keepIsSubmitted: false,
+                    keepSubmitCount: false,
+                });
+                // Reset groups changed flag
+                setGroupsChanged(false);
                 return { message: 'Meeting saved successfully' };
             }
             return { message: 'Failed to save meeting' };
@@ -224,7 +249,24 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                     : 'Failed to save meeting'
             );
             return { message: 'Error saving meeting' };
+        } finally {
+            setIsSubmitting(false);
         }
+
+        console.log(
+            '🟨 => handleUpdate => updatedMeetingData:',
+            updatedMeetingData
+        );
+
+        console.log(
+            '🟨 => handleUpdate => updatedMeetingData:',
+            updatedMeetingData
+        );
+
+        console.log(
+            '🟨 => handleUpdate => updatedMeetingData:',
+            updatedMeetingData
+        );
     };
 
     const handleAddGroup = () => {
@@ -461,9 +503,13 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                             variant='default'
                             className='w-1/3'
                             type='submit'
-                            disabled={!form.formState.isDirty && !groupsChanged}
+                            disabled={
+                                (!form.formState.isDirty && !groupsChanged) ||
+                                isSubmitting ||
+                                !form.formState.isValid
+                            }
                         >
-                            Update
+                            {isSubmitting ? 'Updating...' : 'Update'}
                         </Button>
                     </div>
                 </form>
