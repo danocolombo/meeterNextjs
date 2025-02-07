@@ -202,6 +202,8 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
 
             // Combine form data with existing meeting data
             const updatedMeetingData = {
+                apiToken,
+                organizationId: meetingData.organization_id,
                 ...meetingData,
                 ...formData,
                 groups: meetingData.groups, // Ensure groups are always included

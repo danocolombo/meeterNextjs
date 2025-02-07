@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
+import axios from 'axios';
 import {type POST_DATA, type DB_DATA} from './types';
-
+import { type MeetingType } from '@/utils/types';
+import { MEETING_TYPE } from '@/utils/constants';
 
 export async function POST(request: Request) {
     const body = await request.json();
@@ -38,12 +40,57 @@ export async function PUT(request: Request) {
         });
     }
 
+    // console.log('🟨 => route.ts:35 => PUT body:', body);
+    // console.log('🟨 => route.ts:36 => postData:', postData);
 
+    //=================================================================================================
+    // get the meeting from the database
+    //=================================================================================================
+    let dbMeeting: MEETING_TYPE | null = null;
+    try {
+        
+        const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${body.organizationId}/${body.id}`;
+        const response = await axios.get(endpoint, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${body.apiToken}`,
+            },
+        });
+        let dbResponse: any = null;
+        if (response?.data?.status === 200) {
+            dbResponse = response.data.data;
+            dbMeeting = {...dbResponse};
+        } else {
+            throw new Error('Failed to fetch meeting data');
+        }
 
-    console.log('🟨 => route.ts:35 => PUT body:', body);
-    console.log('🟨 => route.ts:36 => postData:', postData);
+    } catch (error: any) {
+        console.log('🟨 => route.ts:67 => CATCH:', error);
+        const errorMessage =
+            error.response?.data?.message ||
+            error.message ||
+            'An error occurred';
+        return NextResponse.json({ status: 500, message: errorMessage, data: {id: null} });
+    }
 
-    // Process the received data (e.g., save to database)
+    //=================================================================================================
+    // set the DB_DATA
+    //=================================================================================================
+    console.log('🟨 => route.ts:79 => dbMeeting:', dbMeeting);
+    const dbData: DB_DATA = {
+        groups: [],
+    }
+    if(dbMeeting?.groups) {
+        dbData.groups = dbMeeting?.groups.map((group: any) => {
+            return {
+                id:group?.id,
+                action: null
+            }
+        });
+    }
+    console.log('🟨 => route.ts:91 => postData:', postData);
+    console.log('🟨 => route.ts:79 => dbData:', dbData);
+    // // Process the received data (e.g., save to database)
 
     return NextResponse.json({
         status: 200,
