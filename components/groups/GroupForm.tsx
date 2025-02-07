@@ -43,6 +43,7 @@ const GroupsComponent = ({
     });
 
     const handleSave = (data: GroupType) => {
+        console.log('🟨 => GroupForm.tsx:46 => handleSave:data', data);
         if (isPending) {
             // For pending groups, validate and add to meetingData
             onValidated(group.id!, data);
@@ -54,8 +55,6 @@ const GroupsComponent = ({
             onUpdate(group.id!, data);
         }
     };
-
-    console.log('🟨 => handleSave => handleSave:', handleSave);
 
     return (
         <form onSubmit={form.handleSubmit(handleSave)}>

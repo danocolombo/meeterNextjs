@@ -86,6 +86,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
 
     const form = useForm<MeetingFormData>({
         resolver: zodResolver(meetingFormSchema),
+        mode: 'onChange',
         defaultValues: {
             title: '',
             meeting_date: new Date().toISOString().split('T')[0],
@@ -210,6 +211,16 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 '🟨 => MeetingForm.tsx:208 => updatedMeetingData:',
                 updatedMeetingData
             );
+            // Make the API call
+            const response = await axios({
+                method: id === '0' ? 'POST' : 'PUT',
+                url: '/api/jericho/meeting',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiToken}`,
+                },
+                data: updatedMeetingData,
+            });
 
             // const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
             // const method = id === '0' ? 'POST' : 'PUT';
@@ -223,7 +234,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             //     },
             //     data: updatedMeetingData,
             // });
-            const response = { status: 200 };
+            // const response = { status: 200 };
             if (response.status === 200) {
                 // Update local meetingData to match server
                 setMeetingData(updatedMeetingData);
@@ -252,21 +263,6 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
         } finally {
             setIsSubmitting(false);
         }
-
-        console.log(
-            '🟨 => handleUpdate => updatedMeetingData:',
-            updatedMeetingData
-        );
-
-        console.log(
-            '🟨 => handleUpdate => updatedMeetingData:',
-            updatedMeetingData
-        );
-
-        console.log(
-            '🟨 => handleUpdate => updatedMeetingData:',
-            updatedMeetingData
-        );
     };
 
     const handleAddGroup = () => {
@@ -405,7 +401,23 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                {...form.register('attendance_count')}
+                                {...form.register('attendance_count', {
+                                    valueAsNumber: true,
+                                    onChange: (e) => {
+                                        const newValue =
+                                            e.target.value === ''
+                                                ? 0
+                                                : parseInt(e.target.value);
+                                        form.setValue(
+                                            'attendance_count',
+                                            newValue,
+                                            {
+                                                shouldDirty: true,
+                                                shouldValidate: true,
+                                            }
+                                        );
+                                    },
+                                })}
                                 type='number'
                                 min='0'
                                 className='form-input'
@@ -462,7 +474,19 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                {...form.register('meal_count')}
+                                {...form.register('meal_count', {
+                                    valueAsNumber: true,
+                                    onChange: (e) => {
+                                        const newValue =
+                                            e.target.value === ''
+                                                ? 0
+                                                : parseInt(e.target.value);
+                                        form.setValue('meal_count', newValue, {
+                                            shouldDirty: true,
+                                            shouldValidate: true,
+                                        });
+                                    },
+                                })}
                                 type='number'
                                 min='0'
                                 className='form-input'
@@ -474,7 +498,23 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         </div>
                         <div className='form-group'>
                             <FormInput
-                                {...form.register('newcomers_count')}
+                                {...form.register('newcomers_count', {
+                                    valueAsNumber: true,
+                                    onChange: (e) => {
+                                        const newValue =
+                                            e.target.value === ''
+                                                ? 0
+                                                : parseInt(e.target.value);
+                                        form.setValue(
+                                            'newcomers_count',
+                                            newValue,
+                                            {
+                                                shouldDirty: true,
+                                                shouldValidate: true,
+                                            }
+                                        );
+                                    },
+                                })}
                                 type='number'
                                 min='0'
                                 className='form-input'
