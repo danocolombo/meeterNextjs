@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { type POST_DATA, type DB_DATA } from './types';
+import { type PUT_DATA, type DB_DATA } from './types';
 import { type MeetingType } from '@/utils/types';
 import { MEETING_TYPE } from '@/utils/constants';
 
@@ -22,37 +22,37 @@ export async function POST(request: Request) {
 //* =================================================================================================
 
 export async function PUT(request: Request) {
-    const body = await request.json();
+    const putMeeting = await request.json();
 
-    const postData: POST_DATA = {
+    const putData: PUT_DATA = {
         meeting: {
-            id: body.id,
+            id: putMeeting.id,
             action: null,
         },
         groups: [],
     };
-    if (body.groups) {
-        postData.groups = body.groups.map((group: any) => {
+    if (putMeeting.groups) {
+        putData.groups = putMeeting.groups.map((group: any, index: number) => {
             return {
-                id: group?.id ? group?.id : null,
+                id: group?.id ? group?.id : index.toString(),
                 action: group?.id ? null : 'POST',
             };
         });
     }
 
-    // console.log('🟨 => route.ts:43 => PUT body:', body);
-    // console.log('🟨 => route.ts:44 => postData:', postData);
+    // console.log('🟨 => route.ts:43 => PUT putMeeting:', putMeeting);
+    // console.log('🟨 => route.ts:44 => putData:', putData);
 
     //=================================================================================================
     // get the meeting from the database
     //=================================================================================================
     let dbMeeting: any | null = null;
     try {
-        const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${body.organizationId}/${body.id}`;
+        const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${putMeeting.organizationId}/${putMeeting.id}`;
         const response = await axios.get(endpoint, {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${body.apiToken}`,
+                Authorization: `Bearer ${putMeeting.apiToken}`,
             },
         });
         let dbResponse: any = null;
@@ -92,39 +92,40 @@ export async function PUT(request: Request) {
     }
 
     // check if the meeting has changed
-    let postCompare: any = { ...body };
-    delete postCompare.groups;
-    delete postCompare.organizationId;
-    delete postCompare.apiToken;
-    if (postCompare?.facilitator_contact == '') {
-        postCompare.facilitator_contact = null;
-    }
-    if (postCompare?.support_contact == '') {
-        postCompare.support_contact = null;
-    }
-    if (postCompare?.attendance_count == 0) {
-        postCompare.attendance_count = null;
-    }
-    if (postCompare?.meal_count == 0) {
-        postCompare.meal_count = null;
-    }
-    if (postCompare?.newcomers_count == 0) {
-        postCompare.newcomers_count = null;
-    }
+    //* =================================================================================================
+    //* putCompare definition
+    //* =================================================================================================
+    let putCompare: any = { ...putMeeting };
+    delete putCompare.groups;
+    delete putCompare.organizationId;
+    delete putCompare.apiToken;
+
+    // Convert empty strings and zeros to null
+    Object.keys(putCompare).forEach((key) => {
+        if (putCompare[key] === '' || putCompare[key] === 0) {
+            putCompare[key] = null;
+        }
+    });
+
+    //* =================================================================================================
+    //* dbCompare definition
+    //* =================================================================================================
     let dbCompare: any = { ...dbMeeting };
     delete dbCompare.groups;
+    // console.log('🟨 => route.ts:116 => putCompare:', putCompare);
+    // console.log('🟨 => route.ts:117 => dbCompare:', dbCompare);
 
-    const hasChanges = Object.keys(postCompare).some(
+    const hasChanges = Object.keys(putCompare).some(
         (key) =>
-            JSON.stringify(postCompare[key]) !== JSON.stringify(dbCompare[key])
+            JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
     if (hasChanges) {
-        postData.meeting.action = 'PUT';
+        putData.meeting.action = 'PUT';
     }
     console.log('🟨 => route.ts:126 => hasChanges:', hasChanges);
-    console.log('🟨 => route.ts:127 => postData:', postData);
+    console.log('🟨 => route.ts:127 => postData:', putData);
     console.log('🟨 => route.ts:128 => dbData:', dbData);
-    postData.meeting.action = hasChanges ? 'PUT' : null;
+    putData.meeting.action = hasChanges ? 'PUT' : null;
     return NextResponse.json({
         status: 200,
         message: 'Meeting PUT saved successfully',

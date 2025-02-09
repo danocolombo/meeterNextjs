@@ -1,16 +1,16 @@
 type GROUP = {
     id: string;
-    action: null | "PUT" | "DELETE" | "POST";
-}
+    action: null | 'PUT' | 'DELETE' | 'POST';
+};
 
-export type POST_DATA = {
+export type PUT_DATA = {
     meeting: {
         id: string;
-        action: null | "PUT",
-    },
-    groups: GROUP[],
-}
+        action: null | 'PUT';
+    };
+    groups: GROUP[];
+};
 
 export type DB_DATA = {
-    groups: GROUP[]
-}
+    groups: GROUP[];
+};
