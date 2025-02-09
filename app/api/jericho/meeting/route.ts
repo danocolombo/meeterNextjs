@@ -130,18 +130,63 @@ export async function PUT(request: Request) {
     //=================================================================================================
     // CHECK GROUPS NOW
     //=================================================================================================
-    console.log(
-        '🟨 => route.ts:133 => putMeeting.groups.length:',
-        putMeeting.groups.length
-    );
+    // no putMeeting.groups, mark any dbMeeting.groups for deletion
     if (putMeeting.groups.length === 0 && dbMeeting.groups) {
-        console.log('IN-IN-IN-IN');
         dbData.groups = dbMeeting.groups.map((group) => ({
             id: group.id,
             action: 'DELETE',
         }));
+    } else if (dbMeeting.groups.length === 0 && putMeeting.groups.length > 0) {
+        putData.groups = putMeeting.groups.map((group: any, index: number) => ({
+            id: group?.id ? group?.id : index.toString(),
+            action: group?.id ? null : 'POST',
+        }));
+    } else {
+        // check for groups to update
+        putData.groups = putMeeting.groups.map(
+            (putGroup: any, index: number) => {
+                // get group from dbMeeting
+                const dbGroup = dbMeeting.groups.find(
+                    (group: any) => group.id === putGroup.id
+                );
+                if (!dbGroup) {
+                    return {
+                        id: putGroup.id,
+                        action: 'POST',
+                    };
+                }
+                const hasGroupChanges = Object.keys(putGroup).some(
+                    (key) =>
+                        JSON.stringify(putGroup[key]) !==
+                        JSON.stringify(dbGroup[key])
+                );
+                return {
+                    id: putGroup.id,
+                    action: hasGroupChanges ? 'PUT' : null,
+                };
+            }
+        );
+
+        // check for groups to delete
+        dbData.groups = dbMeeting.groups.map((dbGroup: any) => {
+            const putGroup = putMeeting.groups.find(
+                (group: any) => group.id === dbGroup.id
+            );
+            if (!putGroup) {
+                return {
+                    id: dbGroup.id,
+                    action: 'DELETE',
+                };
+            }
+            return {
+                id: dbGroup.id,
+                action: null,
+            };
+        });
     }
-    console.log('🟨 => route.ts:139 => dbData:', dbData);
+
+    console.log('🟨 => route.ts:146 => putData:', putData);
+    console.log('🟨 => route.ts:147 => dbData:', dbData);
     return NextResponse.json({
         status: 200,
         message: 'Meeting PUT saved successfully',
