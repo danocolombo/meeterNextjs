@@ -23,6 +23,10 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
     const putMeeting = await request.json();
+    // Get authorization header
+    const authHeader = request.headers.get('authorization');
+    const bearerToken = authHeader?.replace('Bearer ', '');
+    // console.log('🟨 => route.ts:30 => bearerToken:', bearerToken);
 
     const putData: PUT_DATA = {
         meeting: {
@@ -132,7 +136,7 @@ export async function PUT(request: Request) {
     //=================================================================================================
     // no putMeeting.groups, mark any dbMeeting.groups for deletion
     if (putMeeting.groups.length === 0 && dbMeeting.groups) {
-        dbData.groups = dbMeeting.groups.map((group) => ({
+        dbData.groups = dbMeeting.groups.map((group: any) => ({
             id: group.id,
             action: 'DELETE',
         }));
@@ -187,6 +191,41 @@ export async function PUT(request: Request) {
 
     console.log('🟨 => route.ts:146 => putData:', putData);
     console.log('🟨 => route.ts:147 => dbData:', dbData);
+    //* =================================================================================================
+    //* Work the putData and dbData
+    //* =================================================================================================
+    // process dbData first, delete all groups that have active === 'DELETE'
+    if (dbData.groups) {
+        const baseUrl =
+            process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const deletePromises = dbData.groups
+            .filter((group) => group.action === 'DELETE')
+            .map((group) =>
+                axios({
+                    method: 'DELETE',
+                    url: `${baseUrl}/api/jericho/group/${group.id}`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${bearerToken}`,
+                    },
+                }).then((response) => {
+                    console.log('🟨 DELETE group URL:\n', response.config.url);
+                    return response;
+                })
+            );
+
+        try {
+            await Promise.all(deletePromises);
+        } catch (error) {
+            console.error('Error deleting groups:', error);
+            return NextResponse.json({
+                status: 500,
+                message: 'Error deleting groups',
+                error,
+            });
+        }
+    }
+
     return NextResponse.json({
         status: 200,
         message: 'Meeting PUT saved successfully',
