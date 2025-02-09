@@ -112,20 +112,36 @@ export async function PUT(request: Request) {
     //* =================================================================================================
     let dbCompare: any = { ...dbMeeting };
     delete dbCompare.groups;
-    // console.log('🟨 => route.ts:116 => putCompare:', putCompare);
-    // console.log('🟨 => route.ts:117 => dbCompare:', dbCompare);
 
+    //* =================================================================================================
+    //* compare putCompare and dbCompare
+    //* =================================================================================================
+    // console.log('🟨 => route.ts:119 => putCompare:', putCompare);
+    // console.log('🟨 => route.ts:120 => dbCompare:', dbCompare);
     const hasChanges = Object.keys(putCompare).some(
         (key) =>
             JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
-    if (hasChanges) {
-        putData.meeting.action = 'PUT';
-    }
-    console.log('🟨 => route.ts:126 => hasChanges:', hasChanges);
-    console.log('🟨 => route.ts:127 => postData:', putData);
-    console.log('🟨 => route.ts:128 => dbData:', dbData);
     putData.meeting.action = hasChanges ? 'PUT' : null;
+    console.log('🟨 => route.ts:126 => hasChanges:', hasChanges);
+    // console.log('🟨 => route.ts:127 => putData:', putData);
+    // console.log('🟨 => route.ts:128 => dbData:', dbData);
+
+    //=================================================================================================
+    // CHECK GROUPS NOW
+    //=================================================================================================
+    console.log(
+        '🟨 => route.ts:133 => putMeeting.groups.length:',
+        putMeeting.groups.length
+    );
+    if (putMeeting.groups.length === 0 && dbMeeting.groups) {
+        console.log('IN-IN-IN-IN');
+        dbData.groups = dbMeeting.groups.map((group) => ({
+            id: group.id,
+            action: 'DELETE',
+        }));
+    }
+    console.log('🟨 => route.ts:139 => dbData:', dbData);
     return NextResponse.json({
         status: 200,
         message: 'Meeting PUT saved successfully',
