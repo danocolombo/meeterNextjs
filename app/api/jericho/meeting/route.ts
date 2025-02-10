@@ -225,6 +225,48 @@ export async function PUT(request: Request) {
             });
         }
     }
+    // process putData, loop through groups, if action === 'POST', POST group
+    if (putData.groups.length > 0) {
+        const baseUrl =
+            process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const putPromises = putData.groups
+            .filter((group) => group.action !== null)
+            .map((group) => {
+                if (group.action === 'POST') {
+                    const grp = putMeeting.groups.find(
+                        (g) => g.id === group.id
+                    );
+                    console.log('🟨 grp:\n', grp);
+
+                    axios({
+                        method: 'POST',
+                        url: `${baseUrl}/api/jericho/group`,
+                        data: {
+                            ...putMeeting,
+                            meetingId: putMeeting.id,
+                        },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${bearerToken}`,
+                        },
+                    }).then((response) => {
+                        console.log('🟨 PUT group URL:\n', response.config.url);
+                        return response;
+                    });
+                }
+            });
+
+        try {
+            await Promise.all(putPromises);
+        } catch (error) {
+            console.error('Error updating groups:', error);
+            return NextResponse.json({
+                status: 500,
+                message: 'Error updating groups',
+                error,
+            });
+        }
+    }
 
     return NextResponse.json({
         status: 200,

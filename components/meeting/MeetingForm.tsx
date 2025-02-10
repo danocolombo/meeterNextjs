@@ -199,8 +199,21 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             if (!apiToken) {
                 throw new Error('API Token is not available');
             }
+            // Combine the latest form data with groups
+            const vault = {
+                ...formData,
+                groups: [
+                    ...(meetingData.groups || []), // Existing validated groups
+                    ...pendingGroups, // New validated groups
+                ],
+            };
+            console.log('🟨 => MeetingForm.tsx:204 => vault:', vault);
 
             // Combine form data with existing meeting data
+            console.log(
+                '🟨 => MeetingForm.tsx:204 => pendingGroups:',
+                pendingGroups
+            );
             const updatedMeetingData = {
                 apiToken,
                 organizationId: meetingData.organization_id,
@@ -269,9 +282,8 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
 
     const handleAddGroup = () => {
         // Generate a temporary ID for the pending group
-        const tempId = `PENDING_${Math.random()}`;
         const newGroup: GroupType = {
-            id: tempId,
+            id: '0',
             created_at: null,
             updated_at: null,
             meeting_date: meetingData?.meeting_date || null,
@@ -289,21 +301,31 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
 
         // Add to pending groups instead of meetingData
         setPendingGroups((prev) => [...prev, newGroup]);
+        console.log(
+            '🟨 => MeetingForm.tsx:293 => setPendingGroups:',
+            setPendingGroups
+        );
     };
 
     const handleGroupValidated = (
         groupId: string,
         validatedGroup: GroupType
     ) => {
+        const tempId = `PENDING_${Math.random()}`;
+        console.log('WHOOP, WHOOP');
         // Remove from pending groups
         setPendingGroups((prev) => prev.filter((g) => g.id !== groupId));
 
+        let tmpGroup = {
+            ...validatedGroup,
+            id: tempId,
+        };
         // Add to meetingData
         setMeetingData((prev) => {
             if (!prev) return prev;
             return {
                 ...prev,
-                groups: [...(prev.groups || []), validatedGroup],
+                groups: [...(prev.groups || []), tmpGroup],
             };
         });
 
