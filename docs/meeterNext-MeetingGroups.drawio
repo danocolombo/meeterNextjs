@@ -54,7 +54,7 @@
                 <mxCell id="votyP7wk43uDdL2hz58N-6" style="edgeStyle=none;html=1;" edge="1" parent="1" source="votyP7wk43uDdL2hz58N-2" target="votyP7wk43uDdL2hz58N-5">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="votyP7wk43uDdL2hz58N-2" value="PUT api/jericho/meeting/route" style="whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" vertex="1" parent="1">
+                <mxCell id="votyP7wk43uDdL2hz58N-2" value="PUT api/meeting/route" style="whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" vertex="1" parent="1">
                     <mxGeometry x="350" y="170" width="250" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="votyP7wk43uDdL2hz58N-3" value="DELETE api/jericho/group" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" vertex="1" parent="1">
