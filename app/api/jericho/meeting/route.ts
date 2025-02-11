@@ -232,7 +232,9 @@ export async function PUT(request: Request) {
             .filter((group) => group.action !== null)
             .map((group) => {
                 if (group.action === 'POST') {
-                    const grp = meeting.groups.find((g) => g.id === group.id);
+                    const grp = meeting.groups.find(
+                        (g: any) => g.id === group.id
+                    );
                     console.log('🟨 grp:\n', grp);
 
                     axios({
