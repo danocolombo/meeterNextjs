@@ -226,7 +226,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             // Make the API call
             const response = await axios({
                 method: 'PUT',
-                url: '/api/jericho/meeting',
+                url: '/api/meeting',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${apiToken}`,
