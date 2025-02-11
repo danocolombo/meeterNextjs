@@ -8,7 +8,7 @@ import { printObject } from '@/utils/helpers';
 export async function POST(request: Request) {
     const body = await request.json();
 
-    console.log('🟨 => route.ts:10 => POST body:', body);
+    console.log('🟨 => route.ts:11 => POST body:', body);
 
     // Process the received data (e.g., save to database)
 
@@ -25,11 +25,11 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
     console.log('🟨 => api/meeting/route - BING-BING-BINGO!!');
     const meeting = await request.json();
-    console.log('🟨 => MEETING:route.ts:26 => PUT meeting:', meeting);
+    console.log('🟨 => MEETING:route.ts:28 => PUT meeting:', meeting);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
-    // console.log('🟨 => route.ts:30 => bearerToken:', bearerToken);
+    // console.log('🟨 => route.ts:32 => bearerToken:', bearerToken);
 
     const putData: PUT_DATA = {
         meeting: {
@@ -46,8 +46,8 @@ export async function PUT(request: Request) {
             };
         });
     }
-    // console.log('🟨 => route.ts:48 => PUT meeting:', meeting);
-    // console.log('🟨 => route.ts:49 => putData:', putData);
+    // console.log('🟨 => route.ts:49 => PUT meeting:', meeting);
+    // console.log('🟨 => route.ts:50 => putData:', putData);
 
     //=================================================================================================
     // get the meeting from the database
@@ -69,7 +69,7 @@ export async function PUT(request: Request) {
             throw new Error('Failed to fetch meeting data');
         }
     } catch (error: any) {
-        console.log('🟨 => route.ts:71 => CATCH:', error);
+        console.log('🟨 => route.ts:72 => CATCH:', error);
         const errorMessage =
             error.response?.data?.message ||
             error.message ||
@@ -84,7 +84,7 @@ export async function PUT(request: Request) {
     //=================================================================================================
     // set the DB_DATA
     //=================================================================================================
-    // console.log('🟨 => route.ts:86 => dbMeeting:', dbMeeting);
+    // console.log('🟨 => route.ts:87 => dbMeeting:', dbMeeting);
     const dbData: DB_DATA = {
         groups: [],
     };
@@ -102,16 +102,16 @@ export async function PUT(request: Request) {
     //* putCompare definition
     //* =================================================================================================
     let putCompare: any = { ...meeting };
-    // delete putCompare.groups;
+    delete putCompare.groups;
     // delete putCompare.organizationId;
     // delete putCompare.apiToken;
 
     // Convert empty strings and zeros to null
-    // Object.keys(putCompare).forEach((key) => {
-    //     if (putCompare[key] === '' || putCompare[key] === 0) {
-    //         putCompare[key] = null;
-    //     }
-    // });
+    Object.keys(putCompare).forEach((key) => {
+        if (putCompare[key] === '' || putCompare[key] === 0) {
+            putCompare[key] = null;
+        }
+    });
 
     //* =================================================================================================
     //* dbCompare definition
@@ -122,16 +122,16 @@ export async function PUT(request: Request) {
     //* =================================================================================================
     //* compare putCompare and dbCompare
     //* =================================================================================================
-    // console.log('🟨 => route.ts:124 => putCompare:', putCompare);
-    // console.log('🟨 => route.ts:125 => dbCompare:', dbCompare);
+    console.log('🟨 => route.ts:125 => putCompare:', putCompare);
+    console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
     const hasChanges = Object.keys(putCompare).some(
         (key) =>
             JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
     putData.meeting.action = hasChanges ? 'PUT' : null;
-    console.log('🟨 => route.ts:131 => hasChanges:', hasChanges);
-    // console.log('🟨 => route.ts:132 => putData:', putData);
-    // console.log('🟨 => route.ts:133 => dbData:', dbData);
+    console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
+    // console.log('🟨 => route.ts:133 => putData:', putData);
+    // console.log('🟨 => route.ts:134 => dbData:', dbData);
 
     //=================================================================================================
     // CHECK GROUPS NOW
@@ -189,8 +189,8 @@ export async function PUT(request: Request) {
         });
     }
 
-    console.log('🟨 => route.ts:193 => putData:', putData);
-    console.log('🟨 => route.ts:194 => dbData:', dbData);
+    console.log('🟨 => route.ts:192 => putData:', putData);
+    console.log('🟨 => route.ts:193 => dbData:', dbData);
     //* =================================================================================================
     //* Work the putData and dbData
     //* =================================================================================================
