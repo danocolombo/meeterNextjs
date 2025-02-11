@@ -160,6 +160,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                         Authorization: `Bearer ${apiToken}`,
                     },
                 });
+
                 if (response?.data?.status === 200) {
                     setMeetingData(response?.data?.data);
                 } else {
@@ -189,12 +190,12 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
             const apiToken =
                 clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
 
-            console.log('🟨 => MeetingForm.tsx:189 => apiToken:', apiToken);
+            // console.log('🟨 => MeetingForm.tsx:193 => apiToken:', apiToken);
 
-            console.log(
-                '🟨 => MeetingForm.tsx:192 => clerkResponse:',
-                clerkResponse
-            );
+            // console.log(
+            //     '🟨 => MeetingForm.tsx:196 => clerkResponse:',
+            //     clerkResponse
+            // );
 
             if (!apiToken) {
                 throw new Error('API Token is not available');
@@ -207,28 +208,24 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                     ...pendingGroups, // New validated groups
                 ],
             };
-            console.log('🟨 => MeetingForm.tsx:204 => vault:', vault);
 
             // Combine form data with existing meeting data
-            console.log(
-                '🟨 => MeetingForm.tsx:204 => pendingGroups:',
-                pendingGroups
-            );
+            // console.log(
+            //     '🟨 => MeetingForm.tsx:215 => pendingGroups:',
+            //     pendingGroups
+            // );
             const updatedMeetingData = {
-                apiToken,
-                organizationId: meetingData.organization_id,
+                // apiToken,
+                // organizationId: meetingData.organization_id,
                 ...meetingData,
-                ...formData,
-                groups: meetingData.groups, // Ensure groups are always included
+                ...vault,
+                // ...formData,
+                // groups: meetingData.groups, // Ensure groups are always included
             };
 
-            console.log(
-                '🟨 => MeetingForm.tsx:208 => updatedMeetingData:',
-                updatedMeetingData
-            );
             // Make the API call
             const response = await axios({
-                method: id === '0' ? 'POST' : 'PUT',
+                method: 'PUT',
                 url: '/api/jericho/meeting',
                 headers: {
                     'Content-Type': 'application/json',
@@ -302,7 +299,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
         // Add to pending groups instead of meetingData
         setPendingGroups((prev) => [...prev, newGroup]);
         console.log(
-            '🟨 => MeetingForm.tsx:293 => setPendingGroups:',
+            '🟨 => MeetingForm.tsx:307 => setPendingGroups:',
             setPendingGroups
         );
     };
@@ -312,7 +309,6 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
         validatedGroup: GroupType
     ) => {
         const tempId = `PENDING_${Math.random()}`;
-        console.log('WHOOP, WHOOP');
         // Remove from pending groups
         setPendingGroups((prev) => prev.filter((g) => g.id !== groupId));
 

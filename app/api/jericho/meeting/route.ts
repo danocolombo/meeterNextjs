@@ -3,6 +3,7 @@ import axios from 'axios';
 import { type PUT_DATA, type DB_DATA } from './types';
 import { type MeetingType } from '@/utils/types';
 import { MEETING_TYPE } from '@/utils/constants';
+import { printObject } from '@/utils/helpers';
 
 export async function POST(request: Request) {
     const body = await request.json();
@@ -22,7 +23,8 @@ export async function POST(request: Request) {
 //* =================================================================================================
 
 export async function PUT(request: Request) {
-    const putMeeting = await request.json();
+    const meeting = await request.json();
+    console.log('🟨 => MEETING:route.ts:26 => PUT meeting:', meeting);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -30,33 +32,32 @@ export async function PUT(request: Request) {
 
     const putData: PUT_DATA = {
         meeting: {
-            id: putMeeting.id,
+            id: meeting.id,
             action: null,
         },
         groups: [],
     };
-    if (putMeeting.groups) {
-        putData.groups = putMeeting.groups.map((group: any, index: number) => {
+    if (meeting.groups.length > 0) {
+        putData.groups = meeting.groups.map((group: any, index: number) => {
             return {
                 id: group?.id ? group?.id : index.toString(),
-                action: group?.id ? null : 'POST',
+                action: group?.id.startsWith('PENDING_') ? 'POST' : null,
             };
         });
     }
-
-    // console.log('🟨 => route.ts:43 => PUT putMeeting:', putMeeting);
-    // console.log('🟨 => route.ts:44 => putData:', putData);
+    // console.log('🟨 => route.ts:48 => PUT meeting:', meeting);
+    // console.log('🟨 => route.ts:49 => putData:', putData);
 
     //=================================================================================================
     // get the meeting from the database
     //=================================================================================================
     let dbMeeting: any | null = null;
     try {
-        const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${putMeeting.organizationId}/${putMeeting.id}`;
+        const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting/${meeting.organization_id}/${meeting.id}`;
         const response = await axios.get(endpoint, {
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${putMeeting.apiToken}`,
+                Authorization: `Bearer ${bearerToken}`,
             },
         });
         let dbResponse: any = null;
@@ -67,7 +68,7 @@ export async function PUT(request: Request) {
             throw new Error('Failed to fetch meeting data');
         }
     } catch (error: any) {
-        console.log('🟨 => route.ts:66 => CATCH:', error);
+        console.log('🟨 => route.ts:71 => CATCH:', error);
         const errorMessage =
             error.response?.data?.message ||
             error.message ||
@@ -82,7 +83,7 @@ export async function PUT(request: Request) {
     //=================================================================================================
     // set the DB_DATA
     //=================================================================================================
-    // console.log('🟨 => route.ts:81 => dbMeeting:', dbMeeting);
+    // console.log('🟨 => route.ts:86 => dbMeeting:', dbMeeting);
     const dbData: DB_DATA = {
         groups: [],
     };
@@ -99,17 +100,17 @@ export async function PUT(request: Request) {
     //* =================================================================================================
     //* putCompare definition
     //* =================================================================================================
-    let putCompare: any = { ...putMeeting };
-    delete putCompare.groups;
-    delete putCompare.organizationId;
-    delete putCompare.apiToken;
+    let putCompare: any = { ...meeting };
+    // delete putCompare.groups;
+    // delete putCompare.organizationId;
+    // delete putCompare.apiToken;
 
     // Convert empty strings and zeros to null
-    Object.keys(putCompare).forEach((key) => {
-        if (putCompare[key] === '' || putCompare[key] === 0) {
-            putCompare[key] = null;
-        }
-    });
+    // Object.keys(putCompare).forEach((key) => {
+    //     if (putCompare[key] === '' || putCompare[key] === 0) {
+    //         putCompare[key] = null;
+    //     }
+    // });
 
     //* =================================================================================================
     //* dbCompare definition
@@ -120,60 +121,58 @@ export async function PUT(request: Request) {
     //* =================================================================================================
     //* compare putCompare and dbCompare
     //* =================================================================================================
-    // console.log('🟨 => route.ts:119 => putCompare:', putCompare);
-    // console.log('🟨 => route.ts:120 => dbCompare:', dbCompare);
+    // console.log('🟨 => route.ts:124 => putCompare:', putCompare);
+    // console.log('🟨 => route.ts:125 => dbCompare:', dbCompare);
     const hasChanges = Object.keys(putCompare).some(
         (key) =>
             JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
     putData.meeting.action = hasChanges ? 'PUT' : null;
-    console.log('🟨 => route.ts:126 => hasChanges:', hasChanges);
-    // console.log('🟨 => route.ts:127 => putData:', putData);
-    // console.log('🟨 => route.ts:128 => dbData:', dbData);
+    console.log('🟨 => route.ts:131 => hasChanges:', hasChanges);
+    // console.log('🟨 => route.ts:132 => putData:', putData);
+    // console.log('🟨 => route.ts:133 => dbData:', dbData);
 
     //=================================================================================================
     // CHECK GROUPS NOW
     //=================================================================================================
-    // no putMeeting.groups, mark any dbMeeting.groups for deletion
-    if (putMeeting.groups.length === 0 && dbMeeting.groups) {
+    // no meeting.groups, mark any dbMeeting.groups for deletion
+    if (meeting.groups.length === 0 && dbMeeting.groups) {
         dbData.groups = dbMeeting.groups.map((group: any) => ({
             id: group.id,
             action: 'DELETE',
         }));
-    } else if (dbMeeting.groups.length === 0 && putMeeting.groups.length > 0) {
-        putData.groups = putMeeting.groups.map((group: any, index: number) => ({
-            id: group?.id ? group?.id : index.toString(),
-            action: group?.id ? null : 'POST',
+    } else if (dbMeeting.groups.length === 0 && meeting.groups.length > 0) {
+        putData.groups = meeting.groups.map((group: any, index: number) => ({
+            id: group?.id,
+            action: 'POST',
         }));
     } else {
         // check for groups to update
-        putData.groups = putMeeting.groups.map(
-            (putGroup: any, index: number) => {
-                // get group from dbMeeting
-                const dbGroup = dbMeeting.groups.find(
-                    (group: any) => group.id === putGroup.id
-                );
-                if (!dbGroup) {
-                    return {
-                        id: putGroup.id,
-                        action: 'POST',
-                    };
-                }
-                const hasGroupChanges = Object.keys(putGroup).some(
-                    (key) =>
-                        JSON.stringify(putGroup[key]) !==
-                        JSON.stringify(dbGroup[key])
-                );
+        putData.groups = meeting.groups.map((putGroup: any, index: number) => {
+            // get group from dbMeeting
+            const dbGroup = dbMeeting.groups.find(
+                (group: any) => group.id === putGroup.id
+            );
+            if (!dbGroup) {
                 return {
                     id: putGroup.id,
-                    action: hasGroupChanges ? 'PUT' : null,
+                    action: 'POST',
                 };
             }
-        );
+            const hasGroupChanges = Object.keys(putGroup).some(
+                (key) =>
+                    JSON.stringify(putGroup[key]) !==
+                    JSON.stringify(dbGroup[key])
+            );
+            return {
+                id: putGroup.id,
+                action: hasGroupChanges ? 'PUT' : null,
+            };
+        });
 
         // check for groups to delete
         dbData.groups = dbMeeting.groups.map((dbGroup: any) => {
-            const putGroup = putMeeting.groups.find(
+            const putGroup = meeting.groups.find(
                 (group: any) => group.id === dbGroup.id
             );
             if (!putGroup) {
@@ -189,8 +188,8 @@ export async function PUT(request: Request) {
         });
     }
 
-    console.log('🟨 => route.ts:146 => putData:', putData);
-    console.log('🟨 => route.ts:147 => dbData:', dbData);
+    console.log('🟨 => route.ts:193 => putData:', putData);
+    console.log('🟨 => route.ts:194 => dbData:', dbData);
     //* =================================================================================================
     //* Work the putData and dbData
     //* =================================================================================================
@@ -233,17 +232,15 @@ export async function PUT(request: Request) {
             .filter((group) => group.action !== null)
             .map((group) => {
                 if (group.action === 'POST') {
-                    const grp = putMeeting.groups.find(
-                        (g) => g.id === group.id
-                    );
+                    const grp = meeting.groups.find((g) => g.id === group.id);
                     console.log('🟨 grp:\n', grp);
 
                     axios({
                         method: 'POST',
                         url: `${baseUrl}/api/jericho/group`,
                         data: {
-                            ...putMeeting,
-                            meetingId: putMeeting.id,
+                            ...meeting,
+                            meetingId: meeting.id,
                         },
                         headers: {
                             'Content-Type': 'application/json',
