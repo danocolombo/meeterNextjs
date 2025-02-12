@@ -5,7 +5,7 @@ import axios from 'axios';
 export async function POST(request: Request) {
     // get the body of the PUT to process
     const body = await request.json();
-    console.log('🟨 => route.ts:8 => body:', body);
+    console.log('🟨 => api/jericho/group/route.ts:8 => body:', body);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         token: bearerToken, // Added for demonstration, remove in production
     };
 
-    console.log('🟨 => route.ts:24 => response:', response);
+    console.log('🟨 => api/jericho/group/route.ts:24 => response:', response);
 
     return NextResponse.json(response);
 }

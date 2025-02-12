@@ -23,9 +23,8 @@ export async function POST(request: Request) {
 //* =================================================================================================
 
 export async function PUT(request: Request) {
-    console.log('🟨 => api/meeting/route - BING-BING-BINGO!!');
     const meeting = await request.json();
-    console.log('🟨 => MEETING:route.ts:28 => PUT meeting:', meeting);
+    console.log('🟨 => api/meeting/route.ts:28 => PUT meeting:\n', meeting);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -122,14 +121,14 @@ export async function PUT(request: Request) {
     //* =================================================================================================
     //* compare putCompare and dbCompare
     //* =================================================================================================
-    console.log('🟨 => route.ts:125 => putCompare:', putCompare);
-    console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
+    // console.log('🟨 => route.ts:125 => putCompare:', putCompare);
+    // console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
     const hasChanges = Object.keys(putCompare).some(
         (key) =>
             JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
     putData.meeting.action = hasChanges ? 'PUT' : null;
-    console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
+    // console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
     // console.log('🟨 => route.ts:133 => putData:', putData);
     // console.log('🟨 => route.ts:134 => dbData:', dbData);
 
@@ -189,13 +188,13 @@ export async function PUT(request: Request) {
         });
     }
 
-    console.log('🟨 => route.ts:192 => putData:', putData);
-    console.log('🟨 => route.ts:193 => dbData:', dbData);
+    // console.log('🟨 => route.ts:192 => putData:', putData);
+    // console.log('🟨 => route.ts:193 => dbData:', dbData);
     //* =================================================================================================
     //* Work the putData and dbData
     //* =================================================================================================
     // process dbData first, delete all groups that have active === 'DELETE'
-    if (dbData.groups) {
+    if (dbData.groups.length > 0) {
         const baseUrl =
             process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         const deletePromises = dbData.groups
@@ -232,11 +231,13 @@ export async function PUT(request: Request) {
         const putPromises = putData.groups
             .filter((group) => group.action !== null)
             .map((group) => {
+                console.log('🟨 api/meeting/route --- POST detected');
+                console.log('------------------------------------------');
                 if (group.action === 'POST') {
                     const grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
-                    console.log('🟨 grp:\n', grp);
+                    // console.log('🟨 grp:\n', grp);
 
                     axios({
                         method: 'POST',
@@ -267,7 +268,9 @@ export async function PUT(request: Request) {
             });
         }
     }
-
+    console.log('##############################################');
+    console.log('############# api/meeting DONE  ##############');
+    console.log('##############################################');
     return NextResponse.json({
         status: 200,
         message: 'Meeting PUT saved successfully',
