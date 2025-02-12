@@ -24,6 +24,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
     const meeting = await request.json();
+    console.log('111111111111111111111111111111111111');
     console.log('🟨 => api/meeting/route.ts:28 => PUT meeting:\n', meeting);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
@@ -233,18 +234,24 @@ export async function PUT(request: Request) {
             .map((group) => {
                 console.log('🟨 api/meeting/route --- POST detected');
                 console.log('------------------------------------------');
+
                 if (group.action === 'POST') {
-                    const grp = meeting.groups.find(
+                    let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
-                    // console.log('🟨 grp:\n', grp);
-
-                    axios({
+                    if (grp.id.startsWith('PENDING_')) {
+                        delete grp.id;
+                    }
+                    return axios({
+                        // Add return here
                         method: 'POST',
                         url: `${baseUrl}/api/jericho/group`,
                         data: {
-                            ...meeting,
-                            meetingId: meeting.id,
+                            ...grp,
+                            grp_comp_key: `${
+                                meeting.mtg_comp_key.split('#')[0]
+                            }#${meeting.id}`,
+                            meeting_id: meeting.id,
                         },
                         headers: {
                             'Content-Type': 'application/json',
@@ -255,10 +262,11 @@ export async function PUT(request: Request) {
                         return response;
                     });
                 }
+                return Promise.resolve(); // Handle cases where no action is needed
             });
 
         try {
-            await Promise.all(putPromises);
+            await Promise.all(putPromises.filter(Boolean)); // Filter out undefined promises
         } catch (error) {
             console.error('Error updating groups:', error);
             return NextResponse.json({
@@ -268,6 +276,7 @@ export async function PUT(request: Request) {
             });
         }
     }
+
     console.log('##############################################');
     console.log('############# api/meeting DONE  ##############');
     console.log('##############################################');

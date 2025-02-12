@@ -5,6 +5,7 @@ import axios from 'axios';
 export async function POST(request: Request) {
     // get the body of the PUT to process
     const body = await request.json();
+    console.log('222222222222222222222222222222222222');
     console.log('🟨 => api/jericho/group/route.ts:8 => body:', body);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
