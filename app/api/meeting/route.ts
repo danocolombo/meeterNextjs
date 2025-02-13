@@ -269,6 +269,7 @@ export async function PUT(request: Request) {
                     if (grp.id.startsWith('PENDING_')) {
                         delete grp.id;
                     }
+                    //todo: move API to api/jericho/group/[id]
                     return axios({
                         // Add return here
                         method: 'PUT',
@@ -310,7 +311,7 @@ export async function PUT(request: Request) {
         return axios({
             // Add return here
             method: 'PUT',
-            url: `${baseUrl}/api/jericho/meeting`,
+            url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
             data: {
                 ...putData.meeting,
             },

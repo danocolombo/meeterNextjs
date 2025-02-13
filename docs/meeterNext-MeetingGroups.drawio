@@ -44,7 +44,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="35RJbfqpLHPOcgqHVOcf" name="Page-2">
-        <mxGraphModel dx="1423" dy="765" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="502" dy="239" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -57,7 +57,7 @@
                 <mxCell id="votyP7wk43uDdL2hz58N-2" value="PUT api/meeting/route" style="whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" parent="1" vertex="1">
                     <mxGeometry x="350" y="170" width="250" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="votyP7wk43uDdL2hz58N-3" value="DELETE api/jericho/group" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                <mxCell id="votyP7wk43uDdL2hz58N-3" value="DELETE api/jericho/group/[id]" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="570" y="290" width="260" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="votyP7wk43uDdL2hz58N-4" value="loop through dbDATA" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
@@ -102,7 +102,7 @@
                 <mxCell id="votyP7wk43uDdL2hz58N-18" value="loop through putData new inserts" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
                     <mxGeometry x="600" y="560" width="200" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="votyP7wk43uDdL2hz58N-20" value="PUT api/jericho/meeting" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
+                <mxCell id="votyP7wk43uDdL2hz58N-20" value="PUT api/jericho/meeting/[id]" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#1ba1e2;strokeColor=#006EAF;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="345" y="720" width="260" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="votyP7wk43uDdL2hz58N-22" value="update meeting if applicable" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
