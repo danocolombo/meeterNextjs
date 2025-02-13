@@ -232,10 +232,9 @@ export async function PUT(request: Request) {
         const putPromises = putData.groups
             .filter((group) => group.action !== null)
             .map((group) => {
-                console.log('🟨 api/meeting/route --- POST detected');
-                console.log('------------------------------------------');
-
                 if (group.action === 'POST') {
+                    console.log('🟨 api/meeting/route --- POST detected');
+                    console.log('------------------------------------------');
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
@@ -245,6 +244,34 @@ export async function PUT(request: Request) {
                     return axios({
                         // Add return here
                         method: 'POST',
+                        url: `${baseUrl}/api/jericho/group`,
+                        data: {
+                            ...grp,
+                            grp_comp_key: `${
+                                meeting.mtg_comp_key.split('#')[0]
+                            }#${meeting.id}`,
+                            meeting_id: meeting.id,
+                        },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${bearerToken}`,
+                        },
+                    }).then((response) => {
+                        console.log('🟨 PUT group URL:\n', response.config.url);
+                        return response;
+                    });
+                } else if (group.action === 'PUT') {
+                    console.log('🟨 api/meeting/route --- PUT detected');
+                    console.log('------------------------------------------');
+                    let grp = meeting.groups.find(
+                        (g: any) => g.id === group.id
+                    );
+                    if (grp.id.startsWith('PENDING_')) {
+                        delete grp.id;
+                    }
+                    return axios({
+                        // Add return here
+                        method: 'PUT',
                         url: `${baseUrl}/api/jericho/group`,
                         data: {
                             ...grp,
@@ -276,7 +303,32 @@ export async function PUT(request: Request) {
             });
         }
     }
+    // process putData, if action === 'PUT', PUT meeting
+    if (putData.meeting.action === 'PUT') {
+        const baseUrl =
+            process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        return axios({
+            // Add return here
+            method: 'PUT',
+            url: `${baseUrl}/api/jericho/meeting`,
+            data: {
+                ...putData.meeting,
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${bearerToken}`,
+            },
+        }).then((response) => {
+            // console.log('🟨 PUT meeting response:\n', response);
+            const responseValues = {
+                status: response.status,
+                statusText: response.statusText,
+                data: response.data,
+            };
 
+            return responseValues;
+        });
+    }
     console.log('##############################################');
     console.log('############# api/meeting DONE  ##############');
     console.log('##############################################');
