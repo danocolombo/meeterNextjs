@@ -285,16 +285,18 @@ export async function PUT(
                         },
                     }).then((response) => {
                         console.log('BACK-BACK-BACK');
-                        const responseValues = {
-                            status: response.status,
-                            data: response.data,
-                        };
-                        console.log('🟨 PUT group URL:\n', response);
-                        printObject(
-                            `🟨 PUT group responseValues:\n`,
-                            responseValues
-                        );
-                        return response;
+                        if(response.status === 200) {
+                            const responseValues = {
+                                status: response.status,
+                                data: response.data.data
+                            };
+                            printObject(
+                                `🟨 200 PUT group responseValues:\n`,
+                                responseValues
+                            );
+                            return response;
+                        }
+                        
                     });
                 }
                 return Promise.resolve(); // Handle cases where no action is needed
@@ -345,7 +347,7 @@ export async function PUT(
     // Always return a response, whether there were changes or not
     const returnValue = {
         message: 'Meeting updated successfully',
-        data: responseValues.data.body,
+        data: responseValues.data,
         status: responseValues.status,
     };
 

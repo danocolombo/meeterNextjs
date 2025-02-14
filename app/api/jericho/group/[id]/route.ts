@@ -48,8 +48,7 @@ export async function PUT(
     const response = {
         status: 200,
         message: `PUT api/jericho/group/${id}`,
-        body: body,
-        // token: bearerToken, // Added for demonstration, remove in production
+        data: body,
     };
 
     printObject(
