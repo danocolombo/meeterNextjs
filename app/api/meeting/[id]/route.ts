@@ -227,8 +227,10 @@ export async function PUT(
             .filter((group) => group.action !== null)
             .map((group) => {
                 if (group.action === 'POST') {
-                    console.log('🟨 api/meeting/route --- POST detected');
-                    console.log('------------------------------------------');
+                    console.log(
+                        '🟨 =>  api/meeting/route.ts:231 => group POST detected:',
+                        group.action
+                    );
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
@@ -255,19 +257,21 @@ export async function PUT(
                         return response;
                     });
                 } else if (group.action === 'PUT') {
-                    console.log('🟨 api/meeting/route --- PUT detected');
-                    console.log('------------------------------------------');
+                    console.log(
+                        '🟨 =>  api/meeting/route.ts:262 => group PUT detected:',
+                        group.action
+                    );
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
                     if (grp.id.startsWith('PENDING_')) {
                         delete grp.id;
                     }
-                    //todo: move API to api/jericho/group/[id]
+                    console.log('GO-GO-GO');
                     return axios({
                         // Add return here
                         method: 'PUT',
-                        url: `${baseUrl}/api/jericho/group`,
+                        url: `${baseUrl}/api/jericho/group/${grp.id}`,
                         data: {
                             ...grp,
                             grp_comp_key: `${
@@ -280,7 +284,16 @@ export async function PUT(
                             Authorization: `Bearer ${bearerToken}`,
                         },
                     }).then((response) => {
-                        console.log('🟨 PUT group URL:\n', response.config.url);
+                        console.log('BACK-BACK-BACK');
+                        const responseValues = {
+                            status: response.status,
+                            data: response.data,
+                        };
+                        console.log('🟨 PUT group URL:\n', response);
+                        printObject(
+                            `🟨 PUT group responseValues:\n`,
+                            responseValues
+                        );
                         return response;
                     });
                 }

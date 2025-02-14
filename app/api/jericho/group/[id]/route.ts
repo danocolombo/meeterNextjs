@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { getClerkUsers, getMetaAction, storeMetaAction } from '@/utils/clerk';
+import { printObject } from '@/utils/helpers';
 
 export async function DELETE(
     request: Request,
@@ -34,7 +35,7 @@ export async function PUT(
     const { id } = params;
     // get the body of the PUT to process
     const body = await request.json();
-    console.log('🟨 => route.ts:37 => body:', body);
+    printObject(`🟨 => api/jericho/group/${id}/route.ts:37 => body:\n`, body);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -45,12 +46,16 @@ export async function PUT(
     // });
 
     const response = {
+        status: 200,
         message: `PUT api/jericho/group/${id}`,
         body: body,
         // token: bearerToken, // Added for demonstration, remove in production
     };
 
-    console.log('🟨 => route.ts:53 => response:', response);
+    printObject(
+        `🟨 => api/jericho/group/${id}/route.ts:55 => response:`,
+        response
+    );
 
     return NextResponse.json(response);
 }
