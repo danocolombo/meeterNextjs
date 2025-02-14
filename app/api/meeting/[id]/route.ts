@@ -15,7 +15,7 @@ export async function PUT(
     const { id } = params;
     // get the body of the PUT to process
     const meeting = await request.json();
-// export async function PUT(request: Request) {
+    // export async function PUT(request: Request) {
     // const meeting = await request.json();
     console.log('111111111111111111111111111111111111');
     // console.log('🟨 => api/meeting/[id]/route.ts:14 => PUT [id]]:', id);
@@ -299,37 +299,47 @@ export async function PUT(
         }
     }
     // process putData, if action === 'PUT', PUT meeting
+    let responseValues: any = {};
     if (putData.meeting.action === 'PUT') {
+        console.log('🟨 api/meeting/[id]/route --- 22222222222222222222222222');
         const baseUrl =
             process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        return axios({
-            // Add return here
-            method: 'PUT',
-            url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
-            data: {
-                ...putData.meeting,
-            },
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${bearerToken}`,
-            },
-        }).then((response) => {
-            // console.log('🟨 PUT meeting response:\n', response);
-            const responseValues = {
+        try {
+            const response = await axios({
+                method: 'PUT',
+                url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
+                data: {
+                    ...meeting,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`,
+                },
+            });
+
+            responseValues = {
                 status: response.status,
-                statusText: response.statusText,
                 data: response.data,
             };
-
-            return responseValues;
-        });
+        } catch (error) {
+            return NextResponse.json(
+                { error: 'Failed to update meeting' },
+                { status: 500 }
+            );
+        }
     }
-    console.log('##############################################');
-    console.log('############# api/meeting DONE  ##############');
-    console.log('##############################################');
-    return NextResponse.json({
-        status: 200,
-        message: 'Meeting PUT saved successfully',
-        data: { id: 'tbd' },
-    });
+
+    // Always return a response, whether there were changes or not
+    const returnValue = {
+        message: 'Meeting updated successfully',
+        data: responseValues.data.body,
+        status: responseValues.status,
+    };
+
+    printObject(
+        `🟨 PUT => api/meeting/${meeting.id}/route.ts:340 => returnValue:`,
+        returnValue
+    );
+
+    return NextResponse.json(returnValue);
 }

@@ -211,7 +211,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
 
             // Combine form data with existing meeting data
             // console.log(
-            //     '🟨 => MeetingForm.tsx:215 => pendingGroups:',
+            //     '🟨 => MeetingForm.tsx:214 => pendingGroups:',
             //     pendingGroups
             // );
             const updatedMeetingData = {
@@ -233,6 +233,8 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 },
                 data: updatedMeetingData,
             });
+
+            console.log('🟨 => MeetingForm.tsx:237 => response:', response);
 
             // const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
             // const method = id === '0' ? 'POST' : 'PUT';
@@ -299,7 +301,7 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
         // Add to pending groups instead of meetingData
         setPendingGroups((prev) => [...prev, newGroup]);
         console.log(
-            '🟨 => MeetingForm.tsx:307 => setPendingGroups:',
+            '🟨 => MeetingForm.tsx:305 => setPendingGroups:',
             setPendingGroups
         );
     };

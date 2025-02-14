@@ -5,10 +5,11 @@ export async function PUT(
     request: Request,
     { params }: { params: { id: string } }
 ) {
+    console.log('3333333333333333333333333333333333333333');
     const { id } = params;
     // get the body of the PUT to process
     const body = await request.json();
-    console.log('🟨 => jericho/meeting/[id]/route.ts:11 => body\n:', body);
+    // console.log('🟨 => jericho/meeting/[id]/route.ts:11 => body\n:', body);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -22,10 +23,10 @@ export async function PUT(
         status: 200,
         message: `PUT api/jericho/meeting/${id}`,
         body: body,
-        token: bearerToken, // Added for demonstration, remove in production
+        // token: bearerToken, // Added for demonstration, remove in production
     };
 
-    console.log('🟨 => jericho/meeting/[id]/route.ts:11:response:\n', response);
+    console.log('🟨 => jericho/meeting/[id]/route.ts:29:response:\n', response);
 
     return NextResponse.json(response);
 }
