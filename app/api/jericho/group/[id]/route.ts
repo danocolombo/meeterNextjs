@@ -45,18 +45,7 @@ export async function PUT(
     //     headers: { Authorization: `Bearer ${bearerToken}` }
     // });
 
-    const response = {
-        status: 200,
-        message: `PUT api/jericho/group/${id}`,
-        data: body,
-    };
-
-    printObject(
-        `🟨 => api/jericho/group/${id}/route.ts:55 => response:`,
-        response
-    );
-
-    return NextResponse.json(response);
+    return NextResponse.json(body);
 }
 
 export async function POST(

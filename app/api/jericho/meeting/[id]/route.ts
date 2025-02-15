@@ -5,28 +5,53 @@ export async function PUT(
     request: Request,
     { params }: { params: { id: string } }
 ) {
-    console.log('3333333333333333333333333333333333333333');
     const { id } = params;
+    console.log(`🟨 api/meeting/${id}/route --- 333333333333333333333333`);
     // get the body of the PUT to process
-    const body = await request.json();
-    // console.log('🟨 => jericho/meeting/[id]/route.ts:11 => body\n:', body);
+    const meeting = await request.json();
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
 
-    // Example of how to use the token with axios
-    // const apiCall = await axios.get('some-url', {
-    //     headers: { Authorization: `Bearer ${bearerToken}` }
-    // });
+    try {
+        const baseUrl =
+            process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-    const response = {
-        status: 200,
-        message: `PUT api/jericho/meeting/${id}`,
-        body: body,
-        // token: bearerToken, // Added for demonstration, remove in production
-    };
-
-    console.log('🟨 => jericho/meeting/[id]/route.ts:29:response:\n', response);
-
-    return NextResponse.json(response);
+        // const response = await axios({
+        //     method: 'PUT',
+        //     url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
+        //     data: {
+        //         ...meeting,
+        //     },
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         Authorization: `Bearer ${bearerToken}`,
+        //     },
+        // });
+        return NextResponse.json(
+            {
+                message: 'Success',
+                data: {
+                    condition: 'NOT IMPLEMENTED',
+                    method: 'PUT',
+                    url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
+                    meetingReceived: meeting,
+                    response: null,
+                },
+            },
+            { status: 200 }
+        );
+    } catch (error) {
+        //return 422 with details
+        return NextResponse.json(
+            {
+                message: 'The failure message',
+                data: {
+                    error: 'api/meeting PUT failure',
+                    meetingReceived: meeting,
+                },
+            },
+            { status: 422 }
+        );
+    }
 }

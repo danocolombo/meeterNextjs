@@ -257,17 +257,12 @@ export async function PUT(
                         return response;
                     });
                 } else if (group.action === 'PUT') {
-                    console.log(
-                        '🟨 =>  api/meeting/route.ts:262 => group PUT detected:',
-                        group.action
-                    );
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
                     if (grp.id.startsWith('PENDING_')) {
                         delete grp.id;
                     }
-                    console.log('GO-GO-GO');
                     return axios({
                         // Add return here
                         method: 'PUT',
@@ -284,19 +279,14 @@ export async function PUT(
                             Authorization: `Bearer ${bearerToken}`,
                         },
                     }).then((response) => {
-                        console.log('BACK-BACK-BACK');
-                        if(response.status === 200) {
+                        if (response.status === 200) {
                             const responseValues = {
                                 status: response.status,
-                                data: response.data.data
+                                data: response.data.data,
                             };
-                            printObject(
-                                `🟨 200 PUT group responseValues:\n`,
-                                responseValues
-                            );
+
                             return response;
                         }
-                        
                     });
                 }
                 return Promise.resolve(); // Handle cases where no action is needed
@@ -316,7 +306,9 @@ export async function PUT(
     // process putData, if action === 'PUT', PUT meeting
     let responseValues: any = {};
     if (putData.meeting.action === 'PUT') {
-        console.log('🟨 api/meeting/[id]/route --- 22222222222222222222222222');
+        console.log(
+            `🟨 api/meeting/${id}/route --- 22222222222222222222222222`
+        );
         const baseUrl =
             process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         try {
@@ -333,13 +325,19 @@ export async function PUT(
             });
 
             responseValues = {
-                status: response.status,
-                data: response.data,
+                response,
             };
         } catch (error) {
+            //return 422 with details
             return NextResponse.json(
-                { error: 'Failed to update meeting' },
-                { status: 500 }
+                {
+                    message: 'The failure message',
+                    data: {
+                        error: 'api/meeting PUT failure',
+                        meetingReceived: meeting,
+                    },
+                },
+                { status: 422 }
             );
         }
     }
