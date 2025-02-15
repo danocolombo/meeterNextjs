@@ -323,12 +323,20 @@ export async function PUT(
                     Authorization: `Bearer ${bearerToken}`,
                 },
             });
-
+            console.log(
+                '🟨 BACK-BACK\nPUT meeting API response:\n',
+                response?.data
+            );
             responseValues = {
                 response,
             };
         } catch (error) {
             //return 422 with details
+            console.log(
+                '🟨 BACK-BACK: api/meeting/${id}/route 333:\nPUT meeting API error:\n',
+                error
+            );
+            // console.log('🟨 api/meeting/${id}/route 336;');
             return NextResponse.json(
                 {
                     message: 'The failure message',
