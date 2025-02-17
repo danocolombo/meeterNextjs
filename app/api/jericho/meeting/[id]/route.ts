@@ -12,7 +12,7 @@ export async function PUT(
     }
     DEV ? console.log('3333333333333333333333333333333333333333') : null;
     const { id } = params;
-    
+
     // get the body of the PUT to process
     const meeting = await request.json();
     // Get authorization header
@@ -36,18 +36,18 @@ export async function PUT(
         // });
         //* ------------------------------------------------
         //* This is how we throw error to catch to send back...
-        if(DEV) {
-        class HttpError extends Error {
-            constructor(message: string, public status: number) {
-                super(message);
-                this.name = 'JerichoError';
+        if (DEV) {
+            class HttpError extends Error {
+                constructor(message: string, public status: number) {
+                    super(message);
+                    this.name = 'JerichoError';
+                }
             }
+            throw new HttpError(
+                'Custom error message for meeting update failure',
+                422
+            );
         }
-        throw new HttpError(
-            'Custom error message for meeting update failure',
-            422
-        );
-    }
         //* this is the end of the throw error example...
         //* ------------------------------------------------
         // Or for a more specific error type:
@@ -67,7 +67,7 @@ export async function PUT(
             body: response || '',
             // token: bearerToken, // Added for demonstration, remove in production
         };
-        DEV ? console.log('🟨 => jericho/meeting/[id]/route.ts:29:response:\n', response): null;
+        DEV ? console.log('🟨 => jericho/meeting/[id]/route.ts:29:response:\n', response) : null;
 
         return NextResponse.json(
             responseData
