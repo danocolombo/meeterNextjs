@@ -5,8 +5,14 @@ export async function PUT(
     request: Request,
     { params }: { params: { id: string } }
 ) {
+    let DEV = true;
+    const platformValue = process.env.NEXT_PUBLIC_MEETER_PLATFORM || 'DEV';
+    if (platformValue === 'PROD') {
+        DEV = false;
+    }
+    DEV ? console.log('3333333333333333333333333333333333333333') : null;
     const { id } = params;
-    console.log(`🟨 api/meeting/${id}/route --- 333333333333333333333333`);
+    
     // get the body of the PUT to process
     const meeting = await request.json();
     // Get authorization header
@@ -53,24 +59,23 @@ export async function PUT(
         //     this.name = 'CustomMeetingError';
         //   }
         // }
+        const response = null;
+        const responseData = {
+            status: 200,
+            message: `PUT api/jericho/meeting/${id}`,
+            body: response || '',
+            // token: bearerToken, // Added for demonstration, remove in production
+        };
+        DEV ? console.log('🟨 => jericho/meeting/[id]/route.ts:29:response:\n', response): null;
+
         return NextResponse.json(
-            {
-                message: 'Success',
-                data: {
-                    condition: 'NOT IMPLEMENTED',
-                    method: 'PUT',
-                    url: `${baseUrl}/api/jericho/meeting/${meeting.organization_id}/${meeting.id}`,
-                    meetingReceived: meeting,
-                    apiToken: bearerToken,
-                    response: null,
-                },
-            },
-            { status: 200 }
+            responseData
         );
     } catch (error: any) {
         //return 422 with details
         // console.error('🟨 api/meeting/[id]/route.ts --- 63 error:\n', error);
         // console.log('########################################################');
+
         return NextResponse.json(
             {
                 message: 'The failure message',

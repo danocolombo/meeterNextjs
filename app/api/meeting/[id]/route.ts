@@ -12,14 +12,21 @@ export async function PUT(
     request: Request,
     { params }: { params: { id: string } }
 ) {
+    let DEV = true;
+    const platformValue = process.env.NEXT_PUBLIC_MEETER_PLATFORM || 'DEV';
+    if (platformValue === 'PROD') {
+        DEV = false;
+    }
     const { id } = params;
     // get the body of the PUT to process
     const meeting = await request.json();
     // export async function PUT(request: Request) {
     // const meeting = await request.json();
-    console.log('111111111111111111111111111111111111');
-    // console.log('🟨 => api/meeting/[id]/route.ts:14 => PUT [id]]:', id);
-    // console.log('🟨 => api/meeting/[id]/route.ts:28 => PUT meeting:\n', meeting);
+    if (DEV) {
+        console.log('111111111111111111111111111111111111');
+        // console.log('🟨 => api/meeting/[id]/route.ts:14 => PUT [id]]:', id);
+        // console.log('🟨 => api/meeting/[id]/route.ts:28 => PUT meeting:\n', meeting);
+    }
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -40,9 +47,10 @@ export async function PUT(
             };
         });
     }
-    // console.log('🟨 => route.ts:49 => PUT meeting:', meeting);
-    // console.log('🟨 => route.ts:50 => putData:', putData);
-
+    if (DEV) {
+        // console.log('🟨 => route.ts:49 => PUT meeting:', meeting);
+        // console.log('🟨 => route.ts:50 => putData:', putData);
+    }
     //=================================================================================================
     // get the meeting from the database
     //=================================================================================================
@@ -60,25 +68,35 @@ export async function PUT(
             dbResponse = response.data.data;
             dbMeeting = { ...dbResponse };
         } else {
-            throw new Error('Failed to fetch meeting data');
+            if (DEV) {
+                const error = new Error('Failed to fetch meeting data from db');
+                (error as any).statusCode = response?.data?.status || 500;
+                (error as any).endpoint = endpoint || '';
+                (error as any).response = response || '';
+                throw error;
+            } else {
+                const error = new Error('Failed to retrieve meeting definition');
+                (error as any).statusCode = response?.data?.status || 500;
+                throw error;
+            }
         }
     } catch (error: any) {
-        console.log('🟨 => route.ts:72 => CATCH:', error);
-        const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            'An error occurred';
-        return NextResponse.json({
-            status: 500,
-            message: errorMessage,
-            data: { id: null },
-        });
+        if (DEV) {
+            console.log('🟨 => route.ts:85 => CATCH error:\n', error);
+            return NextResponse.json(error);
+        } else {
+            return NextResponse.json({
+                status: 500,
+                message: error.message,
+                data: {},
+            });
+        }
     }
 
     //=================================================================================================
     // set the DB_DATA
     //=================================================================================================
-    console.log('🟨 => route.ts:81 => dbMeeting:', dbMeeting);
+    DEV ? console.log('🟨 => route.ts:81 => dbMeeting:', dbMeeting) : null;
     const dbData: DB_DATA = {
         groups: [],
     };
@@ -116,17 +134,20 @@ export async function PUT(
     //* =================================================================================================
     //* compare putCompare and dbCompare
     //* =================================================================================================
-    // console.log('🟨 => route.ts:125 => putCompare:', putCompare);
-    // console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
+    if (DEV) {
+        // console.log('🟨 => route.ts:125 => putCompare:', putCompare);
+        // console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
+    }
     const hasChanges = Object.keys(putCompare).some(
         (key) =>
             JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
     putData.meeting.action = hasChanges ? 'PUT' : null;
-    // console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
-    // console.log('🟨 => route.ts:133 => putData:', putData);
-    // console.log('🟨 => route.ts:134 => dbData:', dbData);
-
+    if (DEV) {
+        // console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
+        // console.log('🟨 => route.ts:133 => putData:', putData);
+        // console.log('🟨 => route.ts:134 => dbData:', dbData);
+    }
     //=================================================================================================
     // CHECK GROUPS NOW
     //=================================================================================================
@@ -203,7 +224,7 @@ export async function PUT(
                         Authorization: `Bearer ${bearerToken}`,
                     },
                 }).then((response) => {
-                    console.log('🟨 DELETE group URL:\n', response.config.url);
+                    DEV ? console.log('🟨 DELETE group URL:\n', response.config.url) : null;
                     return response;
                 })
             );
@@ -227,10 +248,10 @@ export async function PUT(
             .filter((group) => group.action !== null)
             .map((group) => {
                 if (group.action === 'POST') {
-                    console.log(
-                        '🟨 =>  api/meeting/route.ts:231 => group POST detected:',
+                    DEV ? console.log(
+                        '🟨 => api/meeting/route.ts:231 => group POST detected:',
                         group.action
-                    );
+                    ) : null;
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
@@ -243,9 +264,8 @@ export async function PUT(
                         url: `${baseUrl}/api/jericho/group`,
                         data: {
                             ...grp,
-                            grp_comp_key: `${
-                                meeting.mtg_comp_key.split('#')[0]
-                            }#${meeting.id}`,
+                            grp_comp_key: `${meeting.mtg_comp_key.split('#')[0]
+                                }#${meeting.id}`,
                             meeting_id: meeting.id,
                         },
                         headers: {
@@ -253,25 +273,29 @@ export async function PUT(
                             Authorization: `Bearer ${bearerToken}`,
                         },
                     }).then((response) => {
-                        console.log('🟨 PUT group URL:\n', response.config.url);
+                        DEV ? console.log('🟨 PUT group URL:\n', response.config.url) : null;
                         return response;
                     });
                 } else if (group.action === 'PUT') {
+                    DEV ? console.log(
+                        '🟨 => api/meeting/route.ts:262 => group PUT detected:',
+                        group.action
+                    ) : null;
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
                     );
                     if (grp.id.startsWith('PENDING_')) {
                         delete grp.id;
                     }
+                    DEV ? console.log('GO-GO-GO') : null;
                     return axios({
                         // Add return here
                         method: 'PUT',
                         url: `${baseUrl}/api/jericho/group/${grp.id}`,
                         data: {
                             ...grp,
-                            grp_comp_key: `${
-                                meeting.mtg_comp_key.split('#')[0]
-                            }#${meeting.id}`,
+                            grp_comp_key: `${meeting.mtg_comp_key.split('#')[0]
+                                }#${meeting.id}`,
                             meeting_id: meeting.id,
                         },
                         headers: {
@@ -279,12 +303,16 @@ export async function PUT(
                             Authorization: `Bearer ${bearerToken}`,
                         },
                     }).then((response) => {
+                        DEV ? console.log('BACK-BACK-BACK') : null;
                         if (response.status === 200) {
                             const responseValues = {
                                 status: response.status,
-                                data: response.data.data,
+                                data: response.data.data
                             };
-
+                            DEV ? printObject(
+                                `🟨 200 PUT group responseValues:\n`,
+                                responseValues
+                            ) : null;
                             return response;
                         }
                     });
@@ -306,9 +334,7 @@ export async function PUT(
     // process putData, if action === 'PUT', PUT meeting
     let responseValues: any = {};
     if (putData.meeting.action === 'PUT') {
-        console.log(
-            `🟨 api/meeting/${id}/route --- 22222222222222222222222222`
-        );
+        DEV ? console.log('🟨 api/meeting/[id]/route --- 22222222222222222222222222') : null;
         const baseUrl =
             process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         try {
@@ -323,29 +349,15 @@ export async function PUT(
                     Authorization: `Bearer ${bearerToken}`,
                 },
             });
-            console.log(
-                '🟨 BACK-BACK\nPUT meeting API response:\n',
-                response?.data
-            );
+
             responseValues = {
-                response,
+                status: response.status,
+                data: response.data,
             };
         } catch (error) {
-            //return 422 with details
-            console.log(
-                '🟨 BACK-BACK: api/meeting/${id}/route 333:\nPUT meeting API error:\n',
-                error
-            );
-            // console.log('🟨 api/meeting/${id}/route 336;');
             return NextResponse.json(
-                {
-                    message: 'The failure message',
-                    data: {
-                        error: 'api/meeting PUT failure',
-                        meetingReceived: meeting,
-                    },
-                },
-                { status: 422 }
+                { error: 'Failed to update meeting' },
+                { status: 500 }
             );
         }
     }
@@ -357,10 +369,12 @@ export async function PUT(
         status: responseValues.status,
     };
 
-    printObject(
+    DEV ? printObject(
         `🟨 PUT => api/meeting/${meeting.id}/route.ts:340 => returnValue:`,
         returnValue
-    );
+    ) : null;
 
     return NextResponse.json(returnValue);
 }
+
+
