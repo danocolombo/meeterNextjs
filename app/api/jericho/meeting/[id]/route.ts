@@ -19,7 +19,7 @@ export async function PUT(
 
         // const response = await axios({
         //     method: 'PUT',
-        //     url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
+        //     url: `${baseUrl}/api/jericho/meeting/${meeting.organization_id}/${meeting.id}`,
         //     data: {
         //         ...meeting,
         //     },
@@ -59,7 +59,7 @@ export async function PUT(
                 data: {
                     condition: 'NOT IMPLEMENTED',
                     method: 'PUT',
-                    url: `${baseUrl}/api/jericho/meeting/${meeting.id}`,
+                    url: `${baseUrl}/api/jericho/meeting/${meeting.organization_id}/${meeting.id}`,
                     meetingReceived: meeting,
                     apiToken: bearerToken,
                     response: null,
