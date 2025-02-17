@@ -36,7 +36,8 @@ export async function PUT(
         // });
         //* ------------------------------------------------
         //* This is how we throw error to catch to send back...
-        /* class HttpError extends Error {
+        if(DEV) {
+        class HttpError extends Error {
             constructor(message: string, public status: number) {
                 super(message);
                 this.name = 'JerichoError';
@@ -46,7 +47,7 @@ export async function PUT(
             'Custom error message for meeting update failure',
             422
         );
-        */
+    }
         //* this is the end of the throw error example...
         //* ------------------------------------------------
         // Or for a more specific error type:
