@@ -22,11 +22,9 @@ export async function PUT(
     const meeting = await request.json();
     // export async function PUT(request: Request) {
     // const meeting = await request.json();
-    if (DEV) {
-        console.log('111111111111111111111111111111111111');
-        // console.log('🟨 => api/meeting/[id]/route.ts:14 => PUT [id]]:', id);
-        // console.log('🟨 => api/meeting/[id]/route.ts:28 => PUT meeting:\n', meeting);
-    }
+    // DEV ? console.log('111111111111111111111111111111111111') : null;
+    // console.log('🟨 => api/meeting/[id]/route.ts:14 => PUT [id]]:', id);
+    // console.log('🟨 => api/meeting/[id]/route.ts:28 => PUT meeting:\n', meeting);
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     const bearerToken = authHeader?.replace('Bearer ', '');
@@ -98,7 +96,7 @@ export async function PUT(
     //=================================================================================================
     // set the DB_DATA
     //=================================================================================================
-    DEV ? console.log('🟨 => route.ts:81 => dbMeeting:', dbMeeting) : null;
+    // DEV ? console.log('🟨 => route.ts:81 => dbMeeting:', dbMeeting) : null;
     const dbData: DB_DATA = {
         groups: [],
     };
@@ -136,20 +134,20 @@ export async function PUT(
     //* =================================================================================================
     //* compare putCompare and dbCompare
     //* =================================================================================================
-    if (DEV) {
-        // console.log('🟨 => route.ts:125 => putCompare:', putCompare);
-        // console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
-    }
+    // DEV ? {
+    //     console.log('🟨 => route.ts:125 => putCompare:', putCompare);
+    //     console.log('🟨 => route.ts:126 => dbCompare:', dbCompare);
+    // }:null
     const hasChanges = Object.keys(putCompare).some(
         (key) =>
             JSON.stringify(putCompare[key]) !== JSON.stringify(dbCompare[key])
     );
     putData.meeting.action = hasChanges ? 'PUT' : null;
-    if (DEV) {
-        // console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
-        // console.log('🟨 => route.ts:133 => putData:', putData);
-        // console.log('🟨 => route.ts:134 => dbData:', dbData);
-    }
+    // DEV ? {
+    //     console.log('🟨 => route.ts:132 => hasChanges:', hasChanges);
+    //     console.log('🟨 => route.ts:133 => putData:', putData);
+    //     console.log('🟨 => route.ts:134 => dbData:', dbData);
+    // }:null;
     //=================================================================================================
     // CHECK GROUPS NOW
     //=================================================================================================
@@ -228,9 +226,9 @@ export async function PUT(
                 }).then((response) => {
                     DEV
                         ? console.log(
-                              '🟨 DELETE group URL:\n',
-                              response.config.url
-                          )
+                            '🟨 DELETE group URL:\n',
+                            response.config.url
+                        )
                         : null;
                     return response;
                 })
@@ -257,9 +255,9 @@ export async function PUT(
                 if (group.action === 'POST') {
                     DEV
                         ? console.log(
-                              '🟨 => api/meeting/route.ts:231 => group POST detected:',
-                              group.action
-                          )
+                            '🟨 => api/meeting/route.ts:231 => group POST detected:',
+                            group.action
+                        )
                         : null;
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
@@ -273,9 +271,8 @@ export async function PUT(
                         url: `${baseUrl}/api/jericho/group`,
                         data: {
                             ...grp,
-                            grp_comp_key: `${
-                                meeting.mtg_comp_key.split('#')[0]
-                            }#${meeting.id}`,
+                            grp_comp_key: `${meeting.mtg_comp_key.split('#')[0]
+                                }#${meeting.id}`,
                             meeting_id: meeting.id,
                         },
                         headers: {
@@ -285,18 +282,18 @@ export async function PUT(
                     }).then((response) => {
                         DEV
                             ? console.log(
-                                  '🟨 PUT group URL:\n',
-                                  response.config.url
-                              )
+                                '🟨 PUT group URL:\n',
+                                response.config.url
+                            )
                             : null;
                         return response;
                     });
                 } else if (group.action === 'PUT') {
                     DEV
                         ? console.log(
-                              '🟨 => api/meeting/route.ts:262 => group PUT detected:',
-                              group.action
-                          )
+                            '🟨 => api/meeting/route.ts:262 => group PUT detected:',
+                            group.action
+                        )
                         : null;
                     let grp = meeting.groups.find(
                         (g: any) => g.id === group.id
@@ -311,9 +308,8 @@ export async function PUT(
                         url: `${baseUrl}/api/jericho/group/${grp.id}`,
                         data: {
                             ...grp,
-                            grp_comp_key: `${
-                                meeting.mtg_comp_key.split('#')[0]
-                            }#${meeting.id}`,
+                            grp_comp_key: `${meeting.mtg_comp_key.split('#')[0]
+                                }#${meeting.id}`,
                             meeting_id: meeting.id,
                         },
                         headers: {
@@ -329,9 +325,9 @@ export async function PUT(
                             };
                             DEV
                                 ? printObject(
-                                      `🟨 200 PUT group responseValues:\n`,
-                                      responseValues
-                                  )
+                                    `🟨 200 PUT group responseValues:\n`,
+                                    responseValues
+                                )
                                 : null;
                             return response;
                         }
@@ -354,12 +350,12 @@ export async function PUT(
     // process putData, if action === 'PUT', PUT meeting
     let responseValues: any = {};
     if (putData.meeting.action === 'PUT') {
-        DEV
-            ? console.log(
-                  '🟨 api/meeting/[id]/route --- 22222222222222222222222222'
-              )
-            : null;
-        DEV ? printObject('🟨 GOING:', meeting) : null;
+        // DEV
+        //     ? console.log(
+        //           '🟨 api/meeting/[id]/route --- 22222222222222222222222222'
+        //       )
+        //     : null;
+        // DEV ? printObject('🟨 GOING:', meeting) : null;
         const baseUrl =
             process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         try {
@@ -374,14 +370,14 @@ export async function PUT(
                     Authorization: `Bearer ${bearerToken}`,
                 },
             });
-
+            DEV ? printObject(`🟨 api/meeting/${meeting.id}/route.ts:375:\n`, response) : null;
             responseValues = {
                 status: response.status,
                 data: response.data,
             };
             if (DEV) {
                 printObject(
-                    `🟨 PUT => api/meeting/${meeting.id}/route.ts:359 => responseValues:`,
+                    `🟨 PUT => api/meeting/${meeting.id}/route.ts:382 => responseValues:`,
                     responseValues
                 );
             }
@@ -400,10 +396,10 @@ export async function PUT(
                         : 'Failed to update meeting',
                     data: DEV
                         ? {
-                              error: 'api/meeting PUT failure',
-                              meetingReceived: meeting,
-                              apiToken: bearerToken,
-                          }
+                            error: 'api/meeting PUT failure',
+                            meetingReceived: meeting,
+                            apiToken: bearerToken,
+                        }
                         : {},
                 },
                 { status: error?.status || 500 }
@@ -425,9 +421,9 @@ export async function PUT(
 
     DEV
         ? printObject(
-              `🟨 PUT => api/meeting/${meeting.id}/route.ts:340 => returnValue:`,
-              returnValue
-          )
+            `🟨 PUT => api/meeting/${meeting.id}/route.ts:340 => returnValue:`,
+            returnValue
+        )
         : null;
 
     return NextResponse.json(returnValue);
