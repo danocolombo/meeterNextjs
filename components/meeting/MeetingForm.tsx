@@ -72,9 +72,10 @@ export type GroupType = {
 };
 interface MeetingFormProps {
     id: string;
+    showToast?: (message: string, type: string) => void;
 }
 
-const MeetingForm = ({ id }: MeetingFormProps) => {
+const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
     const { user } = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [meetingData, setMeetingData] = useState<MeetingType | null>(null);
@@ -263,16 +264,18 @@ const MeetingForm = ({ id }: MeetingFormProps) => {
                 });
                 // Reset groups changed flag
                 setGroupsChanged(false);
+                showToast?.('Meeting saved successfully', 'success');
                 return { message: 'Meeting saved successfully' };
             }
             return { message: 'Failed to save meeting' };
         } catch (error) {
             console.error('Error saving meeting:', error);
-            setError(
+            const errorMessage =
                 error instanceof Error
                     ? error.message
-                    : 'Failed to save meeting'
-            );
+                    : 'Failed to save meeting';
+            setError(errorMessage);
+            showToast?.(errorMessage, 'error');
             return { message: 'Error saving meeting' };
         } finally {
             setIsSubmitting(false);
