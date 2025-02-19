@@ -19,11 +19,11 @@ export async function PUT(
         );
     }
     const bearerToken = authHeader.replace('Bearer ', '');
+    const testUrl = `https://fortsonguru.com/jericho/public/api/meeting/${meeting.organization_id}/${meeting.id}`;
 
     try {
         const baseUrl =
             process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const testUrl = `https://fortsonguru.com/jericho/public/api/meeting/${meeting.organization_id}/${meeting.id}`;
 
         const response = await axios({
             method: 'PUT',
@@ -54,9 +54,8 @@ export async function PUT(
             status: 200,
             success: true,
             message: 'Meeting updated successfully',
-            data: response.data
+            data: response.data,
         });
-
     } catch (error: unknown) {
         if (isAxiosError(error)) {
             const errorDetails = {
@@ -65,7 +64,10 @@ export async function PUT(
                 errorMessage: error.message,
                 response: error.response?.data,
                 status: error.response?.status,
-                stack: process.env.NEXT_PUBLIC_MEETER_PLATFORM === 'DEV' ? error.stack : undefined
+                stack:
+                    process.env.NEXT_PUBLIC_MEETER_PLATFORM === 'DEV'
+                        ? error.stack
+                        : undefined,
             };
 
             printObject('🟨 Jericho API Error:', errorDetails);
@@ -73,8 +75,9 @@ export async function PUT(
             return NextResponse.json({
                 status: error.response?.status || 500,
                 success: false,
-                message: error.response?.data?.message || 'Failed to update meeting',
-                error: errorDetails
+                message:
+                    error.response?.data?.message || 'Failed to update meeting',
+                error: errorDetails,
             });
         }
 
