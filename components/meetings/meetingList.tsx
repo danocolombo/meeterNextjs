@@ -51,7 +51,12 @@ const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
         >
             <h3 className='font-bold'>{meeting.title}</h3>
             <p>Date: {meeting.meeting_date}</p>
-            <p>Type: {meeting.meeting_type}</p>
+            <p>
+                {meeting.meeting_type === 'Lesson' &&
+                    meeting.support_contact && (
+                        <span>Teacher: {meeting.support_contact}</span>
+                    )}
+            </p>
             {meeting.groups.length > 0 && (
                 <p>Groups: {meeting.groups.length}</p>
             )}
