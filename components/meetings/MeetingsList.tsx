@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { MeetingType } from '@/app/meetings/[id]/page';
 
-export default function MeetingsList({
+export default function ButtHeadMeetingsList({
     meetings,
 }: {
     meetings: MeetingType[];

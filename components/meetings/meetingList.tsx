@@ -126,64 +126,61 @@ const MeetingsList = () => {
         }));
     };
 
-    const getMeetings = async (
-        orgId: string,
-        apiToken: string,
-        page: number = 1
-    ) => {
-        try {
-            const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
-            const url = `${baseUrl}/meetings/${orgId}?direction=DESC&page=${page}`;
+    const getMeetings = useCallback(
+        async (orgId: string, apiToken: string, page: number = 1) => {
+            try {
+                const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
+                const url = `${baseUrl}/meetings/${orgId}?direction=DESC&page=${page}`;
 
-            console.log('Request details:', {
-                url,
-                authHeader: `Bearer ${apiToken}`,
-                orgId,
-            });
+                console.log('Fetching meetings for page:', page);
 
-            const response = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${apiToken}`, // Make sure it's exactly this format
-                },
-            });
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${apiToken}`,
+                    },
+                });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const responseData: ApiResponse = await response.json();
-            console.log('API Response:', responseData);
-
-            if (responseData.status === 200 && responseData.data) {
-                const transformedMeetings = transformMeetingData(
-                    responseData.data.data
-                );
-                if (page === 1) {
-                    setMeetings(transformedMeetings);
-                } else {
-                    setMeetings((prev) => [...prev, ...transformedMeetings]);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                setPagination({
-                    current_page: responseData.data.current_page,
-                    total_pages: responseData.data.last_page,
-                    per_page: responseData.data.per_page,
-                    total: responseData.data.total,
-                });
-            } else {
-                throw new Error('Invalid response format');
+                const responseData: ApiResponse = await response.json();
+
+                if (responseData.status === 200 && responseData.data) {
+                    const transformedMeetings = transformMeetingData(
+                        responseData.data.data
+                    );
+
+                    setMeetings((prev) =>
+                        page === 1
+                            ? transformedMeetings
+                            : [...prev, ...transformedMeetings]
+                    );
+
+                    setPagination({
+                        current_page: responseData.data.current_page,
+                        total_pages: responseData.data.last_page,
+                        per_page: responseData.data.per_page,
+                        total: responseData.data.total,
+                    });
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : 'Failed to fetch meetings'
+                );
+            } finally {
+                setLoading(false);
+                setLoadingMore(false);
             }
-        } catch (err) {
-            console.error('Fetch error:', err);
-            setError(
-                err instanceof Error ? err.message : 'Failed to fetch meetings'
-            );
-        } finally {
-            setLoading(false);
-            setLoadingMore(false);
-        }
-    };
+        },
+        []
+    ); // Empty dependency array since it doesn't depend on any external values
 
     const loadMore = useCallback(() => {
         if (
@@ -226,7 +223,7 @@ const MeetingsList = () => {
         };
 
         initializeData();
-    }, []);
+    }, [getMeetings]); // Add getMeetings to dependency array
 
     if (loading && !loadingMore) return <MeetingListSkeleton />;
     if (error) return <div>Error: {error}</div>;
