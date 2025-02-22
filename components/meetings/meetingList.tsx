@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
 import MeetingListSkeleton from '../skeletons/MeetingListSkeleton';
+import MeetingCard from './meetingCard';
 import axios from 'axios';
 
 interface Meeting {
@@ -41,28 +42,6 @@ interface PaginationData {
     per_page: number;
     total: number;
 }
-
-const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
-    return (
-        <Link
-            href={`/meeting/${meeting.id}`}
-            className='block meetings-list-card'
-            aria-label={`View meeting: ${meeting.title}`}
-        >
-            <h3 className='font-bold'>{meeting.title}</h3>
-            <p>Date: {meeting.meeting_date}</p>
-            <p>
-                {meeting.meeting_type === 'Lesson' &&
-                    meeting.support_contact && (
-                        <span>Teacher: {meeting.support_contact}</span>
-                    )}
-            </p>
-            {meeting.groups.length > 0 && (
-                <p>Groups: {meeting.groups.length}</p>
-            )}
-        </Link>
-    );
-};
 
 const MeetingsList = () => {
     const [meetings, setMeetings] = useState<Meeting[]>([]);
