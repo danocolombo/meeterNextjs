@@ -15,11 +15,25 @@ interface Meeting {
     }>;
 }
 
+const isFutureMeeting = (meetingDate: string): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const meeting = new Date(meetingDate);
+    return meeting >= today;
+};
+
 export const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
+    const isFuture = isFutureMeeting(meeting.meeting_date);
+    const cardClasses = `block meetings-list-card ${
+        isFuture
+            ? 'bg-green-100 dark:bg-green-800'
+            : 'bg-cyan-100 dark:bg-gray-700'
+    }`;
+
     return (
         <Link
             href={`/meeting/${meeting.id}`}
-            className='block meetings-list-card'
+            className={cardClasses}
             aria-label={`View meeting: ${meeting.title}`}
         >
             <h3 className='font-bold'>

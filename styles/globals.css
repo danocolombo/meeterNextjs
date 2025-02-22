@@ -1,0 +1,23 @@
+.meetings-list-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.meetings-list-card:hover {
+    transform: scale(1.02);
+}
+
+.meetings-list-card.bg-green-100:hover {
+    background-color: rgb(187 247 208); /* green-200 */
+}
+
+.meetings-list-card.bg-cyan-100:hover {
+    background-color: rgb(165 243 252); /* cyan-200 */
+}
+
+.dark .meetings-list-card.bg-green-800:hover {
+    background-color: rgb(22 101 52); /* green-700 */
+}
+
+.dark .meetings-list-card.bg-gray-700:hover {
+    background-color: rgb(55 65 81); /* gray-600 */
+}
