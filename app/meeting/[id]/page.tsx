@@ -11,6 +11,7 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import MeetingForm from '@/components/meeting/MeetingForm';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface PageProps {
     params: {
@@ -20,11 +21,15 @@ interface PageProps {
 
 const MeetingPage = ({ params }: PageProps) => {
     const { toast } = useToast();
+    const router = useRouter();
+    const pathname = usePathname();
+
     const showToast = async (message: string, type: string) => {
         toast({
             description: message,
             variant: type === 'error' ? 'destructive' : 'default',
         });
+        router.refresh();
     };
 
     return (
