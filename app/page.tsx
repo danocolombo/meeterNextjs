@@ -4,8 +4,16 @@ import MeetingList from '@/components/meetings/meetingList';
 import { printObject } from '@/utils/helpers';
 // import { getSession } from '@/utils/jose';
 const HomePage = async () => {
+    let DEV = true;
+    const platformValue = process.env.NEXT_PUBLIC_MEETER_PLATFORM || 'DEV';
+    if (platformValue === 'PROD') {
+        DEV = false;
+    }
     const clerkCurrentUser: any = await currentUser();
-    // printObject('p:8-->clerkCurrentUser:\n', clerkCurrentUser);
+    DEV
+        ? printObject('🔲🔲🔲🔲🔲 p:8-->clerkCurrentUser:\n', clerkCurrentUser)
+        : null;
+    /* the clerk metadata might be returned, but that does not mean that the user is logged in */
 
     return (
         <>

@@ -1,3 +1,4 @@
+import { printObject } from '@/utils/helpers';
 import { NextResponse } from 'next/server';
 
 export async function POST(
@@ -24,6 +25,10 @@ export async function POST(
 
         const jerichoResponseData = await jerichoResponse.json();
         if (jerichoResponseData.status != 200) {
+            printObject(
+                '🥖 AAU[id]R:29 /person/id jerichoResponse != 200:\n',
+                jerichoResponseData
+            );
             return NextResponse.json({
                 status: jerichoResponseData.status,
                 message: `ERROR: no profile found for ${id}. ${body}`,
@@ -38,6 +43,10 @@ export async function POST(
             });
         }
     } catch (error: any) {
+        printObject(
+            '🥖 AAU[id]R:47 /person/id jerichoResponse catch error:\n',
+            error
+        );
         return NextResponse.json({ status: 500, error: error.message });
     }
 }

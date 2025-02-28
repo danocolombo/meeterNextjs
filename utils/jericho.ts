@@ -2,8 +2,13 @@ export const getSample = async () => {
     return { id: '1' };
 };
 export const getAuthUser = async () => {
+    let DEV = true;
+    const platformValue = process.env.NEXT_PUBLIC_MEETER_PLATFORM || 'DEV';
+    if (platformValue === 'PROD') {
+        DEV = false;
+    }
     const fetchFromApi = async () => {
-        console.log('fetching');
+        DEV ? console.log('fetching') : null;
         try {
             const res = await fetch('/api/test', {
                 method: 'GET',
@@ -12,7 +17,7 @@ export const getAuthUser = async () => {
                 },
             });
             const jsonData = await res.json();
-            console.log(jsonData);
+            DEV ? console.log(jsonData) : null;
         } catch (error: any) {
             console.error(error);
         } finally {
@@ -20,5 +25,5 @@ export const getAuthUser = async () => {
         }
     };
     await fetchFromApi();
-    console.log('DONE-DONE-DONE');
+    DEV ? console.log('DONE-DONE-DONE') : null;
 };

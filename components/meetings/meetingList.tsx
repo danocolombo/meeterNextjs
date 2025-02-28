@@ -6,6 +6,8 @@ import MeetingListSkeleton from '../skeletons/MeetingListSkeleton';
 import MeetingCard from './meetingCard';
 import axios from 'axios';
 
+const DEBUG = process.env.NEXT_PUBLIC_MEETER_PLATFORM !== 'PROD';
+
 interface Meeting {
     id: string;
     meeting_date: string;
@@ -56,6 +58,7 @@ const MeetingsList = () => {
     const fetchMetadata = async () => {
         try {
             const clerkResponse = await axios.get('/api/clerkMeta');
+
             if (!clerkResponse.data) {
                 throw new Error('Failed to fetch clerk metadata');
             }
@@ -66,7 +69,10 @@ const MeetingsList = () => {
             const apiToken =
                 clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
 
-            console.log('Clerk metadata:', { orgId, apiToken }); // Debug log
+            DEBUG ? console.log('🟡🟡🟡 meetingList:72 orgId\n:', orgId) : null;
+            DEBUG
+                ? console.log('🟡🟡🟡 meetingList:74 apiToken\n:', apiToken)
+                : null;
 
             if (!orgId || !apiToken) {
                 throw new Error(
@@ -78,8 +84,7 @@ const MeetingsList = () => {
             setApiToken(apiToken);
             return { orgId, apiToken };
         } catch (err) {
-            console.log('🟨 => meetingList.tsx:98 => err:', err);
-
+            DEBUG ? console.log('🟡🟡🟡 meetingList:87 err\n:', err) : null;
             setError(
                 err instanceof Error ? err.message : 'Failed to fetch metadata'
             );
@@ -111,7 +116,9 @@ const MeetingsList = () => {
                 const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
                 const url = `${baseUrl}/meetings/${orgId}?direction=DESC&page=${page}`;
 
-                console.log('Fetching meetings for page:', page);
+                if (DEBUG) {
+                    console.log('Fetching meetings for page:', page);
+                }
 
                 const response = await fetch(url, {
                     headers: {
@@ -147,7 +154,9 @@ const MeetingsList = () => {
                     throw new Error('Invalid response format');
                 }
             } catch (err) {
-                console.error('Fetch error:', err);
+                if (DEBUG) {
+                    console.error('Fetch error:', err);
+                }
                 setError(
                     err instanceof Error
                         ? err.message

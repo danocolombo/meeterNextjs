@@ -31,6 +31,10 @@ export async function POST(req: Request) {
         printObject('🥖🥖🥖 jerichoResponse:\n', jerichoResponseData);
 
         if (jerichoResponseData.status !== 200) {
+            printObject(
+                '🥖 AAALR:35 /login jerichoResponse != 200:\n',
+                jerichoResponseData
+            );
             throw new Error(
                 jerichoResponseData.message || 'Failed to get API token'
             );
@@ -45,6 +49,7 @@ export async function POST(req: Request) {
         printObject('🥖🥖🥖 returnValues:\n', returnValues);
         return NextResponse.json(returnValues);
     } catch (error: any) {
+        printObject('🥖 AAALR:53 GET /apitoken/login catch error\n', error);
         const errorMessage =
             error.response?.data?.message ||
             error.message ||
