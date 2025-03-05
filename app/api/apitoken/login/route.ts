@@ -2,10 +2,6 @@ import { printObject } from '@/utils/helpers';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function GET() {
-    return NextResponse.json({ message: 'Hello World' });
-}
-
 export async function POST(req: Request) {
     //* ------------------------------------------------
     //* attempt to get Jericho api token for user
@@ -13,7 +9,10 @@ export async function POST(req: Request) {
     try {
         const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
         const { id, email } = await req.json();
-
+        printObject('🥖🥖🥖 AAALR:12 ->POST variables:\n', {
+            id,
+            email,
+        });
         const { data: jerichoResponseData } = await axios.post(
             `${baseUrl}/login`,
             {
@@ -28,11 +27,14 @@ export async function POST(req: Request) {
             }
         );
 
-        printObject('🥖🥖🥖 jerichoResponse:\n', jerichoResponseData);
+        printObject(
+            '🥖🥖🥖 AAALR:31 ->jerichoResponse:\n',
+            jerichoResponseData
+        );
 
         if (jerichoResponseData.status !== 200) {
             printObject(
-                '🥖 AAALR:35 /login jerichoResponse != 200:\n',
+                '🥖🥖🥖 AAALR:37  /login jerichoResponse != 200:\n',
                 jerichoResponseData
             );
             throw new Error(
@@ -46,10 +48,13 @@ export async function POST(req: Request) {
             data: jerichoResponseData,
             apiToken: jerichoResponseData.token.plainTextToken,
         };
-        printObject('🥖🥖🥖 returnValues:\n', returnValues);
+        printObject('🥖🥖🥖 AAALR:51 returnValues:\n', returnValues);
         return NextResponse.json(returnValues);
     } catch (error: any) {
-        printObject('🥖 AAALR:53 GET /apitoken/login catch error\n', error);
+        printObject(
+            '🥖🥖🥖 AAALR:55  POST /apitoken/login catch error\n',
+            error
+        );
         const errorMessage =
             error.response?.data?.message ||
             error.message ||

@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { printObject } from '@/utils/helpers';
+import { redirect } from 'next/navigation';
 import MeetingListSkeleton from '../skeletons/MeetingListSkeleton';
 import MeetingCard from './meetingCard';
+import { currentUser } from '@clerk/nextjs/server';
 import axios from 'axios';
 
 const DEBUG = process.env.NEXT_PUBLIC_MEETER_PLATFORM !== 'PROD';
@@ -51,12 +53,15 @@ const MeetingsList = () => {
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [orgId, setOrgId] = useState<string>('');
-    const [apiToken, setApiToken] = useState<string>('');
+    const apiTokenRef = useRef<string>('');
     const [pagination, setPagination] = useState<PaginationData | null>(null);
     const observerTarget = useRef<HTMLDivElement>(null);
-
+    printObject('🟡🟡🟡 meetingList:57 apiToken\n:', apiTokenRef.current);
+    console.log('🟡🟡🟡 meetingList:58 DEBUG:', DEBUG);
+    console.log('🟡🟡🟡 meetingList:59: ', new Date().toISOString());
     const fetchMetadata = async () => {
         try {
+            console.log('🟡🟡🟡 meetingList:60 DEBUG:', DEBUG);
             const clerkResponse = await axios.get('/api/clerkMeta');
 
             if (!clerkResponse.data) {
@@ -69,7 +74,7 @@ const MeetingsList = () => {
             const apiToken =
                 clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
 
-            DEBUG ? console.log('🟡🟡🟡 meetingList:72 orgId\n:', orgId) : null;
+            DEBUG ? console.log('🟡🟡🟡 meetingList:72 orgId:\n', orgId) : null;
             DEBUG
                 ? console.log('🟡🟡🟡 meetingList:74 apiToken\n:', apiToken)
                 : null;
@@ -81,9 +86,10 @@ const MeetingsList = () => {
             }
 
             setOrgId(orgId);
-            setApiToken(apiToken);
+            apiTokenRef.current = apiToken;
             return { orgId, apiToken };
         } catch (err) {
+            console.log('🟡🟡🟡 meetingList:88 DEBUG:', DEBUG);
             DEBUG ? console.log('🟡🟡🟡 meetingList:87 err\n:', err) : null;
             setError(
                 err instanceof Error ? err.message : 'Failed to fetch metadata'
@@ -110,32 +116,110 @@ const MeetingsList = () => {
         }));
     };
 
+    const refreshApiToken = async (): Promise<string | null> => {
+        try {
+            const baseUrl =
+                process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+            const clerkCurrentUser: any = await currentUser();
+            //* ------------------------------------------------
+            //* if status is not active, send to register page
+            //* ------------------------------------------------
+            if (clerkCurrentUser?.privateMetadata?.status !== 'active') {
+                redirect('/register?message=Please complete registration');
+            }
+            console.log('🤍🤍🤍 APC:27--clerkCurrentUser:\n', clerkCurrentUser);
+            const primaryEmailAddressId =
+                clerkCurrentUser?.primaryEmailAddressId;
+            const clerkPrimaryEmailAddress =
+                await clerkCurrentUser?.emailAddresses.find((email: any) => {
+                    return email.id === primaryEmailAddressId;
+                });
+
+            const authRequest = {
+                id: clerkCurrentUser?.id,
+                email: clerkPrimaryEmailAddress.emailAddress,
+            };
+            const response = await axios.post(
+                new URL('/api/apitoken/login', baseUrl).toString(),
+                authRequest,
+                {
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response.data?.token) {
+                apiTokenRef.current = response.data.token;
+                return response.data.token;
+            }
+            return null;
+        } catch (error) {
+            console.error('Failed to refresh token:', error);
+            return null;
+        }
+    };
+
     const getMeetings = useCallback(
-        async (orgId: string, apiToken: string, page: number = 1) => {
+        async (
+            orgId: string,
+            apiToken: string,
+            page: number = 1,
+            isRetry: boolean = false
+        ) => {
             try {
                 const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
                 const url = `${baseUrl}/meetings/${orgId}?direction=DESC&page=${page}`;
 
-                if (DEBUG) {
-                    console.log('Fetching meetings for page:', page);
-                }
+                DEBUG && console.log('Fetching meetings for page:', page);
 
-                const response = await fetch(url, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${apiToken}`,
-                    },
-                });
+                const response = await axios
+                    .get<ApiResponse>(url, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${apiToken}`,
+                        },
+                    })
+                    .catch(async (error) => {
+                        if (error.response?.status === 401 && !isRetry) {
+                            // Token might be expired, try to refresh
+                            const newToken = await refreshApiToken();
+                            if (newToken) {
+                                // Retry the request with new token
+                                return getMeetings(orgId, newToken, page, true);
+                            }
+                        }
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                        if (error.response) {
+                            console.error(
+                                'Error Response Data:',
+                                error.response.data
+                            );
+                            console.error(
+                                'Error Response Status:',
+                                error.response.status
+                            );
+                            console.error(
+                                'Error Response Headers:',
+                                error.response.headers
+                            );
+                        } else if (error.request) {
+                            console.error('Error Request:', error.request);
+                        } else {
+                            console.error('Error Message:', error.message);
+                        }
+                        console.error('Error Config:', error.config);
+                        throw error;
+                    });
 
-                const responseData: ApiResponse = await response.json();
-
-                if (responseData.status === 200 && responseData.data) {
+                if (
+                    response &&
+                    response.data.status === 200 &&
+                    response.data.data
+                ) {
                     const transformedMeetings = transformMeetingData(
-                        responseData.data.data
+                        response.data.data.data
                     );
 
                     setMeetings((prev) =>
@@ -145,10 +229,10 @@ const MeetingsList = () => {
                     );
 
                     setPagination({
-                        current_page: responseData.data.current_page,
-                        total_pages: responseData.data.last_page,
-                        per_page: responseData.data.per_page,
-                        total: responseData.data.total,
+                        current_page: response.data.data.current_page,
+                        total_pages: response.data.data.last_page,
+                        per_page: response.data.data.per_page,
+                        total: response.data.data.total,
                     });
                 } else {
                     throw new Error('Invalid response format');
@@ -168,7 +252,7 @@ const MeetingsList = () => {
             }
         },
         []
-    ); // Empty dependency array since it doesn't depend on any external values
+    );
 
     const loadMore = useCallback(() => {
         if (
@@ -177,9 +261,13 @@ const MeetingsList = () => {
             pagination.current_page < pagination.total_pages
         ) {
             setLoadingMore(true);
-            getMeetings(orgId, apiToken, pagination.current_page + 1);
+            getMeetings(
+                orgId,
+                apiTokenRef.current,
+                pagination.current_page + 1
+            );
         }
-    }, [pagination, loadingMore, orgId, apiToken, getMeetings]);
+    }, [pagination, loadingMore, orgId, getMeetings]);
 
     // Move this effect before the initialization effect
     useEffect(() => {

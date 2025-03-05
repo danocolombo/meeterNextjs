@@ -19,7 +19,7 @@ const HomePage = async () => {
         <>
             {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
 
-            {clerkCurrentUser?.privateMetadata ? (
+            {clerkCurrentUser?.privateMetadata?.meeter?.apiToken ? (
                 <div>
                     <p className='text-lg'>
                         Welcome {clerkCurrentUser?.firstName}

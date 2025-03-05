@@ -18,7 +18,7 @@ export default async function CreateProfilePage() {
         if (clerkCurrentUser?.privateMetadata?.status !== 'active') {
             redirect('/register?message=Please complete registration');
         }
-        // console.log('APC:27--clerkCurrentUser:\n', clerkCurrentUser);
+        console.log('🤍🤍🤍 APC:21--clerkCurrentUser:\n', clerkCurrentUser);
         const primaryEmailAddressId = clerkCurrentUser?.primaryEmailAddressId;
         const clerkPrimaryEmailAddress =
             await clerkCurrentUser?.emailAddresses.find((email: any) => {
