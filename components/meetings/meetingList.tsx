@@ -1,16 +1,13 @@
 'use client';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { printObject } from '@/utils/helpers';
 import { redirect } from 'next/navigation';
 import MeetingListSkeleton from '../skeletons/MeetingListSkeleton';
 import MeetingCard from './meetingCard';
 import { currentUser } from '@clerk/nextjs/server';
 import axios from 'axios';
 
-const DEBUG = process.env.NEXT_PUBLIC_MEETER_PLATFORM !== 'PROD';
-
-interface Meeting {
+export interface Meeting {
     id: string;
     meeting_date: string;
     title: string;
@@ -56,29 +53,16 @@ const MeetingsList = () => {
     const apiTokenRef = useRef<string>('');
     const [pagination, setPagination] = useState<PaginationData | null>(null);
     const observerTarget = useRef<HTMLDivElement>(null);
-    printObject('🟡🟡🟡 meetingList:57 apiToken\n:', apiTokenRef.current);
-    console.log('🟡🟡🟡 meetingList:58 DEBUG:', DEBUG);
-    console.log('🟡🟡🟡 meetingList:59: ', new Date().toISOString());
+
     const fetchMetadata = async () => {
         try {
-            console.log('🟡🟡🟡 meetingList:60 DEBUG:', DEBUG);
             const clerkResponse = await axios.get('/api/clerkMeta');
-
-            if (!clerkResponse.data) {
-                throw new Error('Failed to fetch clerk metadata');
+            if (!clerkResponse.data?.data?.privateMetadata?.meeter) {
+                throw new Error('Invalid clerk metadata response');
             }
 
-            // Get both orgId and API token from clerk metadata
-            const orgId =
-                clerkResponse.data?.data?.privateMetadata?.meeter?.orgId;
-            const apiToken =
-                clerkResponse.data?.data?.privateMetadata?.meeter?.apiToken;
-
-            DEBUG ? console.log('🟡🟡🟡 meetingList:72 orgId:\n', orgId) : null;
-            DEBUG
-                ? console.log('🟡🟡🟡 meetingList:74 apiToken\n:', apiToken)
-                : null;
-
+            const { orgId, apiToken } =
+                clerkResponse.data.data.privateMetadata.meeter;
             if (!orgId || !apiToken) {
                 throw new Error(
                     'Organization ID or API Token is not available'
@@ -89,8 +73,6 @@ const MeetingsList = () => {
             apiTokenRef.current = apiToken;
             return { orgId, apiToken };
         } catch (err) {
-            console.log('🟡🟡🟡 meetingList:88 DEBUG:', DEBUG);
-            DEBUG ? console.log('🟡🟡🟡 meetingList:87 err\n:', err) : null;
             setError(
                 err instanceof Error ? err.message : 'Failed to fetch metadata'
             );
@@ -99,7 +81,6 @@ const MeetingsList = () => {
     };
 
     const transformMeetingData = (meetings: Meeting[]) => {
-        // Filter out any duplicate meetings by ID
         const uniqueMeetings = meetings.reduce((acc: Meeting[], current) => {
             const exists = acc.find((meeting) => meeting.id === current.id);
             if (!exists) {
@@ -118,43 +99,8 @@ const MeetingsList = () => {
 
     const refreshApiToken = async (): Promise<string | null> => {
         try {
-            const baseUrl =
-                process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-            const clerkCurrentUser: any = await currentUser();
-            //* ------------------------------------------------
-            //* if status is not active, send to register page
-            //* ------------------------------------------------
-            if (clerkCurrentUser?.privateMetadata?.status !== 'active') {
-                redirect('/register?message=Please complete registration');
-            }
-            console.log('🤍🤍🤍 APC:27--clerkCurrentUser:\n', clerkCurrentUser);
-            const primaryEmailAddressId =
-                clerkCurrentUser?.primaryEmailAddressId;
-            const clerkPrimaryEmailAddress =
-                await clerkCurrentUser?.emailAddresses.find((email: any) => {
-                    return email.id === primaryEmailAddressId;
-                });
-
-            const authRequest = {
-                id: clerkCurrentUser?.id,
-                email: clerkPrimaryEmailAddress.emailAddress,
-            };
-            const response = await axios.post(
-                new URL('/api/apitoken/login', baseUrl).toString(),
-                authRequest,
-                {
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            if (response.data?.token) {
-                apiTokenRef.current = response.data.token;
-                return response.data.token;
-            }
-            return null;
+            const response = await axios.get('/api/token/refresh');
+            return response.data?.token ?? null;
         } catch (error) {
             console.error('Failed to refresh token:', error);
             return null;
@@ -172,75 +118,58 @@ const MeetingsList = () => {
                 const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
                 const url = `${baseUrl}/meetings/${orgId}?direction=DESC&page=${page}`;
 
-                DEBUG && console.log('Fetching meetings for page:', page);
+                // Try to refresh token before making the request
+                let currentToken = apiToken;
+                if (!isRetry) {
+                    const newToken = await refreshApiToken();
+                    if (newToken) {
+                        currentToken = newToken;
+                        apiTokenRef.current = newToken;
+                        console.log('Token refreshed before request');
+                    }
+                }
 
-                const response = await axios
-                    .get<ApiResponse>(url, {
+                try {
+                    console.log(
+                        'Making request with token:',
+                        currentToken.substring(0, 10) + '...'
+                    );
+                    const response = await axios.get<ApiResponse>(url, {
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: `Bearer ${apiToken}`,
+                            Authorization: `Bearer ${currentToken}`,
                         },
-                    })
-                    .catch(async (error) => {
-                        if (error.response?.status === 401 && !isRetry) {
-                            // Token might be expired, try to refresh
-                            const newToken = await refreshApiToken();
-                            if (newToken) {
-                                // Retry the request with new token
-                                return getMeetings(orgId, newToken, page, true);
-                            }
-                        }
-
-                        if (error.response) {
-                            console.error(
-                                'Error Response Data:',
-                                error.response.data
-                            );
-                            console.error(
-                                'Error Response Status:',
-                                error.response.status
-                            );
-                            console.error(
-                                'Error Response Headers:',
-                                error.response.headers
-                            );
-                        } else if (error.request) {
-                            console.error('Error Request:', error.request);
-                        } else {
-                            console.error('Error Message:', error.message);
-                        }
-                        console.error('Error Config:', error.config);
-                        throw error;
                     });
 
-                if (
-                    response &&
-                    response.data.status === 200 &&
-                    response.data.data
-                ) {
-                    const transformedMeetings = transformMeetingData(
-                        response.data.data.data
-                    );
-
-                    setMeetings((prev) =>
-                        page === 1
-                            ? transformedMeetings
-                            : [...prev, ...transformedMeetings]
-                    );
-
-                    setPagination({
-                        current_page: response.data.data.current_page,
-                        total_pages: response.data.data.last_page,
-                        per_page: response.data.data.per_page,
-                        total: response.data.data.total,
-                    });
-                } else {
-                    throw new Error('Invalid response format');
+                    if (response?.data?.status === 200 && response.data.data) {
+                        const transformedMeetings = transformMeetingData(
+                            response.data.data.data
+                        );
+                        setMeetings((prev) =>
+                            page === 1
+                                ? transformedMeetings
+                                : [...prev, ...transformedMeetings]
+                        );
+                        setPagination({
+                            current_page: response.data.data.current_page,
+                            total_pages: response.data.data.last_page,
+                            per_page: response.data.data.per_page,
+                            total: response.data.data.total,
+                        });
+                    }
+                } catch (error: any) {
+                    console.error('Request failed:', error.response?.status);
+                    if (error.response?.status === 401 && !isRetry) {
+                        console.log('Retrying with new token...');
+                        const newToken = await refreshApiToken();
+                        if (newToken) {
+                            return getMeetings(orgId, newToken, page, true);
+                        }
+                    }
+                    throw error;
                 }
             } catch (err) {
-                if (DEBUG) {
-                    console.error('Fetch error:', err);
-                }
+                console.error('Error fetching meetings:', err);
                 setError(
                     err instanceof Error
                         ? err.message
@@ -269,7 +198,6 @@ const MeetingsList = () => {
         }
     }, [pagination, loadingMore, orgId, getMeetings]);
 
-    // Move this effect before the initialization effect
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -280,16 +208,18 @@ const MeetingsList = () => {
             { threshold: 0.1 }
         );
 
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
+        const currentTarget = observerTarget.current;
+        if (currentTarget) {
+            observer.observe(currentTarget);
         }
 
         return () => {
-            observer.disconnect();
+            if (currentTarget) {
+                observer.unobserve(currentTarget);
+            }
         };
     }, [loadMore]);
 
-    // Initial data load effect
     useEffect(() => {
         const initializeData = async () => {
             const metadata = await fetchMetadata();
@@ -299,7 +229,7 @@ const MeetingsList = () => {
         };
 
         initializeData();
-    }, [getMeetings]); // Add getMeetings to dependency array
+    }, [getMeetings]);
 
     if (loading && !loadingMore) return <MeetingListSkeleton />;
     if (error) return <div>Error: {error}</div>;
