@@ -236,14 +236,14 @@ const MeetingsList = () => {
 
     return (
         <div className='relative'>
-            <h1 className='text-2xl font-semibold mb-8 capitalize'>Meetings</h1>
+            <h1 className='text-2xl font-semibold mb-1 capitalize'>Meetings</h1>
             <Link
                 href='/meeting/new/basics'
                 className='absolute top-0 right-0 w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md'
             >
                 <span className='text-2xl'>+</span>
             </Link>
-            <div className='grid md:grid-cols-2 gap-4 mt-12'>
+            <div className='grid md:grid-cols-2 gap-4 mt-2'>
                 {Array.isArray(meetings) && meetings.length > 0 ? (
                     meetings.map((meeting) => (
                         <MeetingCard key={meeting.id} meeting={meeting} />
