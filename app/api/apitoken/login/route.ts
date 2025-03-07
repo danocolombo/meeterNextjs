@@ -3,19 +3,32 @@ import { NextResponse } from 'next/server';
 import axios from 'axios';
 
 export async function POST(req: Request) {
-    //* ------------------------------------------------
-    //* attempt to get Jericho api token for user
-    //* ------------------------------------------------
     try {
         const baseUrl = process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT;
-        const { id, email } = await req.json();
-        printObject('🥖🥖🥖 AAALR:12 ->POST variables:\n', {
-            id,
-            email,
-        });
-        const { data: jerichoResponseData } = await axios.post(
+
+        // Parse and validate request body
+        const body = await req.json();
+        // console.log('Received request body:', body);
+
+        if (!body.username || !body.id || !body.email) {
+            return NextResponse.json(
+                {
+                    status: 400,
+                    error: 'Missing required fields',
+                    receivedData: body,
+                },
+                { status: 400 }
+            );
+        }
+
+        const { id, email, username } = body;
+
+        // printObject('🔍 Request data:', { id, email, username });
+
+        const jerichoResponse = await axios.post(
             `${baseUrl}/login`,
             {
+                username,
                 email,
                 sub: id,
             },
@@ -27,38 +40,30 @@ export async function POST(req: Request) {
             }
         );
 
-        printObject(
-            '🥖🥖🥖 AAALR:31 ->jerichoResponse:\n',
-            jerichoResponseData
-        );
+        // printObject('📥 Jericho API response:', jerichoResponse.data);
 
-        if (jerichoResponseData.status !== 200) {
-            printObject(
-                '🥖🥖🥖 AAALR:37  /login jerichoResponse != 200:\n',
-                jerichoResponseData
-            );
-            throw new Error(
-                jerichoResponseData.message || 'Failed to get API token'
-            );
-        }
         const returnValues = {
-            status: jerichoResponseData.status,
+            status: jerichoResponse.data.status,
             message: `POST response from jericho: api/apitoken/login`,
             request: { id, email },
-            data: jerichoResponseData,
-            apiToken: jerichoResponseData.token.plainTextToken,
+            data: jerichoResponse.data,
+            apiToken: jerichoResponse.data.token.plainTextToken,
         };
-        printObject('🥖🥖🥖 AAALR:51 returnValues:\n', returnValues);
+
         return NextResponse.json(returnValues);
     } catch (error: any) {
-        printObject(
-            '🥖🥖🥖 AAALR:55  POST /apitoken/login catch error\n',
-            error
-        );
-        const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            'An error occurred';
-        return NextResponse.json({ error: errorMessage }, { status: 500 });
+        console.error('Detailed error:', error);
+
+        const errorResponse = {
+            status: 500,
+            error:
+                error.response?.data?.message ||
+                error.message ||
+                'An error occurred',
+            requestData: error.config?.data,
+            responseData: error.response?.data,
+        };
+
+        return NextResponse.json(errorResponse, { status: 500 });
     }
 }
