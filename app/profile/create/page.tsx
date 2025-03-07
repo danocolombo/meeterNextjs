@@ -18,7 +18,7 @@ export default async function CreateProfilePage() {
         if (clerkCurrentUser?.privateMetadata?.status !== 'active') {
             redirect('/register?message=Please complete registration');
         }
-        console.log('🤍🤍🤍 APC:21--clerkCurrentUser:\n', clerkCurrentUser);
+        // console.log('🤍🤍🤍 APC:21--clerkCurrentUser:\n', clerkCurrentUser);
         const primaryEmailAddressId = clerkCurrentUser?.primaryEmailAddressId;
         const clerkPrimaryEmailAddress =
             await clerkCurrentUser?.emailAddresses.find((email: any) => {
@@ -45,8 +45,8 @@ export default async function CreateProfilePage() {
                     },
                 }
             );
-            console.log('API Response Status:', apiAuthResponse.status);
-            console.log('API Response Data:', apiAuthResponse.data);
+            // console.log('API Response Status:', apiAuthResponse.status);
+            // console.log('API Response Data:', apiAuthResponse.data);
             // Get the response data and apiToken
             const apiAuth = apiAuthResponse.data;
             const apiToken = apiAuth.apiToken;
@@ -78,7 +78,7 @@ export default async function CreateProfilePage() {
             );
             const jerichoUserResults = await jerichoUserProfile.json();
             if (jerichoUserResults.status !== 200) {
-                console.log('jerichoUserResults:', jerichoUserResults);
+                // console.log('jerichoUserResults:', jerichoUserResults);
                 console.log(
                     'APC:101--ERROR jerichoUserResults !== 200 [apc:101]'
                 );
@@ -156,7 +156,6 @@ export default async function CreateProfilePage() {
                         }),
                     }
                 );
-                console.log('APCP:159->>\n\nHERE\n\n');
                 const userMetaResponse: any = await postUserMetaResults.json();
                 if (userMetaResponse.status !== 200) {
                     throw new Error(

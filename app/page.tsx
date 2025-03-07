@@ -10,9 +10,9 @@ const HomePage = async () => {
         DEV = false;
     }
     const clerkCurrentUser: any = await currentUser();
-    DEV
-        ? printObject('🔲🔲🔲🔲🔲 p:8-->clerkCurrentUser:\n', clerkCurrentUser)
-        : null;
+    // DEV
+    //     ? printObject('🔲🔲🔲🔲🔲 p:8-->clerkCurrentUser:\n', clerkCurrentUser)
+    //     : null;
     /* the clerk metadata might be returned, but that does not mean that the user is logged in */
 
     return (

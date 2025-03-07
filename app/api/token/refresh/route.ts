@@ -13,16 +13,16 @@ export async function GET() {
         //         { status: 400 }
         //     );
         // }
-        console.log('🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐');
+        // console.log('🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐');
         // printObject('AATRR: 17 user:\n', user);
-        console.log('🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐');
+        // console.log('🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐🍐');
         // const primaryEmail = user.emailAddresses.find(
         //     (email) => email.id === user.primaryEmailAddressId
         // )?.emailAddress;
 
         const baseUrl =
             process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        console.log('🌼🌼🌼 AATRR:25--> HERE');
+        // console.log('🌼🌼🌼 AATRR:25--> HERE');
         const response = await axios.post(
             new URL('/api/apitoken/login', baseUrl).toString(),
             {
@@ -37,9 +37,9 @@ export async function GET() {
                 },
             }
         );
-        console.log('⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️');
+        // console.log('⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️');
         printObject('AATRR: 40 response:\n', response);
-        console.log('⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️');
+        // console.log('⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️');
         return NextResponse.json({ token: response.data?.token });
     } catch (error) {
         console.error('Token refresh failed:', error);
