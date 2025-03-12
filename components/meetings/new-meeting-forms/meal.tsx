@@ -100,12 +100,18 @@ export default function NewMeetingMealForm() {
                             <FormLabel>Meals Served</FormLabel>
                             <FormControl>
                                 <Input
-                                    placeholder=''
+                                    type='number'
+                                    min={0}
                                     {...field}
-                                    value={field.value ?? ''}
+                                    onChange={(e) =>
+                                        field.onChange(Number(e.target.value))
+                                    }
+                                    value={field.value}
                                 />
                             </FormControl>
-                            <FormDescription></FormDescription>
+                            <FormDescription>
+                                Attendance count...
+                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
