@@ -215,7 +215,7 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
             //     '🟨 => MeetingForm.tsx:214 => pendingGroups:',
             //     pendingGroups
             // );
-            const updatedMeetingData = {
+            const formMeetingData = {
                 // apiToken,
                 // organizationId: meetingData.organization_id,
                 ...meetingData,
@@ -224,18 +224,31 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                 // groups: meetingData.groups, // Ensure groups are always included
             };
 
-            // Make the API call
-            const response = await axios({
-                method: 'PUT',
-                url: `/api/meeting/${id}`,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${apiToken}`,
-                },
-                data: updatedMeetingData,
-            });
-
-            console.log('🟨 => MeetingForm.tsx:237 => response:', response);
+            // Make the API call based on whether it's a new meeting or an update
+            let response = null;
+            if (id === '0') {
+                printObject('🌼🌼🌼 MF:230->formMeetingData', formMeetingData);
+                response = await axios({
+                    method: 'POST',
+                    url: `/api/meeting`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${apiToken}`,
+                    },
+                    data: formMeetingData,
+                });
+            } else {
+                response = await axios({
+                    method: 'PUT',
+                    url: `/api/meeting/${id}`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${apiToken}`,
+                    },
+                    data: formMeetingData,
+                });
+            }
+            console.log('🟨 => MeetingForm.tsx:250 => response:', response);
 
             // const endpoint = `${process.env.NEXT_PUBLIC_JERICHO_API_ENDPOINT}/meeting`;
             // const method = id === '0' ? 'POST' : 'PUT';
@@ -252,7 +265,7 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
             // const response = { status: 200 };
             if (response.status === 200) {
                 // Update local meetingData to match server
-                setMeetingData(updatedMeetingData);
+                setMeetingData(formMeetingData);
                 // Reset form state but keep the current values
                 form.reset(formData, {
                     keepValues: true,
@@ -373,7 +386,6 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
         });
         setGroupsChanged(true); // Mark groups as changed
     };
-
     if (isLoading) {
         return <MeetingFormSkeleton />;
     }
@@ -574,7 +586,13 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                                 !form.formState.isValid
                             }
                         >
-                            {isSubmitting ? 'Updating...' : 'Update'}
+                            {id === '0'
+                                ? isSubmitting
+                                    ? 'Saving...'
+                                    : 'Save'
+                                : isSubmitting
+                                ? 'Updating...'
+                                : 'Update'}
                         </Button>
                     </div>
                 </form>
@@ -606,16 +624,18 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                             />
                         ))}
                     </div>
-                    <div className='mt-4'>
-                        <Button
-                            variant='default'
-                            className='w-1/3'
-                            onClick={handleAddGroup}
-                            type='button'
-                        >
-                            Add New Group
-                        </Button>
-                    </div>
+                    {id !== '0' && (
+                        <div className='mt-4'>
+                            <Button
+                                variant='default'
+                                className='w-1/3'
+                                onClick={handleAddGroup}
+                                type='button'
+                            >
+                                Add New Group
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
