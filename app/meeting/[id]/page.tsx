@@ -9,7 +9,7 @@ import React from 'react';
 import { printObject } from '@/utils/helpers';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import MeetingForm from '@/components/meeting/MeetingForm';
+import MeetingForm from '@/components/meeting/Meeting-Form';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, usePathname } from 'next/navigation';
 

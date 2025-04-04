@@ -3,6 +3,11 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { printObject } from '@/utils/helpers';
 
 export async function GET() {
+    debugger;
+    if (process.env.NEXT_PUBLIC_MEETER_PLATFORM === 'DEV') {
+        console.log('🎯 Server-side GET request received');
+        debugger; // This will pause in VSCode when using the debugger
+    }
     try {
         const { userId } = auth();
         const user = await currentUser();

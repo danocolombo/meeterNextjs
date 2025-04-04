@@ -13,6 +13,7 @@ import FormInput from '@/components/form/FormInput';
 import GroupsComponent from '@/components/groups/GroupForm';
 import { Button } from '@/components/ui/button';
 import { printObject } from '@/utils/helpers';
+import { MEETING_TYPE, type MeetingType } from '@/types/meeting';
 
 export type MeetingType = {
     id?: string | null;
@@ -408,9 +409,6 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
     }
     return (
         <div className='space-y-8'>
-            <div className='text-2xl font-bold text-blue-800 dark:text-blue-400'>
-                Meeting {id}
-            </div>
             <div className='form-container'>
                 <form
                     onSubmit={(e) => {
@@ -418,17 +416,8 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                         return form.handleSubmit(handleUpdate)(e);
                     }}
                 >
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-x-4'>
-                        <div className='form-group'>
-                            <FormInput
-                                {...form.register('title')}
-                                type='text'
-                                className='form-input'
-                                label='Title'
-                                error={form.formState.errors.title?.message}
-                            />
-                        </div>
-                        <div className='form-group'>
+                    <div className='grid grid-cols-5 md:grid-cols-5 gap-x-4'>
+                        <div className='form-group col-span-5 md:col-span-1'>
                             <FormInput
                                 {...form.register('meeting_date')}
                                 type='date'
@@ -439,17 +428,45 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                                 }
                             />
                         </div>
-                        <div className='form-group'>
+                        <div className='form-group col-span-5 md:col-span-3'>
                             <FormInput
-                                {...form.register('meeting_type')}
+                                {...form.register('title')}
                                 type='text'
                                 className='form-input'
+                                label='Title'
+                                error={form.formState.errors.title?.message}
+                            />
+                        </div>
+                        <div className='form-group col-span-5 md:col-span-1'>
+                            <FormInput
+                                {...form.register('meeting_type')}
+                                type='select'
+                                className='form-input'
                                 label='Meeting Type'
+                                options={Object.values(MEETING_TYPE)}
                                 error={
                                     form.formState.errors.meeting_type?.message
                                 }
                             />
                         </div>
+                    </div>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-x-4'>
+                        {form.watch('meeting_type') === 'Lesson' && (
+                            <div className='form-group col-span-1 md:col-span-2'>
+                                <div className='form-group'>
+                                    <FormInput
+                                        {...form.register('support_contact')}
+                                        type='text'
+                                        className='form-input'
+                                        label='Teacher'
+                                        error={
+                                            form.formState.errors
+                                                .support_contact?.message
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        )}
                         <div className='form-group'>
                             <FormInput
                                 {...form.register('attendance_count', {
@@ -491,18 +508,11 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                                 }
                             />
                         </div>
-                        <div className='form-group'>
-                            <FormInput
-                                {...form.register('support_contact')}
-                                type='text'
-                                className='form-input'
-                                label='Support Contact'
-                                error={
-                                    form.formState.errors.support_contact
-                                        ?.message
-                                }
-                            />
+
+                        <div className='col-span-full'>
+                            <div className='border-t border-gray-200 dark:border-gray-400 my-4'></div>
                         </div>
+
                         <div className='form-group'>
                             <FormInput
                                 {...form.register('meal')}
@@ -608,49 +618,47 @@ const MeetingForm = ({ id, showToast }: MeetingFormProps) => {
                                 ? 'Updating...'
                                 : 'Update'}
                         </Button>
+                        <Button
+                            variant='default'
+                            className='w-1/3'
+                            type='submit'
+                            disabled={
+                                (!form.formState.isDirty && !groupsChanged) ||
+                                isSubmitting ||
+                                !form.formState.isValid
+                            }
+                        >
+                            {id === '0'
+                                ? isSubmitting
+                                    ? 'Saving...'
+                                    : 'Save'
+                                : isSubmitting
+                                ? 'Canceling...'
+                                : 'Cancel'}
+                        </Button>
+                        <Button
+                            variant='default'
+                            className='w-1/3'
+                            type='submit'
+                            disabled={
+                                (!form.formState.isDirty && !groupsChanged) ||
+                                isSubmitting ||
+                                !form.formState.isValid
+                            }
+                        >
+                            {id === '0'
+                                ? isSubmitting
+                                    ? 'Saving...'
+                                    : 'Save'
+                                : isSubmitting
+                                ? 'Deleting...'
+                                : 'Delete'}
+                        </Button>
                     </div>
                 </form>
-
-                {/* Groups section moved outside the main form */}
-                <div className='mt-8'>
-                    <div className='grid gap-4'>
-                        {meetingData.groups?.map((group) => (
-                            <GroupsComponent
-                                key={group.id || Math.random()}
-                                group={group}
-                                isNew={
-                                    group.id ? newGroupIds.has(group.id) : false
-                                }
-                                onDelete={handleDeleteGroup}
-                                onUpdate={handleGroupUpdate}
-                                onValidated={handleGroupValidated}
-                            />
-                        ))}
-                        {pendingGroups.map((group) => (
-                            <GroupsComponent
-                                key={group.id}
-                                group={group}
-                                isNew={true}
-                                isPending={true}
-                                onDelete={handleDeleteGroup}
-                                onUpdate={handleGroupUpdate}
-                                onValidated={handleGroupValidated}
-                            />
-                        ))}
-                    </div>
-                    {id !== '0' && (
-                        <div className='mt-4'>
-                            <Button
-                                variant='default'
-                                className='w-1/3'
-                                onClick={handleAddGroup}
-                                type='button'
-                            >
-                                Add New Group
-                            </Button>
-                        </div>
-                    )}
-                </div>
+            </div>
+            <div className='text-center text-sm text-gray-500 dark:text-stone-400'>
+                {id}
             </div>
         </div>
     );
